@@ -29,7 +29,7 @@ $options = array(
 		'!',
 		';',
 	],
-	'whitelist' => [ // Users who are allowed to use whitelisted commands
+	'whitelist' => [ // Users who are allowed to use restricted functions
 		'daathren',
 	],
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
