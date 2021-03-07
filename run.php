@@ -1,6 +1,6 @@
 <?php
 /*
- * This file is apart of the TwitchPHP project.
+ * This file is a part of the TwitchPHP project.
  *
  * Copyright (c) 2021 ValZarGaming <valzargaming@gmail.com>
  */
@@ -18,11 +18,17 @@ $options = array(
 	'channel' => 'daathren', // Channel to join
 	
 	//Optional
-	//'loop' => $loop, // (Optional) pass your own instance of $loop to share with other ReactPHP applications
+	//'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)	
+	//'discord_output' => true, // Output Twitch chat to a Discord server
+	//'guild_id' => '116927365652807686', //ID of the Discord server
+	//'channel_id' => '431415282129698866', //ID of the Discord channel to output messages to
+	//'commands' => $commands, // Import your own Twitch/Commands object
+	
+	//'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
 	'socket_options' => [
         'dns' => '8.8.8.8', // Can change DNS provider
 	],
-	'verbose' => false, // Additional output to console (useful for debugging)_
+	'verbose' => false, // Additional output to console (useful for debugging)
 	
 	//Custom commands
 	'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
@@ -33,7 +39,10 @@ $options = array(
 		'daathren',
 	],
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
-		"ping" => "Pong!",
+		'ping' => 'Pong!',
+		'github' => 'https://github.com/VZGCoders/TwitchPHP',
+		'discord' => 'https://discord.gg/yXJVTQNh9e',
+		
 	],
 	'functions' => [ // Enabled functions usable by anyone
 		'help', // Send a list of commands as a chat message

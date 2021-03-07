@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is apart of the TwitchPHP project.
+ * This file is a part of the TwitchPHP project.
  *
  * Copyright (c) 2021 ValZarGaming <valzargaming@gmail.com>
  */
@@ -18,6 +18,11 @@ class Twitch
 {
 	protected $loop;
 	protected $commands;
+	
+	private $discord;
+	private $discord_relay;
+	private $guild_id;
+	private $channel_id;
 	
 	private $verbose;
 	private $socket_options;
@@ -67,9 +72,15 @@ class Twitch
 		$this->verbose = $options['verbose'];
 		$this->socket_options = $options['socket_options'];
 		
+		$this->discord = $options['discord'];
+		$this->discord_output = $options['discord_output'];
+		$this->guild_id = $options['guild_id'];
+		$this->channel_id = $options['channel_id'];
+		
 		$this->connector = new Connector($this->loop, $options['socket_options']);
 		
-		if (include 'Commands.php')	$this->commands = new Commands($this, $this->verbose);
+		include 'Commands.php';
+		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
     }
 	
 	public function run(): void
@@ -173,6 +184,14 @@ class Twitch
             if ($response) {                
                 $payload = '@' . $this->lastuser . ', ' . $response . "\n";
                 $this->sendMessage($payload, $connection);
+				if ($this->discord_output){
+					if(
+						($guild = $discord->guilds->offsetGet($this->guild_id))
+						&&
+						($channel = $guild->channels->offsetGet($channel_id))
+					)
+					$channel->sendMessage($payload);
+				}
             }
         }
     }
@@ -266,7 +285,8 @@ class Twitch
 		return $this->private_functions;
 	}
 	
-	
-	
-	
+	public function linkDiscord($discord): void
+	{
+		$this->discord = $discord;
+	}
 }

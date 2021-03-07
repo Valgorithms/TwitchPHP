@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is apart of the TwitchPHP project.
+ * This file is a part of the TwitchPHP project.
  *
  * Copyright (c) 2021 ValZarGaming <valzargaming@gmail.com>
  */
@@ -26,17 +26,14 @@ class Commands
 	{
 		if ($this->verbose) $this->twitch->emit("[HANDLE COMMAND] `$command`");
 		if ($command == 'help')
-		{
-			$commands = '';
-			
-			
-			
+		{			
 			$commandsymbol = $this->twitch->getCommandSymbol();
 			$responses = $this->twitch->getResponses();
 			$functions = $this->twitch->getFunctions();
 			$restricted_functions = $this->twitch->getRestrictedFunctions();
 			$private_functions = $this->twitch->getPrivateFunctions();
-					
+			
+			$commands = '';
 			if ($commandsymbol){
 				$commands.= '[Command Prefix] ';
 				foreach($commandsymbol as $symbol){
