@@ -42,7 +42,6 @@ The path to the caextract must be set in the [`php.ini`](https://secure.php.net/
 TwitchPHP is installed using [Composer](https://getcomposer.org).
 
 1. Run `composer require VZGCoders/TwitchPHP`. This will install the lastest release.
-	- If you would like, you can also install the development branch by running `composer require team-reflex/discord-php dev-master`.
 2. Include the Composer autoload file at the top of your main file:
 	- `include __DIR__.'/vendor/autoload.php';`
 3. Make a bot!
