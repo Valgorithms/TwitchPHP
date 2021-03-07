@@ -68,9 +68,9 @@ $options = array(
 	'channel' => 'valzargaming', // Channel to join
 	
 	//Optional
-	//'loop' => $loop, // (Optional) pass your own instance of $loop to share with other ReactPHP applications
-	'socket_options' => [
-        'dns' => '8.8.8.8', // Can change DNS provider
+	//'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
+	'socket_options' => [ //See https://github.com/reactphp/socket for more options
+		'dns' => '8.8.8.8', // Can change DNS provider
 	],
 	'verbose' => true, // Additional output to console (useful for debugging)_
 	
