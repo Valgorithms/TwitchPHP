@@ -67,7 +67,7 @@ require 'Twitch/Twitch.php';
 //print_r(get_declared_classes());
 
 //$loop = React\EventLoop\Factory::create();
-include 'secret.php'; //$secret
+require 'secret.php'; //$secret
 $options = array(
 	//Required
 	'secret' => $secret, // Client secret
