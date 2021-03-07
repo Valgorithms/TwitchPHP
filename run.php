@@ -54,7 +54,7 @@ $options = array(
 	],
 );
 //include 'commands.php';
-$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions
+//$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions
 
 $twitch = new Twitch\Twitch($options);
 $twitch->run();
