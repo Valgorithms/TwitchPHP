@@ -43,7 +43,7 @@ class Twitch
 		if (php_sapi_name() !== 'cli') {
             trigger_error('TwitchPHP will not run on a webserver. Please use PHP CLI to run a TwitchPHP self-bot.', E_USER_ERROR);
         }
-		if ($this->verboose) echo '[CONSTRUCT]' . PHP_EOL;
+		if ($this->verboose) $this->emit('[CONSTRUCT]');
 		
 		$options = $this->resolveOptions($options);
 		
@@ -63,22 +63,22 @@ class Twitch
 	
 	public function run(): void
 	{
-		if ($this->verboose) echo '[RUN]' . PHP_EOL;
+		if ($this->verboose) $this->emit('[RUN]');
 		if (!$this->running) {
 			$this->running = true;
 			$this->connect();
 		}
-		if ($this->verboose) echo '[LOOP->RUN]' . PHP_EOL;
+		if ($this->verboose) $this->emit('[LOOP->RUN]');
 		$this->loop->run();
 		return;
 	}
 	
 	public function close(bool $closeLoop = true): void
     {
-		if ($this->verboose) echo '[CLOSE]' . PHP_EOL;
+		if ($this->verboose) $this->emit('[CLOSE]');
         if ($closeLoop) {
 			$this->closing = true;
-			if ($this->verboose) echo '[LOOP->STOP]' . PHP_EOL;
+			if ($this->verboose) $this->emit('[LOOP->STOP]');
             $this->loop->stop();
         }
 		return;
@@ -87,13 +87,13 @@ class Twitch
 	public function sendMessage(string $data, ConnectionInterface $connection)
 	{
         $connection->write("PRIVMSG #" . $this->channel . " :" . $data . "\n");
-		echo "[REPLY] $data";
+		$this->emit("[REPLY] $data");
     }
 	
 	public function joinChannel(string $string)
 	{
 		$connection->write("JOIN #" . strtolower($string) . "\n");
-		if ($this->verbose) echo '[VERBOSE] [JOINCHANNEL] `' . strtolower($string) . '`' . PHP_EOL;
+		if ($this->verbose) $this->emit('[VERBOSE] [JOINCHANNEL] `' . strtolower($string) . '`');
 	}
 	
 	protected function resolveOptions(array $options = []): array
@@ -117,7 +117,7 @@ class Twitch
 	{
 		$url = 'irc.chat.twitch.tv';
 		$port = '6667';
-		if ($this->verbose) echo "[CONNECT] $url:$port" . PHP_EOL;
+		if ($this->verbose) $this->emit("[CONNECT] $url:$port");
 		
 		$twitch = $this;
 		$this->connector->connect("$url:$port")->then(
@@ -130,7 +130,7 @@ class Twitch
 				});
 			},
 			function (Exception $exception) {
-				echo $exception->getMessage() . PHP_EOL;
+				 $twitch->emit($exception->getMessage());
 			}
 		);
 	}
@@ -140,19 +140,19 @@ class Twitch
         $connection->write("NICK " . $this->nick . "\n");
         $connection->write("CAP REQ :twitch.tv/membership\n");
         $connection->write("JOIN #" . $this->channel . "\n");
-		if ($this->verboose) echo '[INIT IRC]' . PHP_EOL;
+		if ($this->verboose) $this->emit('[INIT IRC]');
     }
 
     protected function pingPong(string $data, ConnectionInterface $connection)
 	{
-       // echo "[" . date('h:i:s') . "] PING :tmi.twitch.tv\n";
+       // $this->emit("[" . date('h:i:s') . "] PING :tmi.twitch.tv");
         $connection->write("PONG :tmi.twitch.tv\n");
-       // echo "[" . date('h:i:s') . "] PONG :tmi.twitch.tv\n";
+       // $this->emit("[" . date('h:i:s') . "] PONG :tmi.twitch.tv");
     }
 	
 	protected function process(string $data, ConnectionInterface $connection)
 	{
-		//if ($this->verbose) echo "[VERBOSE] [DATA] " . $data . PHP_EOL;
+		//if ($this->verbose) $this->emit("[VERBOSE] [DATA] " . $data);
         if (trim($data) == "PING :tmi.twitch.tv") {
             $this->pingPong($data, $connection);
             return;
@@ -169,7 +169,7 @@ class Twitch
     protected function parseMessage(string $data)
 	{
         $messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
-		echo "[PRIVMSG CONTENT] $messageContents" . PHP_EOL;
+		$this->emit("[PRIVMSG CONTENT] $messageContents");
         $dataArr = explode(' ', $messageContents);
 		
 		$commandsymbol = '';
@@ -182,33 +182,33 @@ class Twitch
 		}
 		if ($commandsymbol) {
 			$command = strtolower(trim(substr($dataArr[0], strlen($commandsymbol))));
-			if ($this->verbose) echo "[COMMAND] `$command`" . PHP_EOL; 
+			if ($this->verbose) $this->emit("[COMMAND] `$command`"); 
 			$this->lastuser = $this->parseUser($data);
 			
 			//Public commands
 			if (isset($this->functions[$command])) {
-				if ($this->verbose) echo '[FUNCTION]';
+				if ($this->verbose) $this->emit('[FUNCTION]');
 				//Do a function then check for a return
 			}
 			
 			//Whitelisted commands
 			if (isset($this->restricted_functions[$command])) {
-				if ($this->verbose) echo '[RESTRICTED FUNCTION]';
+				if ($this->verbose) $this->emit('[RESTRICTED FUNCTION]');
 				//Do a function then check for a return
 			}
 			
 			//Bot owner commands (shares the same username)
 			if ($this->lastuser == strtolower($this->nick)) {
 				if (in_array($command, $this->private_functions)) {
-					if ($this->verbose) echo '[PRIVATE FUNCTION]';
+					if ($this->verbose) $this->emit('[PRIVATE FUNCTION]');
 					
 					if ($command == 'php') {
-						if ($this->verbose) echo '[PHP]' . PHP_EOL;
+						if ($this->verbose) $this->emit('[PHP]');
 						$response = 'Current PHP version: ' . phpversion();
 					}
 					
 					if ($command == 'stop') {
-						if ($this->verbose) echo '[STOP]' . PHP_EOL;
+						if ($this->verbose) $this->emit('[STOP]');
 						$this->close();
 					}
 					
@@ -233,4 +233,11 @@ class Twitch
             return $user;
         }
     }
+	
+	protected function emit(string $string)
+	{
+        echo $string . PHP_EOL;
+    }
+	
+	
 }
