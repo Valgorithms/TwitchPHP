@@ -54,6 +54,7 @@ TwitchPHP is installed using [Composer](https://getcomposer.org).
 
 ### Basic Example
 
+```php
 <?php
 /*
  * This file is apart of the TwitchPHP project.
@@ -105,6 +106,7 @@ $twitch = new Twitch\Twitch($options);
 
 $twitch->run();
 ?>
+```
 
 ## Documentation
 
