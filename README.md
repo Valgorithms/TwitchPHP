@@ -1,7 +1,7 @@
 TwitchPHP
 ====
 
-A chat self-bot for the official [Twitch TV](https://www.twitch.tv) Internet Relay Chat (IRC) interface.
+A chat self-bot built with ReactPHP for the official [Twitch TV](https://www.twitch.tv) Internet Relay Chat (IRC) interface.
 
 ## Before you start
 
