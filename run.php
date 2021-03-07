@@ -6,7 +6,9 @@
  */
  
 require 'vendor/autoload.php';
-require 'twitch/twitch.php';
+require 'Twitch/Twitch.php';
+
+//print_r(get_declared_classes());
 
 //$loop = React\EventLoop\Factory::create();
 include 'secret.php'; //$secret
@@ -28,17 +30,19 @@ $options = array(
 		'!',
 		';',
 	],
+	'whitelist' => [ // Users who are allowed to use whitelisted commands
+		'daathren',
+	],
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
 		"ping" => "Pong!",
 	],
-	'functions' => [ // NYI, enabled functions usable by anyone
+	'functions' => [ // Enabled functions usable by anyone
 		//
 	],
-	'restricted_functions' => [ // NYI, enabled functions usable only by whitelisted users
-		//
-	],
-	'private_functions' => [ // NYI, enabled functionsd usable only by the bot owner sharing the same username as the bot
+	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
 		'php', //Outputs the current version of PHP as a message
+	],
+	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
 		'stop', //Kills the bot
 	],
 );
