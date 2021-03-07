@@ -96,6 +96,44 @@ class Twitch
 		if ($this->verbose) echo '[VERBOSE] [JOINCHANNEL] `' . strtolower($string) . '`' . PHP_EOL;
 	}
 	
+	protected function resolveOptions(array $options = []): array
+	{
+		if (!$options['secret']) {
+            trigger_error('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
+        }
+		if (!$options['nick']) {
+            trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
+        }
+		
+		$options['loop'] = $options['loop'] ?? Factory::create();
+		$options['symbol'] = $options['symbol'] ?? '!';
+        $options['responses'] = $options['responses'] ?? array();
+        $options['functions'] = $options['functions'] ?? array();
+		
+		return $options;
+	}
+	
+	protected function connect()
+	{
+		$url = 'irc.chat.twitch.tv';
+		$port = '6667';
+		if ($this->verbose) echo "[CONNECT] $url:$port" . PHP_EOL;
+		
+		$twitch = $this;
+		$this->connector->connect("$url:$port")->then(
+			function (ConnectionInterface $connection) use ($twitch) {
+				$twitch->connection = $connection;
+				$twitch->initIRC($twitch->connection);
+				
+				$connection->on('data', function($data) use ($connection, $twitch) {
+					$twitch->process($data, $twitch->connection);
+				});
+			},
+			function (Exception $exception) {
+				echo $exception->getMessage() . PHP_EOL;
+			}
+		);
+	}
 	protected function initIRC(ConnectionInterface $connection)
 	{
         $connection->write("PASS " . $this->secret . "\n");
@@ -111,13 +149,20 @@ class Twitch
         $connection->write("PONG :tmi.twitch.tv\n");
        // echo "[" . date('h:i:s') . "] PONG :tmi.twitch.tv\n";
     }
-
-    protected function parseUser(string $data)
+	
+	protected function process(string $data, ConnectionInterface $connection)
 	{
-        if (substr($data, 0, 1) == ":") {
-            $tmp = explode('!', $data);
-			$user = substr($tmp[0], 1);
-            return $user;
+		//if ($this->verbose) echo "[VERBOSE] [DATA] " . $data . PHP_EOL;
+        if (trim($data) == "PING :tmi.twitch.tv") {
+            $this->pingPong($data, $connection);
+            return;
+        }
+        if (preg_match('/PRIVMSG/', $data)) {
+            $response = $this->parseMessage($data);
+            if ($response) {                
+                $payload = '@' . $this->lastuser . ', ' . $response . "\n";
+                $this->sendMessage($payload, $connection);
+            }
         }
     }
 
@@ -179,59 +224,13 @@ class Twitch
 		}
 		return;
     }
-
-    protected function process(string $data, ConnectionInterface $connection)
+	
+	protected function parseUser(string $data)
 	{
-		//if ($this->verbose) echo "[VERBOSE] [DATA] " . $data . PHP_EOL;
-        if (trim($data) == "PING :tmi.twitch.tv") {
-            $this->pingPong($data, $connection);
-            return;
-        }
-        if (preg_match('/PRIVMSG/', $data)) {
-            $response = $this->parseMessage($data);
-            if ($response) {                
-                $payload = '@' . $this->lastuser . ', ' . $response . "\n";
-                $this->sendMessage($payload, $connection);
-            }
+        if (substr($data, 0, 1) == ":") {
+            $tmp = explode('!', $data);
+			$user = substr($tmp[0], 1);
+            return $user;
         }
     }
-	
-	protected function resolveOptions(array $options = []): array
-	{
-		if (!$options['secret']) {
-            trigger_error('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
-        }
-		if (!$options['nick']) {
-            trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
-        }
-		
-		$options['loop'] = $options['loop'] ?? Factory::create();
-		$options['symbol'] = $options['symbol'] ?? '!';
-        $options['responses'] = $options['responses'] ?? array();
-        $options['functions'] = $options['functions'] ?? array();
-		
-		return $options;
-	}
-	
-	protected function connect()
-	{
-		$url = 'irc.chat.twitch.tv';
-		$port = '6667';
-		if ($this->verbose) echo "[CONNECT] $url:$port" . PHP_EOL;
-		
-		$twitch = $this;
-		$this->connector->connect("$url:$port")->then(
-			function (ConnectionInterface $connection) use ($twitch) {
-				$twitch->connection = $connection;
-				$twitch->initIRC($twitch->connection);
-				
-				$connection->on('data', function($data) use ($connection, $twitch) {
-					$twitch->process($data, $twitch->connection);
-				});
-			},
-			function (Exception $exception) {
-				echo $exception->getMessage() . PHP_EOL;
-			}
-		);
-	}
 }
