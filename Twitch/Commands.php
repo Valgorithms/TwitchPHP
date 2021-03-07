@@ -29,11 +29,21 @@ class Commands
 		{
 			$commands = '';
 			
+			
+			
+			$commandsymbol = $this->twitch->getCommandSymbol();
 			$responses = $this->twitch->getResponses();
 			$functions = $this->twitch->getFunctions();
 			$restricted_functions = $this->twitch->getRestrictedFunctions();
 			$private_functions = $this->twitch->getPrivateFunctions();
-			
+					
+			if ($commandsymbol){
+				$commands.= '[Command Prefix] ';
+				foreach($commandsymbol as $symbol){
+					$commands .= "$symbol, ";
+				}
+				$commands = substr($commands, 0, strlen($commands)-2) . " ";
+			}
 			if($responses || $functions){
 				$commands .= '[Public] ';
 				if($responses){

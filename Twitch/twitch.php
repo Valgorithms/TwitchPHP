@@ -241,6 +241,11 @@ class Twitch
         echo "[EMIT] $string" . PHP_EOL;
     }
 	
+	public function getCommandSymbol(): array
+	{
+		return $this->commandsymbol;
+	}
+	
 	public function getResponses(): array
 	{
 		return $this->responses;
