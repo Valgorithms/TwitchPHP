@@ -1,7 +1,25 @@
 {
+    "name": "vzgcoders/twitchphp",
+    "description": "An unofficial API to interact with the IRC chat service used byTwitch.",
+    "authors": [
+        {
+            "name": "Valithor Obsidion",
+            "email": "valzargaming@gmail.com"
+        }
+    ],
     "require": {
         "react/event-loop": "^1.1",
         "react/stream": "^1.1",
         "react/socket": "^1.5"
+    },
+    "suggest": {
+        "ext-uv": "For a faster, and more performant loop. PHP >=7 only. Preferred.",
+        "ext-libev": "For a faster, and more performant loop",
+        "ext-event": "For a faster, and more performant loop",
+        "ext-mbstring": "For accurate calculations of string length when handling non-english characters."
+    },
+    "scripts": {
+        "cs": ["./vendor/bin/php-cs-fixer fix"],
+        "unit": ["./vendor/bin/phpunit"]
     }
 }
