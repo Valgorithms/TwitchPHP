@@ -138,9 +138,10 @@ class Twitch
 				$connection->on('data', function($data) use ($connection, $twitch) {
 					$twitch->process($data, $twitch->connection);
 				});
+				$twitch->emit('[CONNECTED]');
 			},
 			function (Exception $exception) {
-				 $twitch->emit($exception->getMessage());
+				 $twitch->emit('[ERROR] ' . $exception->getMessage());
 			}
 		);
 	}
@@ -183,10 +184,10 @@ class Twitch
         $dataArr = explode(' ', $messageContents);
 		
 		$commandsymbol = '';
-		foreach($this->commandsymbol as $temp) {
-			if (in_array(substr($messageContents, 0, strlen($temp)), $this->commandsymbol)) {
+		foreach($this->commandsymbol as $symbol) {
+			if (in_array(substr($messageContents, 0, strlen($symbol)), $this->commandsymbol)) {
 				$valid = true;
-				$commandsymbol = $temp;
+				$commandsymbol = $symbol;
 				break 1;
 			}
 		}
@@ -222,8 +223,8 @@ class Twitch
 				$response = $this->responses[$command];
 			}
 			
-			return $response;
 		}
+		return $response;
     }
 	
 	protected function parseUser(string $data): ?string

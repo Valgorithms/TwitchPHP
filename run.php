@@ -22,7 +22,7 @@ $options = array(
 	'socket_options' => [
         'dns' => '8.8.8.8', // Can change DNS provider
 	],
-	'verbose' => true, // Additional output to console (useful for debugging)_
+	'verbose' => false, // Additional output to console (useful for debugging)_
 	
 	//Custom commands
 	'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
