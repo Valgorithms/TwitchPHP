@@ -22,7 +22,6 @@ $options = array(
 	//'discord_output' => true, // Output Twitch chat to a Discord server
 	//'guild_id' => '116927365652807686', //ID of the Discord server
 	//'channel_id' => '431415282129698866', //ID of the Discord channel to output messages to
-	//'commands' => $commands, // Import your own Twitch/Commands object
 	
 	//'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
 	'socket_options' => [
@@ -54,7 +53,9 @@ $options = array(
 		'stop', //Kills the bot
 	],
 );
-$twitch = new Twitch\Twitch($options);
+//include 'commands.php';
+$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions
 
+$twitch = new Twitch\Twitch($options);
 $twitch->run();
 ?>
