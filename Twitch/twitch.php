@@ -184,17 +184,7 @@ class Twitch
             if ($response) {                
                 $payload = '@' . $this->lastuser . ', ' . $response . "\n";
                 $this->sendMessage($payload, $connection);
-				if ($this->discord_output){
-					if ($this->verbose) $this->emit('[DISCORD CHAT RELAY]');
-					if(
-						($discord = $this->discord)
-						&&
-						($guild = $discord->guilds->offsetGet($this->guild_id))
-						&&
-						($channel = $guild->channels->offsetGet($this->channel_id))
-					)
-					$channel->sendMessage($payload);
-				}
+				$this->discordRelay('[REPLY] ' . $payload);
             }
         }
     }
@@ -203,8 +193,12 @@ class Twitch
 	{
         $messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
 		if ($this->verbose) $this->emit("[PRIVMSG CONTENT] $messageContents");
-		$this->lastmessage = $messageContents;
         $dataArr = explode(' ', $messageContents);
+		
+		/* Output to Discord */
+		$this->lastmessage = $messageContents;
+		$this->reallastuser = $this->parseUser($data);
+		$this->discordRelay('[MSG] ' . $this->reallastuser . ': ' . $messageContents);
 		
 		$commandsymbol = '';
 		foreach($this->commandsymbol as $symbol) {
@@ -245,8 +239,8 @@ class Twitch
 			if (isset($this->responses[$command])) {
 				$response = $this->responses[$command];
 			}
+			
 		}
-		
 		return $response;
     }
 	
@@ -292,5 +286,20 @@ class Twitch
 	public function linkDiscord($discord): void
 	{
 		$this->discord = $discord;
+	}
+	
+	public function discordRelay($payload): void
+	{
+		if ($this->discord_output){
+			if ($this->verbose) $this->emit('[DISCORD CHAT RELAY]');
+			if(
+				($discord = $this->discord)
+				&&
+				($guild = $discord->guilds->offsetGet($this->guild_id))
+				&&
+				($channel = $guild->channels->offsetGet($this->channel_id))
+			)
+			$channel->sendMessage($payload);
+		}
 	}
 }
