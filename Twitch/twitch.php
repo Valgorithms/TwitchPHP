@@ -186,6 +186,8 @@ class Twitch
                 $this->sendMessage($payload, $connection);
 				if ($this->discord_output){
 					if(
+						($discord = $this->discord)
+						&&
 						($guild = $discord->guilds->offsetGet($this->guild_id))
 						&&
 						($channel = $guild->channels->offsetGet($channel_id))
