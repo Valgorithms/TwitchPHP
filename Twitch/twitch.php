@@ -185,12 +185,13 @@ class Twitch
                 $payload = '@' . $this->lastuser . ', ' . $response . "\n";
                 $this->sendMessage($payload, $connection);
 				if ($this->discord_output){
+					if ($this->verbose) $this->emit('[DISCORD CHAT RELAY]');
 					if(
 						($discord = $this->discord)
 						&&
 						($guild = $discord->guilds->offsetGet($this->guild_id))
 						&&
-						($channel = $guild->channels->offsetGet($channel_id))
+						($channel = $guild->channels->offsetGet($this->channel_id))
 					)
 					$channel->sendMessage($payload);
 				}
@@ -201,7 +202,8 @@ class Twitch
     protected function parseMessage(string $data): ?string
 	{
         $messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
-		$this->emit("[PRIVMSG CONTENT] $messageContents");
+		if ($this->verbose) $this->emit("[PRIVMSG CONTENT] $messageContents");
+		$this->lastmessage = $messageContents;
         $dataArr = explode(' ', $messageContents);
 		
 		$commandsymbol = '';
@@ -243,8 +245,8 @@ class Twitch
 			if (isset($this->responses[$command])) {
 				$response = $this->responses[$command];
 			}
-			
 		}
+		
 		return $response;
     }
 	
