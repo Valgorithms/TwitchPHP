@@ -20,7 +20,7 @@ class Twitch
 	protected $commands;
 	
 	private $discord;
-	private $discord_relay;
+	private $discord_output;
 	private $guild_id;
 	private $channel_id;
 	
@@ -85,22 +85,22 @@ class Twitch
 	
 	public function run(): void
 	{
-		if ($this->verboose) $this->emit('[RUN]');
+		if ($this->verbose) $this->emit('[RUN]');
 		if (!$this->running) {
 			$this->running = true;
 			$this->connect();
 		}
-		if ($this->verboose) $this->emit('[LOOP->RUN]');
+		if ($this->verbose) $this->emit('[LOOP->RUN]');
 		$this->loop->run();
 		return;
 	}
 	
 	public function close(bool $closeLoop = true): void
     {
-		if ($this->verboose) $this->emit('[CLOSE]');
+		if ($this->verbose) $this->emit('[CLOSE]');
         if ($closeLoop) {
 			$this->closing = true;
-			if ($this->verboose) $this->emit('[LOOP->STOP]');
+			if ($this->verbose) $this->emit('[LOOP->STOP]');
             $this->loop->stop();
         }
     }
@@ -162,7 +162,7 @@ class Twitch
         $connection->write("NICK " . $this->nick . "\n");
         $connection->write("CAP REQ :twitch.tv/membership\n");
         $connection->write("JOIN #" . $this->channel . "\n");
-		if ($this->verboose) $this->emit('[INIT IRC]');
+		if ($this->verbose) $this->emit('[INIT IRC]');
     }
 
     protected function pingPong(string $data, ConnectionInterface $connection): void
