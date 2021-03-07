@@ -235,27 +235,27 @@ class Twitch
         }
     }
 	
-	protected function emit(string $string): void
+	public function emit(string $string): void
 	{
         echo "[EMIT] $string" . PHP_EOL;
     }
 	
-	protected function getResponses(): array
+	public function getResponses(): array
 	{
 		return $this->responses;
 	}
 	
-	protected function getFunctions(): array
+	public function getFunctions(): array
 	{
 		return $this->functions;
 	}
 	
-	protected function getRestrictedFunctions(): array
+	public function getRestrictedFunctions(): array
 	{
 		return $this->restricted_functions;
 	}
 	
-	protected function getPrivateFunctions(): array
+	public function getPrivateFunctions(): array
 	{
 		return $this->private_functions;
 	}

@@ -12,7 +12,7 @@ namespace Twitch;
  * Provides an easy way to have triggerable commands.
  */
  
-class Commands extends Twitch
+class Commands
 {
 	protected $twitch;
 	protected $verbose;
