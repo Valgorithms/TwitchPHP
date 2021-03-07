@@ -59,14 +59,11 @@ class Twitch
 		foreach ($options['whitelist'] as $whitelist){
 			$this->whitelist[] = $whitelist;
 		}
-		echo 'whitelist: ' . PHP_EOL;
-		var_dump ($this->whitelist);
-		echo PHP_EOL;
-		
-        $this->responses = $options['responses'] ?? array();
+		$this->responses = $options['responses'] ?? array();
         $this->functions = $options['functions'] ?? array();
 		$this->restricted_functions	= $options['restricted_functions'] ?? array();
 		$this->private_functions = $options['private_functions'] ?? array();
+		
 		$this->verbose = $options['verbose'];
 		$this->socket_options = $options['socket_options'];
 		
@@ -95,16 +92,15 @@ class Twitch
 			if ($this->verboose) $this->emit('[LOOP->STOP]');
             $this->loop->stop();
         }
-		return;
     }
 	
-	public function sendMessage(string $data, ConnectionInterface $connection)
+	public function sendMessage(string $data, ConnectionInterface $connection): void
 	{
         $connection->write("PRIVMSG #" . $this->channel . " :" . $data . "\n");
 		$this->emit("[REPLY] $data");
     }
 	
-	public function joinChannel(string $string)
+	public function joinChannel(string $string): void
 	{
 		$connection->write("JOIN #" . strtolower($string) . "\n");
 		if ($this->verbose) $this->emit('[VERBOSE] [JOINCHANNEL] `' . strtolower($string) . '`');
@@ -127,7 +123,7 @@ class Twitch
 		return $options;
 	}
 	
-	protected function connect()
+	protected function connect(): void
 	{
 		$url = 'irc.chat.twitch.tv';
 		$port = '6667';
@@ -148,7 +144,7 @@ class Twitch
 			}
 		);
 	}
-	protected function initIRC(ConnectionInterface $connection)
+	protected function initIRC(ConnectionInterface $connection): void
 	{
         $connection->write("PASS " . $this->secret . "\n");
         $connection->write("NICK " . $this->nick . "\n");
@@ -157,14 +153,14 @@ class Twitch
 		if ($this->verboose) $this->emit('[INIT IRC]');
     }
 
-    protected function pingPong(string $data, ConnectionInterface $connection)
+    protected function pingPong(string $data, ConnectionInterface $connection): void
 	{
        // $this->emit("[" . date('h:i:s') . "] PING :tmi.twitch.tv");
         $connection->write("PONG :tmi.twitch.tv\n");
        // $this->emit("[" . date('h:i:s') . "] PONG :tmi.twitch.tv");
     }
 	
-	protected function process(string $data, ConnectionInterface $connection)
+	protected function process(string $data, ConnectionInterface $connection): void
 	{
 		//if ($this->verbose) $this->emit("[VERBOSE] [DATA] " . $data);
         if (trim($data) == "PING :tmi.twitch.tv") {
@@ -180,7 +176,7 @@ class Twitch
         }
     }
 
-    protected function parseMessage(string $data)
+    protected function parseMessage(string $data): ?string
 	{
         $messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
 		$this->emit("[PRIVMSG CONTENT] $messageContents");
@@ -228,10 +224,9 @@ class Twitch
 			
 			return $response;
 		}
-		return;
     }
 	
-	protected function parseUser(string $data)
+	protected function parseUser(string $data): ?string
 	{
         if (substr($data, 0, 1) == ":") {
             $tmp = explode('!', $data);
@@ -240,10 +235,32 @@ class Twitch
         }
     }
 	
-	protected function emit(string $string)
+	protected function emit(string $string): void
 	{
-        echo $string . PHP_EOL;
+        echo "[EMIT] $string" . PHP_EOL;
     }
+	
+	protected function getResponses(): array
+	{
+		return $this->responses;
+	}
+	
+	protected function getFunctions(): array
+	{
+		return $this->functions;
+	}
+	
+	protected function getRestrictedFunctions(): array
+	{
+		return $this->restricted_functions;
+	}
+	
+	protected function getPrivateFunctions(): array
+	{
+		return $this->private_functions;
+	}
+	
+	
 	
 	
 }

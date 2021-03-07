@@ -18,13 +18,55 @@ class Commands extends Twitch
 	protected $verbose;
 	
 	public function __construct(Twitch $twitch, bool $verbose)
-    {
+	{
 		$this->twitch = $twitch;
 		$this->verbose = $verbose;
 	}
-	public function handle(string $command)
+	public function handle(string $command): ?string
 	{
-		if ($this->verbose) $this->twitch->emit('[HANDLE]');
+		if ($this->verbose) $this->twitch->emit("[HANDLE COMMAND] `$command`");
+		if ($command == 'help')
+		{
+			$commands = '';
+			
+			$responses = $this->twitch->getResponses();
+			$functions = $this->twitch->getFunctions();
+			$restricted_functions = $this->twitch->getRestrictedFunctions();
+			$private_functions = $this->twitch->getPrivateFunctions();
+			
+			if($responses || $functions){
+				$commands .= '[Public] ';
+				if($responses){
+					foreach($responses as $command => $value){
+						$commands .= "$command, ";
+					}
+					
+				}
+				if($responses){
+					foreach($functions as $command){
+						$commands .= "$command, ";
+					}
+				}
+				$commands = substr($commands, 0, strlen($commands)-2) . " ";
+			}
+			if($restricted_functions){
+				$commands .= '[Whitelisted] ';
+				foreach($restricted_functions as $command){
+					$commands .= "$command, ";
+				}
+				$commands = substr($commands, 0, strlen($commands)-2) . " ";
+			}
+			if($private_functions){			
+				$commands .= '[Private] ';
+				foreach($private_functions as $command){
+					$commands .= "$command, ";
+				}
+				$commands = substr($commands, 0, strlen($commands)-2) . " ";
+			}
+			
+			if ($this->verbose) $this->twitch->emit("[COMMANDS] `$commands`");
+			return $commands;
+		}
 		
 		if ($command == 'php')
 		{

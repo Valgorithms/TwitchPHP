@@ -7,7 +7,6 @@
  
 require 'vendor/autoload.php';
 require 'Twitch/Twitch.php';
-
 //print_r(get_declared_classes());
 
 //$loop = React\EventLoop\Factory::create();
@@ -16,7 +15,7 @@ $options = array(
 	//Required
 	'secret' => $secret, // Client secret
 	'nick' => 'ValZarGaming', // Twitch username
-	'channel' => 'valzargaming', // Channel to join
+	'channel' => 'daathren', // Channel to join
 	
 	//Optional
 	//'loop' => $loop, // (Optional) pass your own instance of $loop to share with other ReactPHP applications
@@ -37,7 +36,7 @@ $options = array(
 		"ping" => "Pong!",
 	],
 	'functions' => [ // Enabled functions usable by anyone
-		//
+		'help', // Send a list of commands as a chat message
 	],
 	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
 		'php', //Outputs the current version of PHP as a message
