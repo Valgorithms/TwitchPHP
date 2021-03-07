@@ -47,6 +47,11 @@ TwitchPHP is installed using [Composer](https://getcomposer.org).
 	- `include __DIR__.'/vendor/autoload.php';`
 3. Make a bot!
 
+## Configuration
+
+1. Add the required "secret" and "nick" values.
+2. Customize your commands and responses.
+
 ### Basic Example
 
 ```php
@@ -63,9 +68,9 @@ $options = array(
 	'channel' => 'valzargaming', // Channel to join
 	
 	//Optional
-	//'loop' => $loop, // (Optional) pass your own instance of $loop to share with other ReactPHP applications
-	'socket_options' => [
-        'dns' => '8.8.8.8', // Can change DNS provider
+	//'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
+	'socket_options' => [ //See https://github.com/reactphp/socket for more options
+		'dns' => '8.8.8.8', // Can change DNS provider
 	],
 	'verbose' => true, // Additional output to console (useful for debugging)_
 	
@@ -77,13 +82,13 @@ $options = array(
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
 		"ping" => "Pong!",
 	],
-	'functions' => [ // NYI, enabled functions usable by anyone
+	'functions' => [ // Enabled functions usable by anyone
 		//
 	],
-	'restricted_functions' => [ // NYI, enabled functions usable only by whitelisted users
+	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
 		//
 	],
-	'private_functions' => [ // NYI, enabled functionsd usable only by the bot owner sharing the same username as the bot
+	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
 		'php', //Outputs the current version of PHP as a message
 		'stop', //Kills the bot
 	],
