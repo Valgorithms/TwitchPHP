@@ -1,6 +1,6 @@
 {
     "name": "vzgcoders/twitchphp",
-    "description": "An unofficial API to interact with the IRC chat service used byTwitch.",
+    "description": "An unofficial API to interact with the IRC chat service used by Twitch.",
     "authors": [
         {
             "name": "Valithor Obsidion",
