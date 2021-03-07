@@ -12,6 +12,11 @@
         "react/stream": "^1.1",
         "react/socket": "^1.5"
     },
+	"autoload": {
+        "psr-4": {
+			"Twitch\\": "Twitch/"
+        }
+    },
     "suggest": {
         "ext-uv": "For a faster, and more performant loop. PHP >=7 only. Preferred.",
         "ext-libev": "For a faster, and more performant loop",
