@@ -105,9 +105,9 @@ class Twitch
         }
     }
 	
-	public function sendMessage(string $data, ConnectionInterface $connection): void
+	public function sendMessage(string $data): void
 	{
-        $connection->write("PRIVMSG #" . $this->channel . " :" . $data . "\n");
+        $this->connection->write("PRIVMSG #" . $this->channel . " :" . $data . "\n");
 		$this->emit("[REPLY] $data");
     }
 	
@@ -183,7 +183,7 @@ class Twitch
             $response = $this->parseMessage($data);
             if ($response) {                
                 $payload = '@' . $this->lastuser . ', ' . $response . "\n";
-                $this->sendMessage($payload, $connection);
+                $this->sendMessage($payload);
 				$this->discordRelay('[REPLY] ' . $payload);
             }
         }
@@ -281,6 +281,21 @@ class Twitch
 	public function getPrivateFunctions(): array
 	{
 		return $this->private_functions;
+	}
+	
+	public function getDiscordOutput(): ?bool
+	{
+		return $this->discord_output;
+	}
+	
+	public function getGuildId(): ?string
+	{
+		return $this->guild_id;
+	}
+	
+	public function getChannelId(): ?string
+	{
+		return $this->channel_id;
 	}
 	
 	public function linkDiscord($discord): void
