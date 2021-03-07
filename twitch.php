@@ -16,6 +16,7 @@ class twitch {
 	protected $running;	
 	protected $closing;
 	
+	private $channel;
 	private $lastuser;
 	private $lastmessage;
 	
@@ -31,6 +32,7 @@ class twitch {
 		$this->loop = $options['loop'];
 		$this->secret = $options['secret'];
         $this->nick = $options['nick'];
+		$this->channel = strtolower($options['channel']) ?? strtolower($options['nick']);
 		$this->commandsymbol = $options['commandsymbol'] ?? array('!');
         $this->responses = $options['responses'] ?? array();
         $this->functions = $options['functions'] ?? array();
@@ -62,7 +64,7 @@ class twitch {
         $connection->write("PASS " . $this->secret . "\n");
         $connection->write("NICK " . $this->nick . "\n");
         $connection->write("CAP REQ :twitch.tv/membership\n");
-        $connection->write("JOIN #" . strtolower($this->nick) . "\n");
+        $connection->write("JOIN #" . $this->channel . "\n");
     }
 	
 	public function joinChannel($string){
@@ -76,7 +78,7 @@ class twitch {
     }
 
     public function sendMessage($data, ConnectionInterface $connection){
-        $connection->write("PRIVMSG #" . strtolower($this->nick) . " :" . $data . "\n");
+        $connection->write("PRIVMSG #" . $this->channel . " :" . $data . "\n");
 		echo "[REPLY] $data";
     }
 

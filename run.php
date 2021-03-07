@@ -14,9 +14,13 @@ $options = array(
         'dns' => '8.8.8.8', // can change dns
 	],
 	'secret' => $secret,
-	'nick' => 'ValZarGaming',
-	'commandsymbol' => array('!', ';'),
-	//'loop' => $loop,
+	'nick' => 'ValZarGaming', //Twitch username
+	'channel' => 'valzargaming', //Channel to join
+	'commandsymbol' => [ //Process commands if a message starts with a prefix in this array
+		'!',
+		';',
+	],
+	//'loop' => $loop, //Optionally pass your own instance of $loop to share with other ReactPHP applications
 	'responses' => $responses, // key=>value array()
 	'functions' => null, //NYI
 );
