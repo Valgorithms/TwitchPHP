@@ -35,21 +35,21 @@ $options = array(
 	],
 	'whitelist' => [ // Users who are allowed to use restricted functions
 		'daathren',
+		'valzargaming',
 	],
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
 		'ping' => 'Pong!',
 		'github' => 'https://github.com/VZGCoders/TwitchPHP',
 		'discord' => 'https://discord.gg/yXJVTQNh9e',
-		
 	],
 	'functions' => [ // Enabled functions usable by anyone
 		'help', // Send a list of commands as a chat message
 	],
 	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
-		'php', //Outputs the current version of PHP as a message
+		'stop', //Kills the bot
 	],
 	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
-		'stop', //Kills the bot
+		'php', //Outputs the current version of PHP as a message
 	],
 );
 //include 'commands.php';
