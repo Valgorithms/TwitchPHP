@@ -31,7 +31,7 @@ class twitch {
 		$this->loop = $options['loop'];
 		$this->secret = $options['secret'];
         $this->nick = $options['nick'];
-		$this->commandsymbol = $options['commandsymbol'] ?? '!';
+		$this->commandsymbol = $options['commandsymbol'] ?? array('!');
         $this->responses = $options['responses'] ?? array();
         $this->functions = $options['functions'] ?? array();
 		
@@ -77,7 +77,7 @@ class twitch {
 
     public function sendMessage($data, ConnectionInterface $connection){
         $connection->write("PRIVMSG #" . strtolower($this->nick) . " :" . $data . "\n");
-		echo '[REPLY]' . $data . PHP_EOL;
+		echo "[REPLY] $data";
     }
 
     public function parseUser($data){
@@ -91,17 +91,25 @@ class twitch {
 
     public function parseMessage($data){
         $messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
-		echo "[PRIVMSG CONTENT] `$messageContents`" . PHP_EOL;
+		echo "[PRIVMSG CONTENT] $messageContents" . PHP_EOL;
         $dataArr = explode(' ', $messageContents);
 		
-		if (substr($messageContents, 0, strlen($this->commandsymbol)) == $this->commandsymbol){ //Valid command
+		$commandsymbol = '';
+		foreach($this->commandsymbol as $temp){
+			if (in_array(substr($messageContents, 0, strlen($temp)), $this->commandsymbol)){
+				$valid = true;
+				$commandsymbol = $temp;
+				break 1;
+			}
+		}
+		if($commandsymbol){
 			//Commands that require us to do something
 			if (isset($this->functions[$command])){
 				//Do a function then check for a return
 			}
 			
 			//Reply with a preset message
-			$command = strtolower(trim(substr($dataArr[0], strlen($this->commandsymbol))));
+			$command = strtolower(trim(substr($dataArr[0], strlen($commandsymbol))));
 			if (isset($this->responses[$command])){
 				return $this->responses[$command];
 			}
