@@ -30,7 +30,7 @@ class Twitch
 	
     private $secret;
     private $nick;
-	private $channel;
+	private $channels;
 	private $commandsymbol;
 	
 	private $whitelist;
@@ -62,9 +62,9 @@ class Twitch
 		$this->loop = $options['loop'];
 		$this->secret = $options['secret'];
         $this->nick = $options['nick'];
-		foreach($options['channel'] as $channel)
-			$this->channel[] = strtolower($channel);
-		if(is_null($this->channel)) $this->channel = $options['nick'];
+		foreach($options['channels'] as $channel)
+			$this->channels[] = strtolower($channel);
+		if(is_null($this->channels)) $this->channels = array($options['nick']);
 		$this->commandsymbol = $options['commandsymbol'] ?? array('!');
 		
 		foreach ($options['whitelist'] as $whitelist){
@@ -120,8 +120,21 @@ class Twitch
 	
 	public function joinChannel(string $string): void
 	{
-		$this->connection->write("JOIN #" . strtolower($string) . "\n");
-		if ($this->verbose) $this->emit('[VERBOSE] [JOINCHANNEL] `' . strtolower($string) . '`');
+		$string = strtolower($string) ?? $this->reallastchannel;
+		if ($this->verbose) $this->emit('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');
+		$this->connection->write("JOIN #" . $string . "\n");
+		if (!in_array($string, $this->channels)) $this->channels[] = $string;
+	}
+	
+	public function leaveChannel(?string $string = null): void // Commands.php should not send a string or it is possible for users to tell the bot to leave someone else's channel!
+	{
+		$string = strtolower($string ?? $this->reallastchannel);
+		if ($this->verbose) $this->emit('[VERBOSE] [LEAVE CHANNEL] `' . $string . '`');
+		$this->connection->write("PART #" . ($string ?? $this->reallastchannel) . "\n");
+		foreach ($this->channels as &$channel){
+			if ($channel == $string) $channel = null;
+			unset ($channel);
+		}
 	}
 	
 	protected function resolveOptions(array $options = []): array
@@ -168,16 +181,17 @@ class Twitch
         $connection->write("PASS " . $this->secret . "\n");
         $connection->write("NICK " . $this->nick . "\n");
         $connection->write("CAP REQ :twitch.tv/membership\n");
-		foreach ($this->channel as $channel)
+		foreach ($this->channels as $channel){
 			$connection->write("JOIN #" . $channel . "\n");
+		}
 		if ($this->verbose) $this->emit('[INIT IRC]');
     }
 
     protected function pingPong(string $data, ConnectionInterface $connection): void
 	{
-       if ($this->debug) $this->emit("[" . date('h:i:s') . "] PING :tmi.twitch.tv");
+	if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PING :tmi.twitch.tv");
         $connection->write("PONG :tmi.twitch.tv\n");
-       if ($this->debug) $this->emit("[" . date('h:i:s') . "] PONG :tmi.twitch.tv");
+       if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PONG :tmi.twitch.tv");
     }
 	
 	protected function process(string $data, ConnectionInterface $connection): void

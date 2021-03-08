@@ -94,6 +94,14 @@ class Commands
 			$this->twitch->joinChannel($args[1]);
 		}
 		
+		if ($command == 'leave')
+		{
+			if ($this->verbose) $this->twitch->emit('[PART]');
+			$this->twitch->leaveChannel();
+		}
+		
+		
+		
 		return $response;
 	}
 }
