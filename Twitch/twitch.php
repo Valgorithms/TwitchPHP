@@ -110,9 +110,9 @@ class Twitch
         }
     }
 	
-	public function sendMessage(string $data): void
+	public function sendMessage(string $data, string $channel = null): void
 	{
-        $this->connection->write("PRIVMSG #" . $this->channel . " :" . $data . "\n");
+        $this->connection->write("PRIVMSG #" . ($channel ?? $this->channel) . " :" . $data . "\n");
 		$this->emit("[REPLY] $data");
     }
 	
@@ -203,7 +203,7 @@ class Twitch
 		/* Output to Discord */
 		$this->lastmessage = $messageContents;
 		$this->reallastuser = $this->parseUser($data);
-		$this->reallastchannel = null;
+		$this->reallastchannel = $this->parseChannel($data);
 		$this->discordRelay('[MSG] ' . $this->reallastuser . ': ' . $messageContents);
 		
 		$commandsymbol = '';
@@ -218,6 +218,7 @@ class Twitch
 			$command = strtolower(trim(substr($dataArr[0], strlen($commandsymbol))));
 			if ($this->verbose) $this->emit("[COMMAND] `$command`"); 
 			$this->lastuser = $this->reallastuser;
+			$this->lastchannel = $this->reallastchannel;
 			$this->lastchannel = null;
 			
 			//Public commands
@@ -256,8 +257,17 @@ class Twitch
         if (substr($data, 0, 1) == ":") {
             $tmp = explode('!', $data);
 			$user = substr($tmp[0], 1);
-            return $user;
         }
+		return $user;
+    }
+	
+	protected function parseChannel(string $data): ?string
+	{
+		$arr = explode(' ', substr($data, strpos($data, '#')));
+        if (substr($arr[0], 0, 1) == "#") {
+			$channel = substr($arr[0], 1);
+        }
+		return $channel;
     }
 	
 	public function emit(string $string): void
