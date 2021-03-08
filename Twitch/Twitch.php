@@ -112,10 +112,11 @@ class Twitch
         }
     }
 	
-	public function sendMessage(string $data, string $channel = null): void
+	public function sendMessage(string $data, ?string $channel = null): void
 	{
-        $this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel) . " :" . $data . "\n");
+        $this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel ?? current($this->channels)) . " :" . $data . "\n");
 		$this->emit('[REPLY] #' . ($channel ?? $this->reallastchannel) . ' - ' . $data);
+		if ($channel) $this->reallastchannel = $channel;
     }
 	
 	public function joinChannel(string $string): void
@@ -291,6 +292,11 @@ class Twitch
 	{
         echo "[EMIT] $string" . PHP_EOL;
     }
+	
+	public function getChannels(): array
+	{
+		return $this->channels;
+	}
 	
 	public function getCommandSymbol(): array
 	{
