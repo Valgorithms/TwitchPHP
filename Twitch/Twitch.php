@@ -115,22 +115,29 @@ class Twitch
 	public function sendMessage(string $data, ?string $channel = null): void
 	{
         $this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel ?? current($this->channels)) . " :" . $data . "\n");
-		$this->emit('[REPLY] #' . ($channel ?? $this->reallastchannel) . ' - ' . $data);
-		if ($channel) $this->reallastchannel = $channel;
+		$this->emit('[REPLY] #' . ($channel ?? $this->reallastchannel ?? current($this->channels)) . ' - ' . $data);
+		if ($channel) $this->reallastchannel = $channel ?? $this->reallastchannel ?? current($this->channels);
     }
 	
-	public function joinChannel(string $string): void
+	public function joinChannel(?string $string = ""): void
 	{
-		$string = strtolower($string) ?? $this->reallastchannel;
 		if ($this->verbose) $this->emit('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');
-		$this->connection->write("JOIN #" . $string . "\n");
-		if (!in_array($string, $this->channels)) $this->channels[] = $string;
+		if($string){
+			$string = strtolower($string);
+			$this->connection->write("JOIN #" . $string . "\n");
+			if (!in_array($string, $this->channels)) $this->channels[] = $string;
+		}
 	}
 	
-	public function leaveChannel(?string $string = null): void // Commands.php should not send a string or it is possible for users to tell the bot to leave someone else's channel!
+	/*
+	* Commands.php should never send a string so as to prevent users from being able to tell the bot to leave someone else's channel
+	* This command is exposed so other ReactPHP applications can call it, but those applications should always attempt to pass a valid string
+	* getChannels has also been exposed for the purpose of checking if the string exists before attempting to call this function
+	*/
+	public function leaveChannel(?string $string = ""): void
 	{
-		$string = strtolower($string ?? $this->reallastchannel);
 		if ($this->verbose) $this->emit('[VERBOSE] [LEAVE CHANNEL] `' . $string . '`');
+		$string = strtolower($string ?? $this->reallastchannel);
 		$this->connection->write("PART #" . ($string ?? $this->reallastchannel) . "\n");
 		foreach ($this->channels as &$channel){
 			if ($channel == $string) $channel = null;
@@ -138,6 +145,9 @@ class Twitch
 		}
 	}
 	
+	/*
+	* Attempt to catch errors with the user-provided $options early
+	*/
 	protected function resolveOptions(array $options = []): array
 	{
 		if (!$options['secret']) {
@@ -155,27 +165,37 @@ class Twitch
 		return $options;
 	}
 	
+	/*
+	* Connect the bot to Twitch
+	* This command should not be run while the bot is still connected to Twitch
+	* Additional handling may be needed in the case of disconnect via $connection->on('close' (See: Issue #1 on GitHub)
+	*/ 
 	protected function connect(): void
 	{
 		$url = 'irc.chat.twitch.tv';
 		$port = '6667';
 		if ($this->verbose) $this->emit("[CONNECT] $url:$port");
 		
-		$twitch = $this;
-		$this->connector->connect("$url:$port")->then(
-			function (ConnectionInterface $connection) use ($twitch) {
-				$twitch->connection = $connection;
-				$twitch->initIRC($twitch->connection);
-				
-				$connection->on('data', function($data) use ($connection, $twitch) {
-					$twitch->process($data, $twitch->connection);
-				});
-				$twitch->emit('[CONNECTED]');
-			},
-			function (Exception $exception) {
-				 $twitch->emit('[ERROR] ' . $exception->getMessage());
-			}
-		);
+		if(!$twitch->connection){
+			$twitch = $this;
+			$this->connector->connect("$url:$port")->then(
+				function (ConnectionInterface $connection) use ($twitch) {
+					$twitch->connection = $connection;
+					$twitch->initIRC($twitch->connection);
+					
+					$connection->on('data', function($data) use ($connection, $twitch) {
+						$twitch->process($data, $twitch->connection);
+					});
+					$connection->on('close', function () use ($twitch) {
+						$twitch->emit('[CLOSE]');
+					});
+					$twitch->emit('[CONNECTED]');
+				},
+				function (Exception $exception) {
+					 $twitch->emit('[ERROR] ' . $exception->getMessage());
+				}
+			);
+		} else $twitch->emit('[SYMANTICS ERROR] A connection already exists!');
 	}
 	protected function initIRC(ConnectionInterface $connection): void
 	{
@@ -288,6 +308,9 @@ class Twitch
 		return $channel;
     }
 	
+	/*
+	* This function can double as an event listener
+	*/
 	public function emit(string $string): void
 	{
         echo "[EMIT] $string" . PHP_EOL;
