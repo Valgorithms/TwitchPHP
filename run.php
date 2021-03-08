@@ -14,7 +14,10 @@ $options = array(
 	//Required
 	'secret' => $secret, // Client secret
 	'nick' => 'ValZarGaming', // Twitch username
-	'channel' => 'daathren', // Channel to join
+	'channel' => [
+		'daathren', // Channel to join
+		'valzargaming', // (Optional) Additional channels
+	],
 	
 	//Optional
 	//'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)	

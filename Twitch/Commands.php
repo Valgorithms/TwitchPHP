@@ -22,11 +22,12 @@ class Commands
 		$this->twitch = $twitch;
 		$this->verbose = $verbose;
 	}
-	public function handle(string $command): ?string
+	public function handle(string $command, ?array $args = []): ?string
 	{
 		if ($this->verbose) $this->twitch->emit("[HANDLE COMMAND] `$command`");
+		echo '[ARGS] '; var_dump($args); echo PHP_EOL;
 		if ($command == 'help')
-		{			
+		{
 			$commandsymbol = $this->twitch->getCommandSymbol();
 			$responses = $this->twitch->getResponses();
 			$functions = $this->twitch->getFunctions();
@@ -85,6 +86,12 @@ class Commands
 		{
 			if ($this->verbose) $this->twitch->emit('[STOP]');
 			$this->twitch->close();
+		}
+		
+		if ($command == 'join')
+		{
+			if ($this->verbose) $this->twitch->emit('[JOIN]');
+			$this->twitch->joinChannel($args[1]);
 		}
 		
 		return $response;

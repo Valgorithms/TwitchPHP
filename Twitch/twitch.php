@@ -62,7 +62,9 @@ class Twitch
 		$this->loop = $options['loop'];
 		$this->secret = $options['secret'];
         $this->nick = $options['nick'];
-		$this->channel = strtolower($options['channel']) ?? strtolower($options['nick']);
+		foreach($options['channel'] as $channel)
+			$this->channel[] = strtolower($channel);
+		if(is_null($this->channel)) $this->channel = $options['nick'];
 		$this->commandsymbol = $options['commandsymbol'] ?? array('!');
 		
 		foreach ($options['whitelist'] as $whitelist){
@@ -112,13 +114,13 @@ class Twitch
 	
 	public function sendMessage(string $data, string $channel = null): void
 	{
-        $this->connection->write("PRIVMSG #" . ($channel ?? $this->channel) . " :" . $data . "\n");
-		$this->emit("[REPLY] $data");
+        $this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel) . " :" . $data . "\n");
+		$this->emit('[REPLY] #' . ($channel ?? $this->reallastchannel) . ' - ' . $data);
     }
 	
 	public function joinChannel(string $string): void
 	{
-		$connection->write("JOIN #" . strtolower($string) . "\n");
+		$this->connection->write("JOIN #" . strtolower($string) . "\n");
 		if ($this->verbose) $this->emit('[VERBOSE] [JOINCHANNEL] `' . strtolower($string) . '`');
 	}
 	
@@ -166,7 +168,8 @@ class Twitch
         $connection->write("PASS " . $this->secret . "\n");
         $connection->write("NICK " . $this->nick . "\n");
         $connection->write("CAP REQ :twitch.tv/membership\n");
-        $connection->write("JOIN #" . $this->channel . "\n");
+		foreach ($this->channel as $channel)
+			$connection->write("JOIN #" . $channel . "\n");
 		if ($this->verbose) $this->emit('[INIT IRC]');
     }
 
@@ -189,7 +192,7 @@ class Twitch
             if ($response) {                
                 $payload = '@' . $this->lastuser . ', ' . $response . "\n";
                 $this->sendMessage($payload);
-				$this->discordRelay('[REPLY] ' . $payload);
+				$this->discordRelay('[REPLY] #' . $this->reallastchannel . ' - ' . $payload);
             }
         }
     }
@@ -204,7 +207,7 @@ class Twitch
 		$this->lastmessage = $messageContents;
 		$this->reallastuser = $this->parseUser($data);
 		$this->reallastchannel = $this->parseChannel($data);
-		$this->discordRelay('[MSG] ' . $this->reallastuser . ': ' . $messageContents);
+		$this->discordRelay('[MSG] #' . $this->reallastchannel . ' - ' . $this->reallastuser . ': ' . $messageContents);
 		
 		$commandsymbol = '';
 		foreach($this->commandsymbol as $symbol) {
@@ -224,14 +227,14 @@ class Twitch
 			//Public commands
 			if (in_array($command, $this->functions)) {
 				if ($this->verbose) $this->emit('[FUNCTION]');
-				$response = $this->commands->handle($command);
+				$response = $this->commands->handle($command, $dataArr);
 			}
 			
 			//Whitelisted commands
 			if ( in_array($this->lastuser, $this->whitelist) || ($this->lastuser == $this->nick) ) {
 				if (in_array($command, $this->restricted_functions)) {
 					if ($this->verbose) $this->emit('[RESTRICTED FUNCTION]');
-					$response = $this->commands->handle($command);
+					$response = $this->commands->handle($command, $dataArr);
 				}
 			}
 			
@@ -239,7 +242,7 @@ class Twitch
 			if ($this->lastuser == $this->nick) {
 				if (in_array($command, $this->private_functions)) {
 					if ($this->verbose) $this->emit('[PRIVATE FUNCTION]');
-					$response = $this->commands->handle($command);
+					$response = $this->commands->handle($command, $dataArr);
 				}
 			}
 			
