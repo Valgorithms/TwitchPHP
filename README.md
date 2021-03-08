@@ -78,7 +78,8 @@ $options = array(
 	'socket_options' => [
         'dns' => '8.8.8.8', // Can change DNS provider
 	],
-	'verbose' => false, // Additional output to console (useful for debugging)
+	'verbose' => true, // Additional output to console (useful for debugging TwitchPHP)
+	'debug' => false, // Additional output to console (useful for debugging communications with Twitch)
 	
 	//Custom commands
 	'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
@@ -86,6 +87,7 @@ $options = array(
 		';',
 	],
 	'whitelist' => [ // Users who are allowed to use restricted functions
+		'valzargaming',
 		'daathren',
 	],
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
@@ -97,10 +99,12 @@ $options = array(
 		'help', // Send a list of commands as a chat message
 	],
 	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
-		'php', //Outputs the current version of PHP as a message
+		'join', //Joins another user's channel
+		'leave', //Leave the current user's channel
 	],
 	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
 		'stop', //Kills the bot
+		'php', //Outputs the current version of PHP as a message
 	],
 );
 //include 'commands.php';
