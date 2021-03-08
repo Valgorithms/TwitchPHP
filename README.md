@@ -63,7 +63,7 @@ $options = array(
 	//Required
 	'secret' => $secret, // Client secret
 	'nick' => 'ValZarGaming', // Twitch username
-	'channel' => [
+	'channels' => [
 		'daathren', // Channel to join
 		'valzargaming', // (Optional) Additional channels
 	],
