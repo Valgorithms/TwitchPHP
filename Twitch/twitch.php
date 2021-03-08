@@ -26,6 +26,7 @@ class Twitch
 	
 	private $verbose;
 	private $socket_options;
+	private $debug;
 	
     private $secret;
     private $nick;
@@ -43,8 +44,11 @@ class Twitch
 	protected $running;	
 	protected $closing;
 	
-	private $lastuser;
+	private $reallastuser;
+	private $reallastchannel;
 	private $lastmessage;
+	private $lastuser; //Used a command
+	private $lastchannel; //Where command was used
 
     function __construct(array $options = [])
 	{
@@ -71,6 +75,7 @@ class Twitch
 		
 		$this->verbose = $options['verbose'];
 		$this->socket_options = $options['socket_options'];
+		$this->debug = $options['debug'];
 		
 		$this->discord = $options['discord'];
 		$this->discord_output = $options['discord_output'];
@@ -167,14 +172,14 @@ class Twitch
 
     protected function pingPong(string $data, ConnectionInterface $connection): void
 	{
-       // $this->emit("[" . date('h:i:s') . "] PING :tmi.twitch.tv");
+       if ($this->debug) $this->emit("[" . date('h:i:s') . "] PING :tmi.twitch.tv");
         $connection->write("PONG :tmi.twitch.tv\n");
-       // $this->emit("[" . date('h:i:s') . "] PONG :tmi.twitch.tv");
+       if ($this->debug) $this->emit("[" . date('h:i:s') . "] PONG :tmi.twitch.tv");
     }
 	
 	protected function process(string $data, ConnectionInterface $connection): void
 	{
-		//if ($this->verbose) $this->emit("[VERBOSE] [DATA] " . $data);
+		if ($this->debug) $this->emit("[DEBUG] [DATA] " . $data);
         if (trim($data) == "PING :tmi.twitch.tv") {
             $this->pingPong($data, $connection);
             return;
@@ -198,6 +203,7 @@ class Twitch
 		/* Output to Discord */
 		$this->lastmessage = $messageContents;
 		$this->reallastuser = $this->parseUser($data);
+		$this->reallastchannel = null;
 		$this->discordRelay('[MSG] ' . $this->reallastuser . ': ' . $messageContents);
 		
 		$commandsymbol = '';
@@ -211,7 +217,8 @@ class Twitch
 		if ($commandsymbol) {
 			$command = strtolower(trim(substr($dataArr[0], strlen($commandsymbol))));
 			if ($this->verbose) $this->emit("[COMMAND] `$command`"); 
-			$this->lastuser = $this->parseUser($data);
+			$this->lastuser = $this->reallastuser;
+			$this->lastchannel = null;
 			
 			//Public commands
 			if (in_array($command, $this->functions)) {
