@@ -122,7 +122,7 @@ class Twitch
 	public function joinChannel(?string $string = ""): void
 	{
 		if ($this->verbose) $this->emit('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');
-		if($string){
+		if ($string){
 			$string = strtolower($string);
 			$this->connection->write("JOIN #" . $string . "\n");
 			if (!in_array($string, $this->channels)) $this->channels[] = $string;

@@ -100,7 +100,11 @@ class Commands
 			$this->twitch->leaveChannel();
 		}
 		
-		
+		if ($command == 'so')
+		{
+			if ($this->verbose) $this->twitch->emit('[SO]');
+			$this->twitch->sendMessage('Hey, go check out '. $args[1] . '. They are good peeples! Pretty good. Pretty good!');
+		}
 		
 		return $response;
 	}

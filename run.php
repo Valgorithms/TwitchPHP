@@ -45,6 +45,10 @@ $options = array(
 		'ping' => 'Pong!',
 		'github' => 'https://github.com/VZGCoders/TwitchPHP',
 		'discord' => 'https://discord.gg/yXJVTQNh9e',
+		'lurk' => 'You have said the magick word to make yourself invisible to all eyes upon you, allowing you to fade into the shadows.',
+		'social' => 'Come follow the magick through several dimensions:  Twitter - https://twitter.com/daathren |  Instagram - https://www.instagram.com/daathren/ |  Discord - https://discord.gg/FhzXf8VK |  Tumblr - https://daathren.tumblr.com/',
+		'tip' => 'Wanna help fund the magick?  PayPal - https://www.paypal.com/paypalme/daathren |  CashApp - $DAAthren',
+		'return' => 'You have rolled a Nat 1, clearing your invisibility buff from earlier. You might want to roll for initiative…',
 	],
 	'functions' => [ // Enabled functions usable by anyone
 		'help', // Send a list of commands as a chat message
@@ -52,6 +56,7 @@ $options = array(
 	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
 		'join', //Joins another user's channel
 		'leave', //Leave the current user's channel
+		'so', //Advertise someone else
 	],
 	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
 		'stop', //Kills the bot
