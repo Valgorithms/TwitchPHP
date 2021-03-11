@@ -14,22 +14,22 @@ $options = array(
 	//Required
 	'secret' => $secret, // Client secret
 	'nick' => 'ValZarGaming', // Twitch username
-	'channel' => [
-		'daathren', // Channel to join
-		'valzargaming', // (Optional) Additional channels
+	'channels' => [
+		'valzargaming', // Channel to join
+		'daathren', // (Optional) Additional channels
 	],
 	
 	//Optional
 	//'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)	
-	//'discord_output' => true, // Output Twitch chat to a Discord server's channel
-	//'guild_id' => '116927365652807686', //ID of the server
-	//'channel_id' => '431415282129698866', //ID of the channel
+	//'discord_output' => true, // Output Twitch chat to a Discord server
+	//'guild_id' => '116927365652807686', //ID of the Discord server
+	//'channel_id' => '431415282129698866', //ID of the Discord channel to output messages to
 	
 	//'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
 	'socket_options' => [
         'dns' => '8.8.8.8', // Can change DNS provider
 	],
-	'verbose' => true, // Additional output to console (useful for debugging TwitchPHP)
+	'verbose' => true, // Additional output to console (useful for debugging)
 	'debug' => false, // Additional output to console (useful for debugging communications with Twitch)
 	
 	//Custom commands
@@ -40,29 +40,42 @@ $options = array(
 	'whitelist' => [ // Users who are allowed to use restricted functions
 		'valzargaming',
 		'daathren',
+		'z3tadragon',
+	],
+	'social' => [ //NYI
+		'twitter' => 'https://twitter.com/daathren',
+		'instagram' => 'https://www.instagram.com/daathren/',
+		'discord' => 'https://discord.gg/FhzXf8VK',
+		'tumblr' => 'https://daathren.tumblr.com/',
+	],
+	'tip' => [ //NYI
+		'paypal' => 'https://www.paypal.com/paypalme/daathren',
+		'cashapp' => '$DAAthren',
 	],
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
 		'ping' => 'Pong!',
 		'github' => 'https://github.com/VZGCoders/TwitchPHP',
-		'discord' => 'https://discord.gg/yXJVTQNh9e',
 		'lurk' => 'You have said the magick word to make yourself invisible to all eyes upon you, allowing you to fade into the shadows.',
-		'social' => 'Come follow the magick through several dimensions:  Twitter - https://twitter.com/daathren |  Instagram - https://www.instagram.com/daathren/ |  Discord - https://discord.gg/FhzXf8VK |  Tumblr - https://daathren.tumblr.com/',
-		'tip' => 'Wanna help fund the magick?  PayPal - https://www.paypal.com/paypalme/daathren |  CashApp - $DAAthren',
 		'return' => 'You have rolled a Nat 1, clearing your invisibility buff from earlier. You might want to roll for initiative…',
 	],
 	'functions' => [ // Enabled functions usable by anyone
 		'help', // Send a list of commands as a chat message
 	],
 	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
-		'join', //Joins another user's channel
-		'leave', //Leave the current user's channel
 		'so', //Advertise someone else
 	],
 	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
-		'stop', //Kills the bot
 		'php', //Outputs the current version of PHP as a message
+		'join', //Joins another user's channel
+		'leave', //Leave the current user's channel
+		'stop', //Kills the bot
 	],
 );
+// Responses that reference other values in options should be declared afterwards
+$options['responses']['social'] = 'Come follow the magick through several dimensions:  Twitter - '.$options['social']['twitter'].' |  Instagram - '.$options['social']['instagram'].' |  Discord - '.$options['social']['discord'].' |  Tumblr - '.$options['social']['tumblr'];
+$options['responses']['tip'] = 'Wanna help fund the magick?  PayPal - '.$options['tip']['paypal'].' |  CashApp - '.$options['tip']['cashapp'];
+$options['responses']['discord'] = $options['social']['discord'];
+
 //include 'commands.php';
 //$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions
 
