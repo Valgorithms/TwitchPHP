@@ -176,7 +176,7 @@ class Twitch
 		$port = '6667';
 		if ($this->verbose) $this->emit("[CONNECT] $url:$port");
 		
-		if(!$twitch->connection){
+		if(!$this->connection){
 			$twitch = $this;
 			$this->connector->connect("$url:$port")->then(
 				function (ConnectionInterface $connection) use ($twitch) {
