@@ -244,6 +244,7 @@ class Twitch
 		$this->reallastchannel = $this->parseChannel($data);
 		$this->discordRelay('[MSG] #' . $this->reallastchannel . ' - ' . $this->reallastuser . ': ' . $messageContents);
 		
+		$response = '';
 		$commandsymbol = '';
 		foreach($this->commandsymbol as $symbol) {
 			if (in_array(substr($messageContents, 0, strlen($symbol)), $this->commandsymbol)) {
