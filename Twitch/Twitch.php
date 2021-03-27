@@ -41,8 +41,7 @@ class Twitch
 	
 	protected $connector;
 	protected $connection;
-	protected $running;	
-	protected $closing;
+	protected $running;
 	
 	private $reallastuser;
 	private $reallastchannel;
@@ -52,9 +51,7 @@ class Twitch
 
     function __construct(array $options = [])
 	{
-		if (php_sapi_name() !== 'cli') {
-            trigger_error('TwitchPHP will not run on a webserver. Please use PHP CLI to run a TwitchPHP self-bot.', E_USER_ERROR);
-        }
+		if (php_sapi_name() !== 'cli') trigger_error('TwitchPHP will not run on a webserver. Please use PHP CLI to run a TwitchPHP self-bot.', E_USER_ERROR);
 		if ($this->verbose) $this->emit('[CONSTRUCT]');
 		
 		$options = $this->resolveOptions($options);
@@ -62,14 +59,11 @@ class Twitch
 		$this->loop = $options['loop'];
 		$this->secret = $options['secret'];
         $this->nick = $options['nick'];
-		foreach($options['channels'] as $channel)
-			$this->channels[] = strtolower($channel);
+		foreach($options['channels'] as $channel) $this->channels[] = strtolower($channel);
 		if(is_null($this->channels)) $this->channels = array($options['nick']);
 		$this->commandsymbol = $options['commandsymbol'] ?? array('!');
 		
-		foreach ($options['whitelist'] as $whitelist){
-			$this->whitelist[] = $whitelist;
-		}
+		foreach ($options['whitelist'] as $whitelist) $this->whitelist[] = $whitelist;
 		$this->responses = $options['responses'] ?? array();
         $this->functions = $options['functions'] ?? array();
 		$this->restricted_functions	= $options['restricted_functions'] ?? array();
@@ -105,8 +99,11 @@ class Twitch
 	public function close(bool $closeLoop = true): void
     {
 		if ($this->verbose) $this->emit('[CLOSE]');
+		if ($this->running) {
+			$this->running = false;
+			foreach ($this->channels as $channel) $this->leaveChannel($channel);
+		}
         if ($closeLoop) {
-			$this->closing = true;
 			if ($this->verbose) $this->emit('[LOOP->STOP]');
             $this->loop->stop();
         }
@@ -119,14 +116,12 @@ class Twitch
 		if ($channel) $this->reallastchannel = $channel ?? $this->reallastchannel ?? current($this->channels);
     }
 	
-	public function joinChannel(?string $string = ""): void
+	public function joinChannel(string $string = ""): void
 	{
-		if ($this->verbose) $this->emit('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');
-		if ($string){
-			$string = strtolower($string);
-			$this->connection->write("JOIN #" . $string . "\n");
-			if (!in_array($string, $this->channels)) $this->channels[] = $string;
-		}
+		if ($this->verbose) $this->emit('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');		
+		$string = strtolower($string);
+		$this->connection->write("JOIN #" . $string . "\n");
+		if (!in_array($string, $this->channels)) $this->channels[] = $string;
 	}
 	
 	/*
@@ -150,12 +145,8 @@ class Twitch
 	*/
 	protected function resolveOptions(array $options = []): array
 	{
-		if (!$options['secret']) {
-            trigger_error('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
-        }
-		if (!$options['nick']) {
-            trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
-        }
+		if (!$options['secret']) trigger_error('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
+		if (!$options['nick']) trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
 		$options['nick'] = strtolower($options['nick']);
 		$options['loop'] = $options['loop'] ?? Factory::create();
 		$options['symbol'] = $options['symbol'] ?? '!';
@@ -192,7 +183,7 @@ class Twitch
 					$twitch->emit('[CONNECTED]');
 				},
 				function (Exception $exception) {
-					 $twitch->emit('[ERROR] ' . $exception->getMessage());
+					$twitch->emit('[ERROR] ' . $exception->getMessage());
 				}
 			);
 		} else $twitch->emit('[SYMANTICS ERROR] A connection already exists!');
@@ -202,17 +193,15 @@ class Twitch
         $connection->write("PASS " . $this->secret . "\n");
         $connection->write("NICK " . $this->nick . "\n");
         $connection->write("CAP REQ :twitch.tv/membership\n");
-		foreach ($this->channels as $channel){
-			$connection->write("JOIN #" . $channel . "\n");
-		}
+		foreach ($this->channels as $channel) $this->joinChannel($channel);
 		if ($this->verbose) $this->emit('[INIT IRC]');
     }
 
     protected function pingPong(string $data, ConnectionInterface $connection): void
 	{
-	if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PING :tmi.twitch.tv");
-        $connection->write("PONG :tmi.twitch.tv\n");
-       if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PONG :tmi.twitch.tv");
+		if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PING :tmi.twitch.tv");
+		$connection->write("PONG :tmi.twitch.tv\n");
+		if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PONG :tmi.twitch.tv");
     }
 	
 	protected function process(string $data, ConnectionInterface $connection): void
@@ -284,6 +273,7 @@ class Twitch
 			
 			//Reply with a preset message
 			if (isset($this->responses[$command])) {
+				if ($this->verbose) $this->emit('[RESPONSE]');
 				$response = $this->responses[$command];
 			}
 			
@@ -303,10 +293,7 @@ class Twitch
 	protected function parseChannel(string $data): ?string
 	{
 		$arr = explode(' ', substr($data, strpos($data, '#')));
-        if (substr($arr[0], 0, 1) == "#") {
-			$channel = substr($arr[0], 1);
-        }
-		return $channel;
+        if (substr($arr[0], 0, 1) == "#") return substr($arr[0], 1);
     }
 	
 	/*
