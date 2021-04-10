@@ -13,9 +13,12 @@ use Twitch\Commands;
 use React\EventLoop\Factory;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
+use Evenement\EventEmitterTrait;
 
 class Twitch
 {
+	use EventEmitterTrait;
+
 	protected $loop;
 	protected $commands;
 	
@@ -42,7 +45,7 @@ class Twitch
 	private $private_functions;
 	
 	protected $connector;
-	protected $connection;
+	protected $connection = false;
 	protected $running;
 	
 	private $reallastuser;
@@ -81,9 +84,8 @@ class Twitch
 		
 		$this->connector = new Connector($this->loop, $options['socket_options']);
 		
-		include __DIR__ . '\Commands.php';
-		if (is_array($options['badwords'])) $this->badwords = $options['badwords'];
-		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose, $this->debug);
+		include 'Commands.php';
+		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
 	}
 	
 	public function run(bool $runLoop = true): void
@@ -104,17 +106,8 @@ class Twitch
 			$this->running = false;
 			foreach ($this->channels as $channel) $this->leaveChannel($channel);
 		}
-		if ($closeLoop) {
-			if(!$this->closing) {
-				$this->closing = true;
-				if ($this->verbose) $this->emit('[LOOP->STOP]');
-				$twitch = $this;
-				$this->loop->addTimer(3, function () use ($twitch) {
-					$twitch->closing = false;
-					$twitch->loop->stop();
-				});
-			}
-		}
+        if ($this->verbose) $this->emit('[LOOP->STOP]');
+        $this->loop->stop();
 	}
 	
 	public function sendMessage(string $data, ?string $channel = null): void
@@ -216,11 +209,11 @@ class Twitch
 	}
 	protected function initIRC(ConnectionInterface $connection): void
 	{
-		if ($this->verbose) $this->emit('[INIT IRC]');
 		$connection->write("PASS " . $this->secret . "\n");
 		$connection->write("NICK " . $this->nick . "\n");
 		$connection->write("CAP REQ :twitch.tv/membership\n");
 		foreach ($this->channels as $channel) $this->joinChannel($channel);
+		if ($this->verbose) $this->emit('[INIT IRC]');
 	}
 
 	protected function pingPong(string $data, ConnectionInterface $connection): void
@@ -249,7 +242,6 @@ class Twitch
 			}
 		}
 	}
-	
 	protected function badwordsCheck($message): bool
 	{
 		if ($this->debug) $this->emit('[BADWORD CHECK] ' . $message);
@@ -346,11 +338,12 @@ class Twitch
 	
 	/*
 	* This function can double as an event listener
+	* Implmented w/ Evenement
 	*/
-	public function emit(string $string): void
-	{
-		echo "[EMIT] $string" . PHP_EOL;
-	}
+// 	public function emit(string $string): void
+// 	{
+//         	echo "[EMIT] $string" . PHP_EOL;
+// 	}
 	
 	public function getChannels(): array
 	{
