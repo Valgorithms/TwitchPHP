@@ -13,9 +13,12 @@ use Twitch\Commands;
 use React\EventLoop\Factory;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
+use Evenement\EventEmitterTrait;
 
 class Twitch
 {
+	use EventEmitterTrait;
+
 	protected $loop;
 	protected $commands;
 	
@@ -28,8 +31,8 @@ class Twitch
 	private $socket_options;
 	private $debug;
 	
-    private $secret;
-    private $nick;
+	private $secret;
+	private $nick;
 	private $channels;
 	private $commandsymbol;
 	
@@ -40,7 +43,7 @@ class Twitch
 	private $private_functions;
 	
 	protected $connector;
-	protected $connection;
+	protected $connection = false;
 	protected $running;
 	
 	private $reallastuser;
@@ -49,7 +52,7 @@ class Twitch
 	private $lastuser; //Used a command
 	private $lastchannel; //Where command was used
 
-    function __construct(array $options = [])
+	function __construct(array $options = [])
 	{
 		if (php_sapi_name() !== 'cli') trigger_error('TwitchPHP will not run on a webserver. Please use PHP CLI to run a TwitchPHP self-bot.', E_USER_ERROR);
 		if ($this->verbose) $this->emit('[CONSTRUCT]');
@@ -58,14 +61,14 @@ class Twitch
 		
 		$this->loop = $options['loop'];
 		$this->secret = $options['secret'];
-        $this->nick = $options['nick'];
+		$this->nick = $options['nick'];
 		foreach($options['channels'] as $channel) $this->channels[] = strtolower($channel);
 		if(is_null($this->channels)) $this->channels = array($options['nick']);
 		$this->commandsymbol = $options['commandsymbol'] ?? array('!');
 		
 		foreach ($options['whitelist'] as $whitelist) $this->whitelist[] = $whitelist;
 		$this->responses = $options['responses'] ?? array();
-        $this->functions = $options['functions'] ?? array();
+		$this->functions = $options['functions'] ?? array();
 		$this->restricted_functions	= $options['restricted_functions'] ?? array();
 		$this->private_functions = $options['private_functions'] ?? array();
 		
@@ -82,7 +85,7 @@ class Twitch
 		
 		include 'Commands.php';
 		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
-    }
+	}
 	
 	public function run(): void
 	{
@@ -97,24 +100,24 @@ class Twitch
 	}
 	
 	public function close(bool $closeLoop = true): void
-    {
+	{
 		if ($this->verbose) $this->emit('[CLOSE]');
 		if ($this->running) {
 			$this->running = false;
 			foreach ($this->channels as $channel) $this->leaveChannel($channel);
 		}
-        if ($closeLoop) {
+		if ($closeLoop) {
 			if ($this->verbose) $this->emit('[LOOP->STOP]');
-            $this->loop->stop();
-        }
-    }
+			$this->loop->stop();
+        	}
+	}
 	
 	public function sendMessage(string $data, ?string $channel = null): void
 	{
-        $this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel ?? current($this->channels)) . " :" . $data . "\n");
+		$this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel ?? current($this->channels)) . " :" . $data . "\n");
 		$this->emit('[REPLY] #' . ($channel ?? $this->reallastchannel ?? current($this->channels)) . ' - ' . $data);
 		if ($channel) $this->reallastchannel = $channel ?? $this->reallastchannel ?? current($this->channels);
-    }
+	}
 	
 	public function joinChannel(string $string = ""): void
 	{
@@ -150,8 +153,8 @@ class Twitch
 		$options['nick'] = strtolower($options['nick']);
 		$options['loop'] = $options['loop'] ?? Factory::create();
 		$options['symbol'] = $options['symbol'] ?? '!';
-        $options['responses'] = $options['responses'] ?? array();
-        $options['functions'] = $options['functions'] ?? array();
+		$options['responses'] = $options['responses'] ?? array();
+		$options['functions'] = $options['functions'] ?? array();
 		
 		return $options;
 	}
@@ -190,42 +193,42 @@ class Twitch
 	}
 	protected function initIRC(ConnectionInterface $connection): void
 	{
-        $connection->write("PASS " . $this->secret . "\n");
-        $connection->write("NICK " . $this->nick . "\n");
-        $connection->write("CAP REQ :twitch.tv/membership\n");
+		$connection->write("PASS " . $this->secret . "\n");
+		$connection->write("NICK " . $this->nick . "\n");
+		$connection->write("CAP REQ :twitch.tv/membership\n");
 		foreach ($this->channels as $channel) $this->joinChannel($channel);
 		if ($this->verbose) $this->emit('[INIT IRC]');
-    }
+	}
 
-    protected function pingPong(string $data, ConnectionInterface $connection): void
+	protected function pingPong(string $data, ConnectionInterface $connection): void
 	{
 		if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PING :tmi.twitch.tv");
 		$connection->write("PONG :tmi.twitch.tv\n");
 		if ($this->debug) $this->emit("[DEBUG] [" . date('h:i:s') . "] PONG :tmi.twitch.tv");
-    }
+	}
 	
 	protected function process(string $data, ConnectionInterface $connection): void
 	{
 		if ($this->debug) $this->emit("[DEBUG] [DATA] " . $data);
-        if (trim($data) == "PING :tmi.twitch.tv") {
-            $this->pingPong($data, $connection);
-            return;
-        }
-        if (preg_match('/PRIVMSG/', $data)) {
-            $response = $this->parseMessage($data);
-            if ($response) {                
-                $payload = '@' . $this->lastuser . ', ' . $response . "\n";
-                $this->sendMessage($payload);
+		if (trim($data) == "PING :tmi.twitch.tv") {
+			$this->pingPong($data, $connection);
+			return;
+		}
+        	if (preg_match('/PRIVMSG/', $data)) {
+			$response = $this->parseMessage($data);
+			if ($response) {                
+				$payload = '@' . $this->lastuser . ', ' . $response . "\n";
+				$this->sendMessage($payload);
 				$this->discordRelay('[REPLY] #' . $this->reallastchannel . ' - ' . $payload);
-            }
-        }
-    }
+			}
+		}
+	}
 
-    protected function parseMessage(string $data): ?string
+	protected function parseMessage(string $data): ?string
 	{
-        $messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
+		$messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
 		if ($this->verbose) $this->emit("[PRIVMSG CONTENT] $messageContents");
-        $dataArr = explode(' ', $messageContents);
+		$dataArr = explode(' ', $messageContents);
 		
 		/* Output to Discord */
 		$this->lastmessage = $messageContents;
@@ -279,30 +282,31 @@ class Twitch
 			
 		}
 		return $response;
-    }
+	}
 	
 	protected function parseUser(string $data): ?string
 	{
-        if (substr($data, 0, 1) == ":") {
-            $tmp = explode('!', $data);
+		if (substr($data, 0, 1) == ":") {
+			$tmp = explode('!', $data);
 			$user = substr($tmp[0], 1);
-        }
+		}
 		return $user;
-    }
+	}
 	
 	protected function parseChannel(string $data): ?string
 	{
 		$arr = explode(' ', substr($data, strpos($data, '#')));
-        if (substr($arr[0], 0, 1) == "#") return substr($arr[0], 1);
-    }
+        	if (substr($arr[0], 0, 1) == "#") return substr($arr[0], 1);
+	}
 	
 	/*
 	* This function can double as an event listener
+	* Implmented w/ Evenement
 	*/
-	public function emit(string $string): void
-	{
-        echo "[EMIT] $string" . PHP_EOL;
-    }
+// 	public function emit(string $string): void
+// 	{
+//         	echo "[EMIT] $string" . PHP_EOL;
+// 	}
 	
 	public function getChannels(): array
 	{
