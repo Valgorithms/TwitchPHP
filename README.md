@@ -20,6 +20,7 @@ Before you start using this Library, you **need** to know how PHP works, you nee
 
 - PHP 7.4.13
 	- Technically the library can run on any PHP7 version or higher, however, no support will be given for any version lower than 7.4.13.
+	- Despite the description above, this library is being built with PHP8 support in mind. There will come a time where PHP7 is no longer supported.
 - Composer
 
 ### Windows and SSL
