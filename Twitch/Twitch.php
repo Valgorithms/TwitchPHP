@@ -82,10 +82,12 @@ class Twitch
 		$this->connector = new Connector($this->loop, $options['socket_options']);
 		
 		include 'Commands.php';
-		$this->commands = $options['commands'] ?? new Commands($this);
+		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
 		
-		include 'Helix.php';
-		$this->helix = $options['helix'] ?? new HelixCommandClient($this);
+		if ($options['helix'] || $options['HelixCommandClient']){
+			include 'Helix.php';
+			$this->helix = $options['HelixCommandClient'] ?? new HelixCommandClient($this, $this->nick, $options['helix']['bot_id'], $options['helix']['bot_secret'], $options['helix']['bot_token'], $this->verbose);
+		}
 	}
 	
 	public function run(bool $runLoop = true): void
@@ -165,6 +167,13 @@ class Twitch
 		$options['responses'] = $options['responses'] ?? array();
 		$options['functions'] = $options['functions'] ?? array();
 		
+		if (isset($options['HelixCommandClient'])){
+			if (!$options['HelixCommandClient'] instanceof HelixCommandClient) trigger_error('HelixCommandClient object must be an instance of the HelixCommandClient class!', E_USER_ERROR);
+		}elseif ($options['helix']){
+			if (!$options['helix']['bot_id']) trigger_error('Helix requires a bot id!', E_USER_ERROR);
+			if (!$options['helix']['bot_secret']) trigger_error('Helix requires a bot secret!', E_USER_ERROR);
+			if (!$options['helix']['bot_token']) trigger_error('Helix requires a bot token!', E_USER_ERROR);
+		}
 		return $options;
 	}
 	
