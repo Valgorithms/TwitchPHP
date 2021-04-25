@@ -17,10 +17,10 @@ class Commands
 	protected $twitch;
 	protected $verbose;
 	
-	public function __construct(Twitch $twitch, bool $verbose)
+	public function __construct(Twitch $twitch)
 	{
 		$this->twitch = $twitch;
-		$this->verbose = $verbose;
+		$this->verbose = $twitch->verbose;
 	}
 	public function handle(string $command, ?array $args = []): ?string
 	{
