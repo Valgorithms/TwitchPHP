@@ -6,10 +6,10 @@
 * Copyright (c) 2021 ValZarGaming <valzargaming@gmail.com>
 */
 
-
 namespace Twitch;
 
 use Twitch\Commands;
+use Twitch\HelixCommandClient;
 use React\EventLoop\Factory;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
@@ -23,6 +23,7 @@ class Twitch
 	private $discord_output;
 	private $guild_id;
 	private $channel_id;
+	private $helix;
 	
 	private $verbose;
 	private $socket_options;
@@ -81,7 +82,10 @@ class Twitch
 		$this->connector = new Connector($this->loop, $options['socket_options']);
 		
 		include 'Commands.php';
-		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
+		$this->commands = $options['commands'] ?? new Commands($this);
+		
+		include 'Helix.php';
+		$this->helix = $options['helix'] ?? new HelixCommandClient($this);
 	}
 	
 	public function run(bool $runLoop = true): void
