@@ -19,11 +19,12 @@ class Twitch
 	protected $loop;
 	protected $commands;
 	
+	private $helix;
+	
 	private $discord;
 	private $discord_output;
 	private $guild_id;
 	private $channel_id;
-	private $helix;
 	
 	private $verbose;
 	private $socket_options;
@@ -58,6 +59,8 @@ class Twitch
 		$options = $this->resolveOptions($options);
 		
 		$this->loop = $options['loop'];
+		$this->browser = $options['browser'];
+		
 		$this->secret = $options['secret'];
 		$this->nick = $options['nick'];
 		foreach($options['channels'] as $channel) $this->channels[] = strtolower($channel);
@@ -86,7 +89,7 @@ class Twitch
 		
 		if ($options['helix'] || $options['HelixCommandClient']){
 			include 'Helix.php';
-			$this->helix = $options['HelixCommandClient'] ?? new HelixCommandClient($this, $this->nick, $options['helix']['bot_id'], $options['helix']['bot_secret'], $options['helix']['bot_token'], $this->verbose);
+			$this->helix = $options['HelixCommandClient'] ?? new HelixCommandClient($this, $options['browser'], $this->nick, $options['helix']['bot_id'], $options['helix']['bot_secret'], $options['helix']['bot_token'], $options['helix']['refresh_token'], $options['helix']['expires_in'], $this->verbose);
 		}
 	}
 	
@@ -163,6 +166,7 @@ class Twitch
 		if (!$options['nick']) trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
 		$options['nick'] = strtolower($options['nick']);
 		$options['loop'] = $options['loop'] ?? Factory::create();
+		$options['browser'] = $options['browser'] ?? new \React\Http\Browser($options['loop']);
 		$options['symbol'] = $options['symbol'] ?? '!';
 		$options['responses'] = $options['responses'] ?? array();
 		$options['functions'] = $options['functions'] ?? array();
@@ -203,7 +207,7 @@ class Twitch
 					});
 					$twitch->emit('[CONNECTED]');
 				},
-				function (Exception $exception) {
+				function (Exception $exception) use ($twitch){
 					$twitch->emit('[ERROR] ' . $exception->getMessage());
 				}
 			);
@@ -388,5 +392,15 @@ class Twitch
 			)
 			$channel->sendMessage($payload);
 		}
+	}
+	
+	public function getLoop()
+	{
+		return $this->loop;
+	}
+	
+	public function unsetHelix(): void
+	{
+		unset($this->helix);
 	}
 }
