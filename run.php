@@ -70,6 +70,18 @@ $options = array(
 		'leave', //Leave the current user's channel
 		'stop', //Kills the bot
 	],
+	/*
+	`HelixCommandClient => [
+		$HelixCommandClient, // Optionally pass your own instance of the HelixCommandClient class
+	],
+	*/
+	'helix' => [ // REQUIRES a bot application https://dev.twitch.tv/console/apps 
+		'bot_id' => $bot_id,  // Obtained from application
+		'bot_secret' => $bot_secret,  // Obtained from application
+		'bot_token' => $bot_token,  // Obtained from your own server using twitch_oauth.php (see example at https://www.valzargaming.com/twitch_oauth/twitch_oauth_template.html)
+		'refresh_token' => $refresh_token,  // Obtained from your own server using twitch_oauth.php (see example at https://www.valzargaming.com/twitch_oauth/twitch_oauth_template.html)
+		'expires_in' => $expires_in,  // Obtained from your own server using twitch_oauth.php (see example at https://www.valzargaming.com/twitch_oauth/twitch_oauth_template.html)
+	],
 );
 // Responses that reference other values in options should be declared afterwards
 $options['responses']['social'] = 'Come follow the magick through several dimensions:  Twitter - '.$options['social']['twitter'].' |  Instagram - '.$options['social']['instagram'].' |  Discord - '.$options['social']['discord'].' |  Tumblr - '.$options['social']['tumblr'];
