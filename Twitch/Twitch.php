@@ -271,6 +271,8 @@ class Twitch
 			$this->lastchannel = $this->reallastchannel;
 			$this->lastchannel = null;
 			
+			$this->emit( 'COMMAND' , array( $this->reallastchannel , $this->reallastuser , $command ) );
+
 			//Public commands
 			if (in_array($command, $this->functions)) {
 				if ($this->verbose) $this->log('[FUNCTION]');
@@ -298,6 +300,8 @@ class Twitch
 				$response = $this->responses[$command];
 			}
 			
+		} else {
+			$this->emit( 'MESSAGE' , array( $this->reallastchannel , $this->reallastuser , $messageContents ) );
 		}
 		return $response;
 	}
