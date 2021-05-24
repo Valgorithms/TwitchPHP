@@ -117,18 +117,22 @@ class Twitch
 	
 	public function sendMessage(string $data, ?string $channel = null): void
 	{
-		$this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel ?? current($this->channels)) . " :" . $data . "\n");
-		$this->emit('[REPLY] #' . ($channel ?? $this->reallastchannel ?? current($this->channels)) . ' - ' . $data);
-		if ($channel) $this->reallastchannel = $channel ?? $this->reallastchannel ?? current($this->channels);
+		if (isset($this->connection)) {
+			$this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel ?? current($this->channels)) . " :" . $data . "\n");
+			$this->emit('[REPLY] #' . ($channel ?? $this->reallastchannel ?? current($this->channels)) . ' - ' . $data);
+			if ($channel) $this->reallastchannel = $channel ?? $this->reallastchannel ?? current($this->channels);
+		}
 	}
 	
 	public function joinChannel(string $string = ""): void
 	{
 		if ($this->verbose) $this->emit('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');	
-		if ($string){
-			$string = strtolower($string);
-			$this->connection->write("JOIN #" . $string . "\n");
-			if (!in_array($string, $this->channels)) $this->channels[] = $string;
+		if (isset($this->connection)){
+			if ($string){
+				$string = strtolower($string);
+				$this->connection->write("JOIN #" . $string . "\n");
+				if (!in_array($string, $this->channels)) $this->channels[] = $string;
+			}
 		}
 	}
 	
@@ -140,11 +144,13 @@ class Twitch
 	public function leaveChannel(?string $string = ""): void
 	{
 		if ($this->verbose) $this->emit('[VERBOSE] [LEAVE CHANNEL] `' . $string . '`');
-		$string = strtolower($string ?? $this->reallastchannel);
-		$this->connection->write("PART #" . ($string ?? $this->reallastchannel) . "\n");
-		foreach ($this->channels as &$channel){
-			if ($channel == $string) $channel = null;
-			unset ($channel);
+		if (isset($this->connection)) {
+			$string = strtolower($string ?? $this->reallastchannel);
+			$this->connection->write("PART #" . ($string ?? $this->reallastchannel) . "\n");
+			foreach ($this->channels as &$channel){
+				if ($channel == $string) $channel = null;
+				unset ($channel);
+			}
 		}
 	}
 	
