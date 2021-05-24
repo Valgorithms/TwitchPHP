@@ -103,7 +103,7 @@ class Twitch
 			foreach ($this->channels as $channel) $this->leaveChannel($channel);
 		}
 		if ($closeLoop) {
-			if(!$this->closing){
+			if(!$this->closing) {
 				$this->closing = true;
 				if ($this->verbose) $this->emit('[LOOP->STOP]');
 				$twitch = $this;
@@ -128,7 +128,7 @@ class Twitch
 	{
 		if ($this->verbose) $this->emit('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');	
 		if (isset($this->connection)){
-			if ($string){
+			if ($string) {
 				$string = strtolower($string);
 				$this->connection->write("JOIN #" . $string . "\n");
 				if (!in_array($string, $this->channels)) $this->channels[] = $string;
@@ -147,7 +147,7 @@ class Twitch
 		if (isset($this->connection)) {
 			$string = strtolower($string ?? $this->reallastchannel);
 			$this->connection->write("PART #" . ($string ?? $this->reallastchannel) . "\n");
-			foreach ($this->channels as &$channel){
+			foreach ($this->channels as &$channel) {
 				if ($channel == $string) $channel = null;
 				unset ($channel);
 			}
@@ -181,7 +181,7 @@ class Twitch
 		$port = '6667';
 		if ($this->verbose) $this->emit("[CONNECT] $url:$port");
 		
-		if(!$this->connection){
+		if(!$this->connection) {
 			$twitch = $this;
 			$this->connector->connect("$url:$port")->then(
 				function (ConnectionInterface $connection) use ($twitch) {
@@ -370,7 +370,7 @@ class Twitch
 	
 	public function discordRelay($payload): void
 	{
-		if ($this->discord_output){
+		if ($this->discord_output) {
 			if ($this->verbose) $this->emit('[DISCORD CHAT RELAY]');
 			if(
 				($discord = $this->discord)
