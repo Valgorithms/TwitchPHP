@@ -237,15 +237,17 @@ class Twitch
 
 	protected function parseMessage(string $data): ?string
 	{
-		$messageContents = str_replace(PHP_EOL, "", preg_replace('/.* PRIVMSG.*:/', '', $data));
-		if ($this->verbose) $this->emit('[PRIVMSG] (#' . $this->reallastchannel . ') ' . $this->reallastuser . ': ' . $messageContents);
-		$dataArr = explode(' ', $messageContents);
-		
-		/* Output to Discord */
-		$this->lastmessage = $messageContents;
 		$this->reallastuser = $this->parseUser($data);
 		$this->reallastchannel = $this->parseChannel($data);
-		$this->discordRelay('[MSG] #' . $this->reallastchannel . ' - ' . $this->reallastuser . ': ' . $messageContents);
+		$this->lastmessage = substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->reallastchannel));
+		
+		if ($this->debug){
+			$this->emit('[DEBUG] [DATA] `' . $data . '`');
+			$this->emit('[DEBUG] [LASTMESSAGE] `' . $this->lastmessage . '`');
+		}
+		if ($this->verbose) $this->emit('[PRIVMSG] (#' . $this->reallastchannel . ') ' . $this->reallastuser . ': ' . $this->lastmessage);
+		
+		$this->discordRelay('[MSG] #' . $this->reallastchannel . ' - ' . $this->reallastuser . ': ' . $this->lastmessage);
 		
 		$response = '';
 		$commandsymbol = '';
