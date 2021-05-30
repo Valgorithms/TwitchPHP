@@ -106,7 +106,7 @@ class Commands
 		
 		if ($command == 'join')
 		{
-			if ($this->verbose) $this->twitch->emit('[JOIN]');
+			if ($this->verbose) $this->twitch->emit('[JOIN]' . $args[1]);
 			$this->twitch->joinChannel($args[1]);
 		}
 		
@@ -118,7 +118,7 @@ class Commands
 		
 		if ($command == 'so')
 		{
-			if ($this->verbose) $this->twitch->emit('[SO]');
+			if ($this->verbose) $this->twitch->emit('[SO] ' . $args[1]);
 			$this->twitch->sendMessage('Hey, go check out ' . $args[1] . ' at https://www.twitch.tv/' . $args[1] . ' They are good peeples! Pretty good. Pretty good!');
 		}
 		
