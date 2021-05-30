@@ -18,7 +18,7 @@ class Commands
 	protected $verbose;
 	protected $debug;
 	
-	public function __construct(Twitch $twitch, bool $verbose ?? false, bool $debug ?? false)
+	public function __construct(Twitch $twitch, ?bool $verbose = false, ?bool $debug = false)
 	{
 		$this->twitch = $twitch;
 		$this->verbose = $verbose;
