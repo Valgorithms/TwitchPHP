@@ -81,7 +81,7 @@ class Twitch
 		$this->connector = new Connector($this->loop, $options['socket_options']);
 		
 		include __DIR__ . '\Commands.php';
-		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
+		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose, $this->debug);
 	}
 	
 	public function run(bool $runLoop = true): void

@@ -16,16 +16,32 @@ class Commands
 {
 	protected $twitch;
 	protected $verbose;
+	protected $debug;
 	
-	public function __construct(Twitch $twitch, bool $verbose)
+	public function __construct(Twitch $twitch, bool $verbose ?? false, bool $debug ?? false)
 	{
 		$this->twitch = $twitch;
 		$this->verbose = $verbose;
+		$this->debug = $debug;
 	}
 	public function handle(string $command, ?array $args = []): ?string
 	{
-		if ($this->verbose) $this->twitch->emit("[HANDLE COMMAND] `$command`");
-		echo '[ARGS] '; var_dump($args); echo PHP_EOL;
+		if ($this->verbose) {
+			$this->twitch->emit("[HANDLE COMMAND] `$command`");
+			echo '[ARGS] ';
+			var_dump($args);
+			echo PHP_EOL;
+		}
+		
+		if($this->debug) {
+		$i = 0;
+		foreach ($args as $arg) {
+			$args[$i] = preg_replace('/[^A-Za-z0-9\-]/', '', trim($arg));
+			$i++;
+		}
+		unset($i);
+		}
+		
 		if ($command == 'help')
 		{
 			$commandsymbol = $this->twitch->getCommandSymbol();
@@ -35,38 +51,38 @@ class Commands
 			$private_functions = $this->twitch->getPrivateFunctions();
 			
 			$commands = '';
-			if ($commandsymbol){
+			if ($commandsymbol) {
 				$commands.= '[Command Prefix] ';
-				foreach($commandsymbol as $symbol){
+				foreach($commandsymbol as $symbol) {
 					$commands .= "$symbol, ";
 				}
 				$commands = substr($commands, 0, strlen($commands)-2) . " ";
 			}
-			if($responses || $functions){
+			if($responses || $functions) {
 				$commands .= '[Public] ';
-				if($responses){
-					foreach($responses as $command => $value){
+				if($responses) {
+					foreach($responses as $command => $value) {
 						$commands .= "$command, ";
 					}
 					
 				}
-				if($responses){
-					foreach($functions as $command){
+				if($responses) {
+					foreach($functions as $command) {
 						$commands .= "$command, ";
 					}
 				}
 				$commands = substr($commands, 0, strlen($commands)-2) . " ";
 			}
-			if($restricted_functions){
+			if($restricted_functions) {
 				$commands .= '[Whitelisted] ';
-				foreach($restricted_functions as $command){
+				foreach($restricted_functions as $command) {
 					$commands .= "$command, ";
 				}
 				$commands = substr($commands, 0, strlen($commands)-2) . " ";
 			}
-			if($private_functions){			
+			if($private_functions) {			
 				$commands .= '[Private] ';
-				foreach($private_functions as $command){
+				foreach($private_functions as $command) {
 					$commands .= "$command, ";
 				}
 				$commands = substr($commands, 0, strlen($commands)-2) . " ";
