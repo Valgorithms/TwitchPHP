@@ -80,7 +80,7 @@ class Twitch
 		
 		$this->connector = new Connector($this->loop, $options['socket_options']);
 		
-		include 'Commands.php';
+		include __DIR__ . '\Commands.php';
 		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
 	}
 	
@@ -252,13 +252,14 @@ class Twitch
 		$response = '';
 		$commandsymbol = '';
 		foreach($this->commandsymbol as $symbol) {
-			if (in_array(substr($messageContents, 0, strlen($symbol)), $this->commandsymbol)) {
+			if (in_array(substr($this->lastmessage, 0, strlen($symbol)), $this->commandsymbol)) {
 				$valid = true;
 				$commandsymbol = $symbol;
 				break 1;
 			}
 		}
 		if ($commandsymbol) {
+			$dataArr = explode(' ', $this->lastmessage);
 			$command = strtolower(trim(substr($dataArr[0], strlen($commandsymbol))));
 			if ($this->verbose) $this->emit("[COMMAND] `$command`"); 
 			$this->lastuser = $this->reallastuser;
