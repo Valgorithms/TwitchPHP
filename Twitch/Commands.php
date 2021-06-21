@@ -119,6 +119,7 @@ class Commands
 		if ($command == 'so')
 		{
 			if ($this->verbose) $this->twitch->emit('[SO] ' . $args[1]);
+			if (!$args[1]) return;
 			$this->twitch->sendMessage('Hey, go check out ' . $args[1] . ' at https://www.twitch.tv/' . $args[1] . ' They are good peeples! Pretty good. Pretty good!');
 		}
 		
