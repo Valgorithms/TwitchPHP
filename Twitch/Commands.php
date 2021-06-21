@@ -52,7 +52,7 @@ class Commands
 			
 			$commands = '';
 			if ($commandsymbol) {
-				$commands.= '[Command Prefix] ';
+				$commands .= '[Command Prefix] ';
 				foreach($commandsymbol as $symbol) {
 					$commands .= "$symbol, ";
 				}
@@ -107,6 +107,7 @@ class Commands
 		if ($command == 'join')
 		{
 			if ($this->verbose) $this->twitch->emit('[JOIN]' . $args[1]);
+			if (!$args[1]) return null;
 			$this->twitch->joinChannel($args[1]);
 		}
 		
