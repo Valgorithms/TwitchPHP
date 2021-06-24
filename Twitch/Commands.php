@@ -126,8 +126,8 @@ class Commands
 		
 		if ($command == 'ban') {
 			$reason = '';
-			foreach ($x=2; $x<count($args), $x++) {
-				$reason .= $args[$x] . ' ';
+\			for ($i=2; $i<count($args); $i++) {
+				$reason .= $args[$i] . ' ';
 			}
 			if ($this->verbose) $this->twitch->emit('[SO] ' . $args[1] . " $reason");
 			$this->twitch->ban($args[1], trim($reason)); //ban with optional reason
