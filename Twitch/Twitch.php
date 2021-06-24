@@ -258,7 +258,7 @@ class Twitch
 		
 		if ($this->debug){
 			$this->emit('[DEBUG] [DATA] `' . $data . '`');
-			$this->emit('[DEBUG] [LASTMESSAGE] `' . $this->lastmessage . '`');
+			$this->emit("[DEBUG] [LASTMESSAGE] '" . $this->lastmessage . "'";
 		}
 		if ($this->verbose) $this->emit('[PRIVMSG] (#' . $this->reallastchannel . ') ' . $this->reallastuser . ': ' . $this->lastmessage);
 		
