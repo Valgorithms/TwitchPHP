@@ -42,6 +42,10 @@ $options = array(
 		'daathren',
 		'z3tadragon',
 	],
+	'badwords' => [ // List of blacklisted words or phrases in their entirety; User will be immediately banned with reason 'badword' if spoken in chat
+		'Buy followers, primes and viewers',
+		'bigfollows . com',
+	],
 	'social' => [ //NYI
 		'twitter' => 'https://twitter.com/daathren',
 		'instagram' => 'https://www.instagram.com/daathren/',
@@ -62,7 +66,8 @@ $options = array(
 		'help', // Send a list of commands as a chat message
 	],
 	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
-		'so', //Advertise someone else
+		'so', //Advertise someone 
+		'ban', //Ban someone with or without a reason included after the username
 	],
 	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
 		'php', //Outputs the current version of PHP as a message

@@ -18,6 +18,7 @@ class Twitch
 {
 	protected $loop;
 	protected $commands;
+	protected $badwords = [];
 	
 	private $discord;
 	private $discord_output;
@@ -52,7 +53,6 @@ class Twitch
 	function __construct(array $options = [])
 	{
 		if (php_sapi_name() !== 'cli') trigger_error('TwitchPHP will not run on a webserver. Please use PHP CLI to run a TwitchPHP self-bot.', E_USER_ERROR);
-		if ($this->verbose) $this->emit('[CONSTRUCT]');
 		
 		$options = $this->resolveOptions($options);
 		
@@ -81,6 +81,7 @@ class Twitch
 		$this->connector = new Connector($this->loop, $options['socket_options']);
 		
 		include __DIR__ . '\Commands.php';
+		if (is_array($options['badwords'])) $this->badwords = $options['badwords'];
 		$this->commands = $options['commands'] ?? new Commands($this, $this->verbose, $this->debug);
 	}
 	
@@ -227,14 +228,28 @@ class Twitch
 		}
 		if (preg_match('/PRIVMSG/', $data)) {
 			$response = $this->parseMessage($data);
-			if ($response) {				
+			if ($response) {
+				if (!empty($this->badwords) && $this->badwordsCheck($response)) {
+					$this->ban($this->lastuser);
+				}
 				$payload = '@' . $this->lastuser . ', ' . $response . "\n";
 				$this->sendMessage($payload);
 				$this->discordRelay('[REPLY] #' . $this->reallastchannel . ' - ' . $payload);
 			}
 		}
 	}
-
+	
+	protected function badwordsCheck($message) {
+		foreach ($this->badwords as $badword) {
+			if (str_contains($message, $badword)) return true;
+		}
+		return false;
+	}
+	
+	public function ban($username, ?$reason) {
+		if ( ($username != $this->nick) && !in_array($username, $this->channels)) $connection->write("/ban $username $reason");
+	}
+	
 	protected function parseMessage(string $data): ?string
 	{
 		$this->reallastuser = $this->parseUser($data);

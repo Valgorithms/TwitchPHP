@@ -91,6 +91,10 @@ $options = array(
 		'valzargaming',
 		'daathren',
 	],
+	'badwords' => [ // List of blacklisted words or phrases in their entirety; User will be immediately banned with reason 'badword' if spoken in chat
+		'Buy followers, primes and viewers',
+		'bigfollows . com',
+	],
 	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
 		'ping' => 'Pong!',
 		'github' => 'https://github.com/VZGCoders/TwitchPHP',
@@ -102,6 +106,7 @@ $options = array(
 	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
 		'join', //Joins another user's channel
 		'leave', //Leave the current user's channel
+		'ban', // Ban someone from the channel, takes a username and an optional reason
 	],
 	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
 		'stop', //Kills the bot
