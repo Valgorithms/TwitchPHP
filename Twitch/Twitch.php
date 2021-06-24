@@ -246,8 +246,8 @@ class Twitch
 		return false;
 	}
 	
-	public function ban($username, ?$reason) {
-		if ( ($username != $this->nick) && !in_array($username, $this->channels)) $connection->write("/ban $username $reason");
+	public function ban($username, $reason = '') {
+		if ( ($username != $this->nick) && (!in_array($username, $this->channels)) ) $connection->write("/ban $username $reason");
 	}
 	
 	protected function parseMessage(string $data): ?string
