@@ -40,7 +40,6 @@ $options = array(
 	'whitelist' => [ // Users who are allowed to use restricted functions
 		'valzargaming',
 		'daathren',
-		'z3tadragon',
 	],
 	'badwords' => [ // List of blacklisted words or phrases in their entirety; User will be immediately banned with reason 'badword' if spoken in chat
 		'Buy followers, primes and viewers',
@@ -48,9 +47,10 @@ $options = array(
 	],
 	'social' => [ //NYI
 		'twitter' => 'https://twitter.com/daathren',
-		'instagram' => 'https://www.instagram.com/daathren/',
+		'instagram' => 'https://www.instagram.com/daathren',
 		'discord' => 'https://discord.gg/CpVbC78XWT',
-		'tumblr' => 'https://daathren.tumblr.com/',
+		'tumblr' => 'https://daathren.tumblr.com',
+		'youtube' => 'https://www.youtube.com/daathren',
 	],
 	'tip' => [ //NYI
 		'paypal' => 'https://www.paypal.com/paypalme/daathren',
@@ -77,7 +77,7 @@ $options = array(
 	],
 );
 // Responses that reference other values in options should be declared afterwards
-$options['responses']['social'] = 'Come follow the magick through several dimensions:  Twitter - '.$options['social']['twitter'].' |  Instagram - '.$options['social']['instagram'].' |  Discord - '.$options['social']['discord'].' |  Tumblr - '.$options['social']['tumblr'];
+$options['responses']['social'] = 'Come follow the magick through several dimensions:  Twitter - '.$options['social']['twitter'].' |  Instagram - '.$options['social']['instagram'].' |  Discord - '.$options['social']['discord'].' |  Tumblr - '.$options['social']['tumblr'].' |  YouTube - '.$options['social']['youtube'];
 $options['responses']['tip'] = 'Wanna help fund the magick?  PayPal - '.$options['tip']['paypal'].' |  CashApp - '.$options['tip']['cashapp'];
 $options['responses']['discord'] = $options['social']['discord'];
 
