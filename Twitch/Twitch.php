@@ -18,7 +18,7 @@ class Twitch
 {
 	protected $loop;
 	protected $commands;
-	protected $badwords = [];
+	
 	
 	private $discord;
 	private $discord_output;
@@ -33,6 +33,7 @@ class Twitch
 	private $nick;
 	private $channels;
 	private $commandsymbol;
+	private $badwords;
 	
 	private $whitelist;
 	private $responses;
@@ -239,14 +240,20 @@ class Twitch
 		}
 	}
 	
-	protected function badwordsCheck($message) {
+	protected function badwordsCheck($message): bool
+	{
+		if ($this->debug) $this->emit('[BADWORD CHECK] ' . $message);
 		foreach ($this->badwords as $badword) {
-			if (str_contains($message, $badword)) return true;
+			if (str_contains($message, $badword)) {
+				if ($this->verbose) $this->emit('[BADWORD] ' . $badword);
+				return true;
+			}
 		}
 		return false;
 	}
 	
 	public function ban($username, $reason = '') {
+		if ($this->verbose) $this->emit('[BAN] ' . $username . ' - ' . $reason);
 		if ( ($username != $this->nick) && (!in_array($username, $this->channels)) ) $connection->write("/ban $username $reason");
 	}
 	
@@ -263,6 +270,10 @@ class Twitch
 		if ($this->verbose) $this->emit('[PRIVMSG] (#' . $this->reallastchannel . ') ' . $this->reallastuser . ': ' . $this->lastmessage);
 		
 		$this->discordRelay('[MSG] #' . $this->reallastchannel . ' - ' . $this->reallastuser . ': ' . $this->lastmessage);
+		if (!empty($this->badwords) && $this->badwordsCheck($response)) {
+			$this->ban($this->reallastuser);
+			$this->discordRelay('[BANNED - BAD WORD] #' . $this->reallastchannel . ' - ' . $this->reallastuser);
+		}
 		
 		$response = '';
 		$commandsymbol = '';
