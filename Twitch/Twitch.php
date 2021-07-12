@@ -156,6 +156,16 @@ class Twitch
 		}
 	}
 	
+	public function ban($username, $reason = ''): bool
+	{
+		if ($this->verbose) $this->emit('[BAN] ' . $username . ' - ' . $reason);
+		if ( ($username != $this->nick) && (!in_array($username, $this->channels)) ) {
+			$connection->write("/ban $username $reason");
+			return true;
+		}
+		return false;
+	}
+	
 	/*
 	* Attempt to catch errors with the user-provided $options early
 	*/
@@ -250,11 +260,6 @@ class Twitch
 			}
 		}
 		return false;
-	}
-	
-	public function ban($username, $reason = '') {
-		if ($this->verbose) $this->emit('[BAN] ' . $username . ' - ' . $reason);
-		if ( ($username != $this->nick) && (!in_array($username, $this->channels)) ) $connection->write("/ban $username $reason");
 	}
 	
 	protected function parseMessage(string $data): ?string
