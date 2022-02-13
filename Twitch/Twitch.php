@@ -266,7 +266,7 @@ class Twitch
 	{
 		$this->reallastuser = $this->parseUser($data);
 		$this->reallastchannel = $this->parseChannel($data);
-		$this->lastmessage = substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->reallastchannel));
+		$this->lastmessage = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->reallastchannel)));
 		
 		if ($this->debug){
 			$this->emit('[DEBUG] [DATA] `' . $data . '`');
@@ -283,15 +283,15 @@ class Twitch
 		$response = '';
 		$commandsymbol = '';
 		foreach($this->commandsymbol as $symbol) {
-			if (in_array(substr($this->lastmessage, 0, strlen($symbol)), $this->commandsymbol)) {
-				$valid = true;
+			if (str_starts_with($this->lastmessage, $symbol)) {
+				$this->lastmessage = trim(substr($this->lastmessage, strlen($symbol)));
 				$commandsymbol = $symbol;
 				break 1;
 			}
 		}
 		if ($commandsymbol) {
 			$dataArr = explode(' ', $this->lastmessage);
-			$command = strtolower(trim(substr($dataArr[0], strlen($commandsymbol))));
+			$command = strtolower(trim($dataArr[0]));
 			if ($this->verbose) $this->emit("[COMMAND] `$command`"); 
 			$this->lastuser = $this->reallastuser;
 			$this->lastchannel = $this->reallastchannel;
