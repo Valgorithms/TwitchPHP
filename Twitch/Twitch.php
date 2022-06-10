@@ -275,7 +275,7 @@ class Twitch
 		if ($this->verbose) $this->emit('[PRIVMSG] (#' . $this->reallastchannel . ') ' . $this->reallastuser . ': ' . $this->lastmessage);
 		
 		$this->discordRelay('[MSG] #' . $this->reallastchannel . ' - ' . $this->reallastuser . ': ' . $this->lastmessage);
-		if (!empty($this->badwords) && $this->badwordsCheck($response)) {
+		if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage)) {
 			$this->ban($this->reallastuser);
 			$this->discordRelay('[BANNED - BAD WORD] #' . $this->reallastchannel . ' - ' . $this->reallastuser);
 		}
