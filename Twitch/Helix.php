@@ -13,6 +13,6 @@ namespace Twitch;
  */
 class HelixCommandClient extends Twitch
 {
-	
+    
 }
 ?>
