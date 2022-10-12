@@ -8,15 +8,15 @@
 require 'vendor/autoload.php';
 require 'Twitch/Twitch.php';
 
-//$loop = React\EventLoop\Factory::create();
+$loop = React\EventLoop\Factory::create();
 require 'secret.php'; //$secret
-$nick = 'ValZarGaming';
+$nick = 'ValZarGaming';  // Twitch username (Case sensitive)
 $logger = new \Monolog\Logger('New logger');
 $logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
 $options = array(
     //Required
     'secret' => $secret, // Client secret
-    'nick' => $nick, // Twitch username
+    'nick' => $nick,
     'channels' => [
         strtolower($nick), // Channel to join
         'shriekingechodanica', // (Optional) Additional channels
@@ -28,7 +28,7 @@ $options = array(
     //'guild_id' => '116927365652807686', //ID of the Discord server
     //'channel_id' => '431415282129698866', //ID of the Discord channel to output messages to
     
-    //'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
+    'loop' => $loop, // (Optional) Pass your own instance of $loop to share with other ReactPHP applications
     'socket_options' => [
         'dns' => '8.8.8.8', // Can change DNS provider
     ],
@@ -38,6 +38,7 @@ $options = array(
     
     //Custom commands
     'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
+        "@$nick", //Users can mention your channel instead of using a command symbol prefix
         '!',
         ';',
     ],
@@ -68,7 +69,7 @@ $options = array(
         'help', // Send a list of commands as a chat message
     ],
     'restricted_functions' => [ // Enabled functions usable only by whitelisted users
-        'so', //Advertise someone 
+        'so', //Advertise someone else
         'ban', //Ban someone with or without a reason included after the username
     ],
     'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot

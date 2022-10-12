@@ -73,9 +73,9 @@ class Twitch
         $this->restricted_functions = $options['restricted_functions'] ?? array();
         $this->private_functions = $options['private_functions'] ?? array();
         
-        $this->verbose = $options['verbose'];
-        $this->socket_options = $options['socket_options'];
-        $this->debug = $options['debug'];
+        if (isset($options['verbose'])) $this->verbose = $options['verbose'];
+        if (isset($options['socket_options'])) $this->socket_options = $options['socket_options'];
+        if (isset($options['debug'])) $this->debug = $options['debug'];
         if (isset($options['logger']) && $options['logger'] instanceof \Monolog\Logger) $this->logger = $options['logger'];
         else {
             $this->logger = new \Monolog\Logger('New logger');
