@@ -12,15 +12,15 @@ Before you start using this Library, you **need** to know how PHP works, you nee
 1. Can I run TwitchPHP on a webserver (e.g. Apache, nginx)?
     - No, TwitchPHP will only run in CLI. If you want to have an interface for your bot you can integrate [react/http](https://github.com/ReactPHP/http) with your bot and run it through CLI.
 2. PHP is running out of memory?
-	- Try increase your memory limit using `ini_set('memory_limit', '-1');`.
+    - Try increase your memory limit using `ini_set('memory_limit', '-1');`.
 
 ## Getting Started
 
 ### Requirements
 
 - PHP 7.4.13
-	- Technically the library can run on any PHP7 version or higher, however, no support will be given for any version lower than 7.4.13.
-	- Despite the description above, this library is being built with PHP8 support in mind. There will come a time where PHP7 is no longer supported.
+    - Technically the library can run on any PHP7 version or higher, however, no support will be given for any version lower than 7.4.13.
+    - Despite the description above, this library is being built with PHP8 support in mind. There will come a time where PHP7 is no longer supported.
 - Composer
 
 ### Windows and SSL
@@ -44,7 +44,7 @@ TwitchPHP is installed using [Composer](https://getcomposer.org).
 
 1. Run `composer require VZGCoders/TwitchPHP`. This will install the lastest release.
 2. Include the Composer autoload file at the top of your main file:
-	- `include __DIR__.'/vendor/autoload.php';`
+    - `include __DIR__.'/vendor/autoload.php';`
 3. Make a bot!
 
 ## Configuration
@@ -61,57 +61,57 @@ require 'vendor/autoload.php';
 //$loop = React\EventLoop\Factory::create();
 require 'secret.php'; //$secret
 $options = array(
-	//Required
-	'secret' => $secret, // Client secret
-	'nick' => 'ValZarGaming', // Twitch username
-	'channels' => [
-		'daathren', // Channel to join
-		'valzargaming', // (Optional) Additional channels
-	],
-	
-	//Optional
-	//'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)	
-	//'discord_output' => true, // Output Twitch chat to a Discord server's channel
-	//'guild_id' => '116927365652807686', //ID of the server
-	//'channel_id' => '431415282129698866', //ID of the channel
-	
-	//'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
-	'socket_options' => [
-		'dns' => '8.8.8.8', // Can change DNS provider
-	],
-	'verbose' => true, // Additional output to console (useful for debugging TwitchPHP)
-	'debug' => false, // Additional output to console (useful for debugging communications with Twitch)
-	
-	//Custom commands
-	'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
-		'!',
-		';',
-	],
-	'whitelist' => [ // Users who are allowed to use restricted functions
-		'valzargaming',
-		'daathren',
-	],
-	'badwords' => [ // List of blacklisted words or phrases in their entirety; User will be immediately banned with reason 'badword' if spoken in chat
-		'Buy followers, primes and viewers',
-		'bigfollows . com',
-	],
-	'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
-		'ping' => 'Pong!',
-		'github' => 'https://github.com/VZGCoders/TwitchPHP',
-		'discord' => 'https://discord.gg/yXJVTQNh9e',
-	],
-	'functions' => [ // Enabled functions usable by anyone
-		'help', // Send a list of commands as a chat message
-	],
-	'restricted_functions' => [ // Enabled functions usable only by whitelisted users
-		'join', //Joins another user's channel
-		'leave', //Leave the current user's channel
-		'ban', // Ban someone from the channel, takes a username and an optional reason
-	],
-	'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
-		'stop', //Kills the bot
-		'php', //Outputs the current version of PHP as a message
-	],
+    //Required
+    'secret' => $secret, // Client secret
+    'nick' => 'ValZarGaming', // Twitch username
+    'channels' => [
+        'daathren', // Channel to join
+        'valzargaming', // (Optional) Additional channels
+    ],
+    
+    //Optional
+    //'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)    
+    //'discord_output' => true, // Output Twitch chat to a Discord server's channel
+    //'guild_id' => '116927365652807686', //ID of the server
+    //'channel_id' => '431415282129698866', //ID of the channel
+    
+    //'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
+    'socket_options' => [
+        'dns' => '8.8.8.8', // Can change DNS provider
+    ],
+    'verbose' => true, // Additional output to console (useful for debugging TwitchPHP)
+    'debug' => false, // Additional output to console (useful for debugging communications with Twitch)
+    
+    //Custom commands
+    'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
+        '!',
+        ';',
+    ],
+    'whitelist' => [ // Users who are allowed to use restricted functions
+        'valzargaming',
+        'daathren',
+    ],
+    'badwords' => [ // List of blacklisted words or phrases in their entirety; User will be immediately banned with reason 'badword' if spoken in chat
+        'Buy followers, primes and viewers',
+        'bigfollows . com',
+    ],
+    'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
+        'ping' => 'Pong!',
+        'github' => 'https://github.com/VZGCoders/TwitchPHP',
+        'discord' => 'https://discord.gg/yXJVTQNh9e',
+    ],
+    'functions' => [ // Enabled functions usable by anyone
+        'help', // Send a list of commands as a chat message
+    ],
+    'restricted_functions' => [ // Enabled functions usable only by whitelisted users
+        'join', //Joins another user's channel
+        'leave', //Leave the current user's channel
+        'ban', // Ban someone from the channel, takes a username and an optional reason
+    ],
+    'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
+        'stop', //Kills the bot
+        'php', //Outputs the current version of PHP as a message
+    ],
 );
 //include 'commands.php';
 //$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions

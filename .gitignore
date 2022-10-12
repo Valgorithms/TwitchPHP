@@ -11,3 +11,4 @@ composer.lock
 secret.php
 connect.php
 run.php
+temp/*
