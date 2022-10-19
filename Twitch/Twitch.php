@@ -117,7 +117,7 @@ class Twitch
     
     public function sendMessage(string $data, ?string $channel = null): void
     {
-        if (isset($this->connection)) {
+        if (isset($this->connection) && ($this->connection !== false)) {
             $this->connection->write("PRIVMSG #" . ($channel ?? $this->reallastchannel ?? current($this->channels)) . " :" . $data . "\n");
             $this->logger->info('[REPLY] #' . ($channel ?? $this->reallastchannel ?? current($this->channels)) . ' - ' . $data);
             if ($channel) $this->reallastchannel = $channel ?? $this->reallastchannel ?? current($this->channels);
@@ -127,7 +127,7 @@ class Twitch
     public function joinChannel(string $string = "")
     {
         if ($this->verbose) $this->logger->info('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');    
-        if (! isset($this->connection)) return;
+        if (! isset($this->connection) || $this->connection === false) return;
         if (! $string) return;
         
         $string = strtolower($string);
@@ -143,7 +143,7 @@ class Twitch
     public function leaveChannel(?string $string): void
     {
         if ($this->verbose) $this->logger->info('[VERBOSE] [LEAVE CHANNEL] `' . $string . '`');
-        if (! isset($this->connection)) return;
+        if (! isset($this->connection) || $this->connection === false) return;
         $string = strtolower($string ?? $this->reallastchannel);
         $this->connection->write("PART #" . ($string ?? $this->reallastchannel) . "\n");
         foreach ($this->channels as &$channel) {
@@ -155,9 +155,9 @@ class Twitch
     public function ban($username, $reason = ''): bool
     {
         if ($this->verbose) $this->logger->info('[BAN] ' . $username . ' - ' . $reason);
-        if (! isset($this->connection)) return false;
+        if (! isset($this->connection) || $this->connection === false) return false;
         if ( ($username != $this->nick) && (!in_array($username, $this->channels)) ) {
-            $connection->write("/ban $username $reason");
+            $this->connection->write("/ban $username $reason");
             return true;
         }
         return false;
@@ -189,7 +189,7 @@ class Twitch
         $url = 'irc.chat.twitch.tv';
         $port = '6667';
         if ($this->verbose) $this->logger->info("[CONNECT] $url:$port");
-        if ($this->connection) {
+        if (isset($this->connection) && $this->connection !== false) {
             $this->logger->warning('[CONNECT] A connection already exists');
             return;
         }
@@ -200,14 +200,14 @@ class Twitch
                 $this->initIRC($this->connection);
                 
                 $connection->on('data', function($data) use ($connection) {
-                    $this->process($data, $this->connection);
+                    if ($this->connection !== false) $this->process($data, $this->connection);
                 });
                 $connection->on('close', function () {
                     $this->logger->info('[CLOSE]');
                 });
                 $this->logger->info('[CONNECTED]');
             },
-            function (Exception $exception) {
+            function (\Exception $exception) {
                 $this->logger->warning($exception->getMessage());
             }
         );

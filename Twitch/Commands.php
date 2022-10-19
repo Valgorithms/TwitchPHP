@@ -97,7 +97,7 @@ class Commands
         if ($command == 'leave')
         {
             if ($this->verbose) $this->twitch->logger->info('[PART]');
-            $this->twitch->leaveChannel();
+            $this->twitch->leaveChannel($this->twitch->reallastchannel);
         }
         
         if ($command == 'so')
@@ -114,7 +114,7 @@ class Commands
             $this->twitch->ban($args[1], trim($reason)); //ban with optional reason
         }
         
-        return $response;
+        return $response ?? null;
     }
 }
 ?>
