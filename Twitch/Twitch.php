@@ -270,14 +270,16 @@ class Twitch
             $this->discordRelay('[BANNED - BAD WORD] #' . $this->reallastchannel . ' - ' . $this->reallastuser);
         }
         
+        $called = false;
         $response = '';
         $commandsymbol = '';
         foreach($this->commandsymbol as $symbol) if (str_starts_with($this->lastmessage, $symbol)) {
             $this->lastmessage = trim(substr($this->lastmessage, strlen($symbol)));
             $commandsymbol = $symbol;
+            $called = true;
             break 1;
         }
-        if ($commandsymbol === null) return $response;
+        if (!$called) return $response;
         
         $dataArr = explode(' ', $this->lastmessage);
         $command = strtolower(trim($dataArr[0]));
