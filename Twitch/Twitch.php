@@ -266,13 +266,13 @@ class Twitch
         
         $called = false;
         foreach($this->commandsymbol as $symbol) if (str_starts_with($this->lastmessage, $symbol)) {
-            $this->lastmessage = trim(substr($this->lastmessage, strlen($symbol)));
+            $message = trim(substr($this->lastmessage, strlen($symbol)));
             $called = true;
             break;
         }
         if (!$called) return '';
         
-        $dataArr = explode(' ', $this->lastmessage);
+        $dataArr = explode(' ', $message);
         $command = strtolower(trim($dataArr[0]));
         if ($this->verbose) $this->logger->info("[COMMAND] `$command`");         
         
