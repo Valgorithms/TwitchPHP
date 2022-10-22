@@ -233,11 +233,11 @@ class Twitch
     {
         if ($this->debug) $this->logger->debug("[DEBUG] [DATA] $data");
         if (trim($data) == 'PING :tmi.twitch.tv') return $this->pingPong($connection);
-        if (preg_match('/PRIVMSG/', $data) && $response = $this->parseCommand($data)) {
-            if (!empty($this->badwords) && $this->badwordsCheck($response) && $this->lastuser != $this->nick) $this->ban($this->lastuser);
-            $payload = "@{$this->lastuser}, $response\n";
-            if(! $this->sendMessage($payload)) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
-            $this->discordRelay("[REPLY] # {$this->lastchannel} - $payload");
+        if (preg_match('/PRIVMSG/', $data)) {
+            if ($response = $this->parseCommand($data)) {
+                $this->discordRelay("[REPLY] # {$this->lastchannel} - $response");
+                if (!$this->sendMessage("@{$this->lastuser}, $response\n")) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
+            }
         }
     }
     protected function badwordsCheck($message): bool
@@ -259,11 +259,10 @@ class Twitch
         $msg = "#{$this->lastchannel} -  {$this->lastuser}: {$this->lastmessage}";
         if ($this->debug) $this->logger->debug("[DATA] `$data'`");
         if ($this->verbose) $this->logger->info("[PRIVMSG] $msg");
-        $this->discordRelay("[MSG] $msg");
         if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage) && $this->lastuser != $this->nick) {
             $this->ban($this->lastuser);
             $this->discordRelay("[BANNED - BAD WORD] #{$this->lastchannel} - {$this->lastuser}");
-        }
+        } else $this->discordRelay("[MSG] $msg");
         
         $called = false;
         foreach($this->commandsymbol as $symbol) if (str_starts_with($this->lastmessage, $symbol)) {
