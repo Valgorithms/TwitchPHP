@@ -18,10 +18,10 @@ Before you start using this Library, you **need** to know how PHP works, you nee
 
 ### Requirements
 
-- PHP 7.4.13
-    - Technically the library can run on any PHP7 version or higher, however, no support will be given for any version lower than 7.4.13.
-    - Despite the description above, this library is being built with PHP8 support in mind. There will come a time where PHP7 is no longer supported.
+- PHP 8
+    - This library is being built with PHP8 support in mind. PHP7 is no longer supported, but can easily be forked and modified to do so.
 - Composer
+- [DiscordPHP](https://github.com/discord-php/DiscordPHP/) (Optional)
 
 ### Windows and SSL
 
@@ -56,24 +56,28 @@ TwitchPHP is installed using [Composer](https://getcomposer.org).
 
 ```php
 <?php
+ignore_user_abort(1);
+set_time_limit(0); // Don't time out the script
+ini_set('max_execution_time', 0); // Don't time out the script
+ini_set('memory_limit', '-1'); //Unlimited memory usage
+
 require 'vendor/autoload.php';
 
-//$loop = React\EventLoop\Factory::create();
+$nick = 'ValZarGaming';  // Twitch username (Case sensitive)
+
+//$loop = \React\EventLoop\Loop::get();
+$logger = new Monolog\Logger('New logger');
+$logger->pushHandler(new Monolog\Handler\StreamHandler('php://stdout'));
+
 require 'secret.php'; //$secret
 $options = array(
     //Required
     'secret' => $secret, // Client secret
-    'nick' => 'ValZarGaming', // Twitch username
-    'channels' => [
-        'daathren', // Channel to join
-        'valzargaming', // (Optional) Additional channels
-    ],
+    'nick' => $nick, // Twitch username
     
     //Optional
     //'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)    
     //'discord_output' => true, // Output Twitch chat to a Discord server's channel
-    //'guild_id' => '116927365652807686', //ID of the server
-    //'channel_id' => '431415282129698866', //ID of the channel
     
     //'loop' => $loop, // Pass your own instance of $loop to share with other ReactPHP applications
     'socket_options' => [
@@ -81,24 +85,27 @@ $options = array(
     ],
     'verbose' => true, // Additional output to console (useful for debugging TwitchPHP)
     'debug' => false, // Additional output to console (useful for debugging communications with Twitch)
+    'logger' => $logger,
     
     //Custom commands
     'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
-        '!',
-        ';',
+        "@$nick", //Users can mention your channel instead of using a command symbol prefix
+		'!s',
     ],
     'whitelist' => [ // Users who are allowed to use restricted functions
-        'valzargaming',
-        'daathren',
+        strtolower($nick),
+        'shriekingechodanica',
     ],
     'badwords' => [ // List of blacklisted words or phrases in their entirety; User will be immediately banned with reason 'badword' if spoken in chat
         'Buy followers, primes and viewers',
-        'bigfollows . com',
+		'bigfollows . com',
+		'stearncomminuty',
+        'Get viewers, followers and primes on',
     ],
     'responses' => [ // Whenever a message is sent matching a key and prefixed with a command symbol, reply with the defined value
         'ping' => 'Pong!',
         'github' => 'https://github.com/VZGCoders/TwitchPHP',
-        'discord' => 'https://discord.gg/yXJVTQNh9e',
+        'discord' => 'https://discord.gg/NU4BS5P36g',
     ],
     'functions' => [ // Enabled functions usable by anyone
         'help', // Send a list of commands as a chat message
@@ -113,8 +120,15 @@ $options = array(
         'php', //Outputs the current version of PHP as a message
     ],
 );
+
 //include 'commands.php';
 //$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions
+
+//Twitch channels to join that do not need to be relayed to Discord, formatted ['channels']['twitch_username'][''] = ''
+$twitch_options['channels']['shriekingechodanica'][''] = '';
+
+//Twitch channels to join and relay chat for, formatted ['channels']['twitch_username']['discord_guild_id'] = 'discord_channel_id'
+$twitch_options['channels']['shriekingechodanica']['923969098185068594'] = '924019611534503996';
 
 $twitch = new Twitch\Twitch($options);
 $twitch->run();
