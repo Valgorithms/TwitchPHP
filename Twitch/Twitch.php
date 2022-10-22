@@ -360,6 +360,21 @@ class Twitch
         return $this->channel_id;
     }
     
+    public function getLastChannel(): ?string
+    {
+        return $this->lastchannel;
+    }
+    
+    public function getLastUser(): ?string
+    {
+        return $this->lastuser;
+    }
+    
+    public function getLastMessage(): ?string
+    {
+        return $this->lastmessage;
+    }
+    
     public function linkDiscord($discord): void
     {
         $this->discord = $discord;
