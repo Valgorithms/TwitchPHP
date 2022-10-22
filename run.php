@@ -17,15 +17,10 @@ $options = array(
     //Required
     'secret' => $secret, // Client secret
     'nick' => $nick,
-    'channels' => [
-        strtolower($nick), // Channel to join
-        'shriekingechodanica', // (Optional) Additional channels
-    ],
     
     //Optional
     //'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)    
     //'discord_output' => true, // Output Twitch chat to a Discord server
-    //'guild_channel_ids' = ['116927365652807686', => '431415282129698866'];
     
     'loop' => $loop, // (Optional) Pass your own instance of $loop to share with other ReactPHP applications
     'socket_options' => [
@@ -78,6 +73,10 @@ $options = array(
         'stop', //Kills the bot
     ],
 );
+//Discord servers to relay chat for, formatted ['channels']['twitch_username']['discord_guild_id'] = 'discord_channel_id'
+$twitch_options['channels']['shriekingechodanica']['923969098185068594'] = '924019611534503996';
+$twitch_options['channels']['shriekingechodanica']['999053951670423643'] = '1014429625826414642';
+$twitch_options['channels'][strtolower($nick)]['923969098185068594'] = '924019611534503996';
 // Responses that reference other values in options should be declared afterwards
 $options['responses']['social'] = 'Come follow the magick through several dimensions:  Twitter - '.$options['social']['twitter'].' |  Discord - '.$options['social']['discord'].' |  YouTube - '.$options['social']['youtube'];
 $options['responses']['tip'] = 'Wanna help fund the magick?  PayPal - '.$options['tip']['paypal'];

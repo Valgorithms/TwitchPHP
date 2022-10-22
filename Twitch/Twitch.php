@@ -10,7 +10,6 @@
 namespace Twitch;
 
 use Twitch\Commands;
-use React\EventLoop\Factory;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Evenement\EventEmitterTrait;
@@ -60,8 +59,8 @@ class Twitch
         $this->loop = $options['loop'];
         $this->secret = $options['secret'];
         $this->nick = $options['nick'];
-        foreach($options['channels'] as $channel) $this->channels[] = strtolower($channel);
-        if(is_null($this->channels)) $this->channels = array($options['nick']);
+        $this->channels = $options['channels'];
+        if(is_null($this->channels)) $this->channels[$options['nick']] = [];
         $this->commandsymbol = $options['commandsymbol'] ?? array('!');
         
         foreach ($options['whitelist'] as $whitelist) $this->whitelist[] = $whitelist;
@@ -70,8 +69,8 @@ class Twitch
         $this->restricted_functions = $options['restricted_functions'] ?? array();
         $this->private_functions = $options['private_functions'] ?? array();
         
-        if (isset($options['verbose'])) $this->verbose = $options['verbose'];
         if (isset($options['socket_options'])) $this->socket_options = $options['socket_options'];
+        if (isset($options['verbose'])) $this->verbose = $options['verbose'];
         if (isset($options['debug'])) $this->debug = $options['debug'];
         if (isset($options['logger']) && $options['logger'] instanceof \Monolog\Logger) $this->logger = $options['logger'];
         else {
@@ -81,11 +80,6 @@ class Twitch
         
         if (isset($options['discord'])) $this->discord = $options['discord'];
         if (isset($options['discord_output'])) $this->discord_output = $options['discord_output'];
-        if (isset($options['guild_id']) && isset($options['channel_id'])) {
-            $this->guild_channel_ids = [$options['guild_id'] => $options['channel_id']];
-            $this->logger->warning('guild_id and channel_id in $options is deprecated! Please use an associative array for `$options[\'guild_channel_ids\'] = [guild_id => channel_id]` instead');
-        }
-        if (isset($options['guild_channel_ids'])) $this->guild_channel_ids = $options['guild_channel_ids'];
         
         $this->connector = new Connector($this->loop, $options['socket_options']);
         
@@ -109,7 +103,7 @@ class Twitch
         if ($this->verbose) $this->logger->info('[CLOSE]');
         if ($this->running) {
             $this->running = false;
-            foreach ($this->channels as $channel) $this->leaveChannel($channel);
+            foreach ($this->channels as $twitch_channel => $arr) $this->leaveChannel($twitch_channel);
         }
         if ($closeLoop) {
             if ($this->verbose) $this->logger->info('[LOOP->STOP]');
@@ -117,26 +111,34 @@ class Twitch
         }
     }
     
+    public function write(string $string): void
+    {
+        if ($this->debug) $this->logger->debug("[WRITE] $string");
+        $this->connection->write($string);
+    }
+    
     public function sendMessage(string $data, ?string $channel = null): bool
     {
         if (isset($this->connection) && ($this->connection !== false)) {
             if ($channel) $this->lastchannel = $channel;
-            $this->connection->write("PRIVMSG #" . ($this->lastchannel ?? current($this->channels)) . " :$data\n");
-            $this->logger->info('[REPLY] #' . ($this->lastchannel ?? current($this->channels)) . ' - ' . $data);
-            return true;
+            if ($this->lastchannel) {
+                $this->write("PRIVMSG #{$this->lastchannel}:$data\n");
+                $this->logger->info("[REPLY] #{$this->lastchannel} - $data");
+                return true;
+            }
         }
         return false;
     }
     
-    public function joinChannel(string $string = "")
+    public function joinChannel(string $string = "", ?string $guild_id = '', ?string $channel_id = '')
     {
         if ($this->verbose) $this->logger->info('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');    
         if (! isset($this->connection) || $this->connection === false) return;
         if (! $string) return;
         
         $string = strtolower($string);
-        $this->connection->write("JOIN #" . $string . "\n");
-        if (!in_array($string, $this->channels)) $this->channels[] = $string;
+        /*if (!isset($this->channels[$string]))*/ $this->write("JOIN #$string\n");
+        if (!isset($this->channels[$string]) || ! isset($this->channels[$string][$guild_id])) $this->channels[$string][$guild_id] = $channel_id;
     }
     
     /*
@@ -144,26 +146,25 @@ class Twitch
     * This command is exposed so other ReactPHP applications can call it, but those applications should always attempt to pass a valid string
     * getChannels has also been exposed for the purpose of checking if the string exists before attempting to call this function
     */
-    public function leaveChannel(?string $string): void
+    public function leaveChannel(?string $string, ?string $guild_id = '', ?string $channel_id = ''): bool
     {
-        if ($this->verbose) $this->logger->info('[VERBOSE] [LEAVE CHANNEL] `' . $string . '`');
-        if (! isset($this->connection) || $this->connection === false) return;
         $string = strtolower($string ?? $this->lastchannel);
-        if(in_array($string, $this->channels)) {
-            $this->connection->write("PART #$string\n");
-            foreach ($this->channels as &$channel) if ($channel == $string) {
-                unset ($channel);
-                break;
-            }
-        }
+        if (! isset($this->channels[$string])) return false;
+        if (! isset($this->connection) || $this->connection === false) return false;
+        if ($this->verbose) $this->logger->info("[VERBOSE] [LEAVE CHANNEL] `$string - $guild_id - $channel_id`");
+        
+        if (! $guild_id) unset($this->channels[$string]);
+        else if($this->discord->guilds->get('id', $guild_id) && isset($this->channels['guild_id'])) unset($this->channels['guild_id']);
+        
+        if (! isset($this->channels[$string]) || empty($this->channels[$string])) $this->write("PART #$string\n");
     }
     
     public function ban($username, $reason = ''): bool
     {
         if ($this->verbose) $this->logger->info("[BAN] $username - $reason");
         if (! isset($this->connection) || $this->connection === false) return false;
-        if ($username != $this->nick && !in_array($username, $this->channels)) {
-            $this->connection->write("/ban $username $reason");
+        if ($username != $this->nick && !in_array($username, array_keys($this->channels))) {
+            $this->write("/ban $username $reason");
             return true;
         }
         return false;
@@ -201,6 +202,7 @@ class Twitch
             function (ConnectionInterface $connection) {
                 $this->initIRC($this->connection = $connection);
                 $connection->on('data', function($data) {
+                    if ($this->debug) $this->logger->debug("[DATA] $data");
                     if ($this->connection !== false) $this->process($data, $this->connection);
                 });
                 $connection->on('close', function () {
@@ -215,27 +217,26 @@ class Twitch
     }
     protected function initIRC(ConnectionInterface $connection): void
     {
-        $connection->write("PASS " . $this->secret . "\n");
-        $connection->write("NICK " . $this->nick . "\n");
-        $connection->write("CAP REQ :twitch.tv/membership\n");
-        foreach ($this->channels as $channel) $this->joinChannel($channel);
+        $this->write("PASS " . $this->secret . "\n");
+        $this->write("NICK " . $this->nick . "\n");
+        $this->write("CAP REQ :twitch.tv/membership\n");
+        foreach (array_keys($this->channels) as $twitch_channel) $this->write("JOIN #$twitch_channel\n");
         if ($this->verbose) $this->logger->info('[INIT IRC]');
     }
 
     protected function pingPong(ConnectionInterface $connection): void
     {
         if ($this->debug) $this->logger->debug('[' . date('h:i:s') . '] PING :tmi.twitch.tv');
-        $connection->write("PONG :tmi.twitch.tv\n");
+        $this->write("PONG :tmi.twitch.tv\n");
         if ($this->debug) $this->logger->debug('[' . date('h:i:s') . '] PONG :tmi.twitch.tv');
     }
     
     protected function process(string $data, ConnectionInterface $connection)
     {
-        if ($this->debug) $this->logger->debug("[DEBUG] [DATA] $data");
         if (trim($data) == 'PING :tmi.twitch.tv') return $this->pingPong($connection);
         if (preg_match('/PRIVMSG/', $data)) {
             if ($response = $this->parseCommand($data)) {
-                $this->discordRelay("[REPLY] # {$this->lastchannel} - $response");
+                $this->discordRelay("[REPLY] #{$this->lastchannel} - $response");
                 if (!$this->sendMessage("@{$this->lastuser}, $response\n")) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
             }
         }
@@ -257,7 +258,6 @@ class Twitch
         $this->lastmessage = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->lastchannel)));
         
         $msg = "#{$this->lastchannel} -  {$this->lastuser}: {$this->lastmessage}";
-        if ($this->debug) $this->logger->debug("[DATA] `$data'`");
         if ($this->verbose) $this->logger->info("[PRIVMSG] $msg");
         if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage) && $this->lastuser != $this->nick) {
             $this->ban($this->lastuser);
@@ -367,14 +367,13 @@ class Twitch
     
     public function discordRelay($payload): bool
     {
-        if (! $this->discord_output) return false;
+        if (! $this->discord_output || ! $discord = $this->discord) return false;
         if ($this->verbose) $this->logger->info('[DISCORD CHAT RELAY]');
-        if ($discord = $this->discord) {
-            foreach ($this->guild_channel_ids as $guild_id => $channel_id) {
-                if (! $guild = $discord->guilds->get('id', $guild_id)) return false;
-                if (! $channel = $guild->channels->get('id', $channel_id)) return false;
-                if (! $channel->sendMessage($payload)) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
-            }
+        if (empty($this->channels)) return false;
+        foreach ($this->channels[$this->lastchannel] as $guild_id => $channel_id) {
+            if (! $guild = $this->discord->guilds->get('id', $guild_id)) continue;
+            if (! $channel = $guild->channels->get('id', $channel_id)) continue;
+            if (! $channel->sendMessage($payload)) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
         }
         return true;
     }
