@@ -97,7 +97,7 @@ class Commands
         if ($command == 'leave')
         {
             if ($this->verbose) $this->twitch->logger->info('[PART]');
-            $this->twitch->leaveChannel($this->twitch->reallastchannel);
+            $this->twitch->leaveChannel($this->twitch->lastchannel);
         }
         
         if ($command == 'so')
