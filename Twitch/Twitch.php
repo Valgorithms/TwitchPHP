@@ -133,12 +133,13 @@ class Twitch
     public function joinChannel(string $string = "", ?string $guild_id = '', ?string $channel_id = '')
     {
         if ($this->verbose) $this->logger->info('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');    
-        if (! isset($this->connection) || $this->connection === false) return;
-        if (! $string) return;
+        if (! isset($this->connection) || $this->connection === false) return false;
+        if (! $string) return false;
         
         $string = strtolower($string);
         /*if (!isset($this->channels[$string]))*/ $this->write("JOIN #$string\n");
         if (!isset($this->channels[$string]) || ! isset($this->channels[$string][$guild_id])) $this->channels[$string][$guild_id] = $channel_id;
+        return true;
     }
     
     /*
@@ -157,6 +158,7 @@ class Twitch
         else if($this->discord->guilds->get('id', $guild_id) && isset($this->channels['guild_id'])) unset($this->channels['guild_id']);
         
         if (! isset($this->channels[$string]) || empty($this->channels[$string])) $this->write("PART #$string\n");
+        return true;
     }
     
     public function ban($username, $reason = ''): bool
