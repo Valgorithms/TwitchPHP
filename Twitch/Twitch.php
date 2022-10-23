@@ -122,7 +122,7 @@ class Twitch
         if (isset($this->connection) && ($this->connection !== false)) {
             if ($channel) $this->lastchannel = $channel;
             if ($this->lastchannel) {
-                $this->write("PRIVMSG #{$this->lastchannel}:$data\n");
+                $this->write("PRIVMSG #{$this->lastchannel} :$data\n");
                 $this->logger->info("[REPLY] #{$this->lastchannel} - $data");
                 return true;
             }
@@ -244,7 +244,7 @@ class Twitch
     protected function badwordsCheck($message): bool
     {
         if ($this->debug) $this->logger->debug('[BADWORD CHECK] ' . $message);
-        foreach ($this->badwords as $badword) if (str_contains($message, $badword)) {
+        foreach ($this->badwords as $badword) if (str_contains(strtolower($message), strtolower($badword))) {
             if ($this->verbose) $this->logger->info('[BADWORD] ' . $badword);
             return true;
         }
@@ -266,13 +266,13 @@ class Twitch
         
         $called = false;
         foreach($this->commandsymbol as $symbol) if (str_starts_with($this->lastmessage, $symbol)) {
-            $message = trim(substr($this->lastmessage, strlen($symbol)));
+            $this->lastmessage = trim(substr($this->lastmessage, strlen($symbol)));
             $called = true;
             break;
         }
         if (!$called) return '';
         
-        $dataArr = explode(' ', $message);
+        $dataArr = explode(' ', $this->lastmessage);
         $command = strtolower(trim($dataArr[0]));
         if ($this->verbose) $this->logger->info("[COMMAND] `$command`");         
         
