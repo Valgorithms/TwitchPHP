@@ -135,6 +135,26 @@ $twitch->run();
 ?>
 ```
 
+### DiscordPHP Example
+```php
+$twitch_relay = function (\Tutelar\Tutelar $tutelar, $message)
+{
+    $message_content = $message->content;
+    $message_content_lower = strtolower($message->content);
+    if ($channels = $tutelar->twitch->getChannels()) foreach ($channels as $twitch_channel => $arr) foreach ($arr as $guild_id => $channel_id) {
+        if (!($message->guild_id == $guild_id && $message->channel_id == $channel_id)) continue;
+        $channel = '';
+        if (str_starts_with($message_content_lower, "#$twitch_channel")) {
+            $message_content = substr($message_content, strlen(substr(explode(' ', $message_content_lower)[0], 1))+1);
+            $channel = $twitch_channel;
+        }
+        //else $channel = $tutelar->twitch->getLastChannel();
+        if (! $channel) continue;
+        if (! $tutelar->twitch->sendMessage("{$message->author->displayname} => $message_content", $channel)) $tutelar->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
+    }
+};
+```
+
 ## Documentation
 
 Raw documentation can be found in-line in the code.
