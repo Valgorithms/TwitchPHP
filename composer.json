@@ -20,6 +20,7 @@
         }
     },
     "suggest": {
+        "team-reflex/discord-php": "Required to relay chat to Discord",
         "ext-uv": "For a faster, and more performant loop. PHP >=7 only. Preferred.",
         "ext-libev": "For a faster, and more performant loop",
         "ext-event": "For a faster, and more performant loop",

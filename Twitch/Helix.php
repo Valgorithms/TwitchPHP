@@ -9,7 +9,7 @@
 namespace Twitch;
 
 /**
- * Provides an easy way to have triggerable commands.
+ * NYI
  */
 class HelixCommandClient extends Twitch
 {
