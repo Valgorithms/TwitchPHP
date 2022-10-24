@@ -138,7 +138,8 @@ class Twitch
         
         $string = strtolower($string);
         /*if (!isset($this->channels[$string]))*/ $this->write("JOIN #$string\n");
-        if (!isset($this->channels[$string]) || ! isset($this->channels[$string][$guild_id])) $this->channels[$string][$guild_id] = $channel_id;
+        if ($channel_id) $this->channels[$string][$guild_id] = $channel_id;
+        else $this->channels[$string][''] = '';
         return true;
     }
     
@@ -155,8 +156,7 @@ class Twitch
         if ($this->verbose) $this->logger->info("[VERBOSE] [LEAVE CHANNEL] `$string - $guild_id - $channel_id`");
         
         if (! $guild_id) unset($this->channels[$string]);
-        else if($this->discord->guilds->get('id', $guild_id) && isset($this->channels['guild_id'])) unset($this->channels['guild_id']);
-        
+        if ($channel_id && isset($this->channels[$string][$guild_id])) unset($this->channels[$string][$guild_id]);
         if (! isset($this->channels[$string]) || empty($this->channels[$string])) $this->write("PART #$string\n");
         return true;
     }
