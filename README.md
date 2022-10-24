@@ -136,21 +136,29 @@ $twitch->run();
 ```
 
 ### DiscordPHP Example
+Inside of `$discord->on('message'` function with `use ($twitch, $twitch_relay)`
 ```php
-$twitch_relay = function (\Tutelar\Tutelar $tutelar, $message)
+$message_content = $message->content;
+$message_content_lower = strtolower($message->content);
+
+if ($message->user_id != $discord->id) $twitch_relay($message, $message_content, $message_content_lower);
+
+if (str_starts_with($message_content_lower, 'join #')) return $twitch->joinChannel(trim(str_replace('join #', '#', $message_content_lower)), $message->guild_id, $message->channel_id);
+if (str_starts_with($message_content_lower, 'leave #')) return $twitch->leaveChannel(trim(str_replace('leave #', '#', $message_content_lower)), $message->guild_id, $message->channel_id);
+```
+```php
+$twitch_relay = function ($message, string $message_content, string $message_content_lower) use ($discord, $twitch): void
 {
-    $message_content = $message->content;
-    $message_content_lower = strtolower($message->content);
-    if ($channels = $tutelar->twitch->getChannels()) foreach ($channels as $twitch_channel => $arr) foreach ($arr as $guild_id => $channel_id) {
+    if ($channels = $twitch->getChannels()) foreach ($channels as $twitch_channel => $arr) foreach ($arr as $guild_id => $channel_id) {
         if (!($message->guild_id == $guild_id && $message->channel_id == $channel_id)) continue;
         $channel = '';
         if (str_starts_with($message_content_lower, "#$twitch_channel")) {
-            $message_content = substr($message_content, strlen(substr(explode(' ', $message_content_lower)[0], 1))+1);
+            $message_content = trim(substr($message_content, strlen("#$twitch_channel")));
             $channel = $twitch_channel;
         }
-        //else $channel = $tutelar->twitch->getLastChannel();
+        //else $channel = $twitch->getLastChannel(); //Only works reliably if only relaying chat for a single Twitch chat
         if (! $channel) continue;
-        if (! $tutelar->twitch->sendMessage("{$message->author->displayname} => $message_content", $channel)) $tutelar->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
+        if (! $twitch->sendMessage("{$message->author->displayname} => $message_content", $channel)) $twitch->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
     }
 };
 ```
