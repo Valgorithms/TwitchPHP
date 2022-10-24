@@ -56,7 +56,7 @@ class Commands
             }
             if($responses || $functions) {
                 $commands .= '[Public] ';
-                if($responses) foreach($responses as $command => $value) $commands .= "$command, ";
+                if($responses) foreach(array_keys($responses) as $command) $commands .= "$command, ";
                 if($responses) foreach($functions as $command) $commands .= "$command, ";
                 $commands = substr($commands, 0, strlen($commands)-2) . " ";
             }

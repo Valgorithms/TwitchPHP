@@ -107,7 +107,7 @@ class Twitch
         if ($this->verbose) $this->logger->info('[CLOSE]');
         if ($this->running) {
             $this->running = false;
-            foreach ($this->channels as $twitch_channel => $arr) $this->leaveChannel($twitch_channel);
+            foreach (array_keys($this->channels) as $twitch_channel) $this->leaveChannel($twitch_channel);
         }
         if ($closeLoop) {
             if ($this->verbose) $this->logger->info('[LOOP->STOP]');
