@@ -143,8 +143,8 @@ $message_content_lower = strtolower($message->content);
 
 if ($message->user_id != $discord->id) $twitch_relay($message, $message_content, $message_content_lower);
 
-if (str_starts_with($message_content_lower, 'join #')) return $twitch->joinChannel(trim(str_replace('join #', '#', $message_content_lower)), $message->guild_id, $message->channel_id);
-if (str_starts_with($message_content_lower, 'leave #')) return $twitch->leaveChannel(trim(str_replace('leave #', '#', $message_content_lower)), $message->guild_id, $message->channel_id);
+if (str_starts_with($message_content_lower, 'join #')) return $twitch->joinChannel(trim(str_replace('join #', '', $message_content_lower)), $message->guild_id, $message->channel_id);
+if (str_starts_with($message_content_lower, 'leave #')) return $twitch->leaveChannel(trim(str_replace('leave #', '', $message_content_lower)), $message->guild_id, $message->channel_id);
 ```
 ```php
 $twitch_relay = function ($message, string $message_content, string $message_content_lower) use ($discord, $twitch): void
