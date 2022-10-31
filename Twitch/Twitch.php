@@ -389,6 +389,7 @@ class Twitch
     {
         if (! $this->discord_output || ! $discord = $this->discord) return false;
         if (empty($this->channels)) return false;
+        if (! isset($this->channels[$this->lastchannel])) return false;
         if ($this->verbose) $this->logger->info('[DISCORD CHAT RELAY]');
         foreach ($this->channels[$this->lastchannel] as $guild_id => $channel_id) {
             if (! $guild = $this->discord->guilds->get('id', $guild_id)) continue;
