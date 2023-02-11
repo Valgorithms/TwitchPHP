@@ -3,7 +3,7 @@
 /*
 * This file is a part of the TwitchPHP project.
 *
-* Copyright (c) 2021 ValZarGaming <valzargaming@gmail.com>
+* Copyright (c) 2021-2023 ValZarGaming <valzargaming@gmail.com>
 */
 
 
@@ -11,7 +11,7 @@ namespace Twitch;
 
 use Twitch\Commands;
 
-use Evenement\EventEmitterTrait;
+//use Evenement\EventEmitterTrait;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use React\EventLoop\Loop;
@@ -20,18 +20,18 @@ use React\Socket\Connector;
 
 class Twitch
 {
-    use EventEmitterTrait;
 
     protected $loop;
     protected $commands;
+    public $logger;
     
     
     private $discord;
     private $discord_output;
-    private $guild_channel_ids; //guild=>channel assoc array
+    //private $guild_channel_ids; //guild=>channel assoc array
     
     private $verbose;
-    private $socket_options;
+    private $socket_options = [];
     private $debug;
     
     private $secret;
@@ -85,7 +85,7 @@ class Twitch
         if (isset($options['discord'])) $this->discord = $options['discord'];
         if (isset($options['discord_output'])) $this->discord_output = $options['discord_output'];
         
-        $this->connector = new Connector($this->loop, $options['socket_options']);
+        $this->connector = new Connector($this->loop, $this->socket_options);
         
         include 'Commands.php';
         $this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
@@ -220,7 +220,7 @@ class Twitch
             );
         }
     }
-    protected function initIRC(ConnectionInterface $connection): void
+    protected function initIRC(): void
     {
         $this->write("PASS " . $this->secret . "\n");
         $this->write("NICK " . $this->nick . "\n");
@@ -229,16 +229,16 @@ class Twitch
         if ($this->verbose) $this->logger->info('[INIT IRC]');
     }
 
-    protected function pingPong(ConnectionInterface $connection): void
+    protected function pingPong(): void
     {
         if ($this->debug) $this->logger->debug('[' . date('h:i:s') . '] PING :tmi.twitch.tv');
         $this->write("PONG :tmi.twitch.tv\n");
         if ($this->debug) $this->logger->debug('[' . date('h:i:s') . '] PONG :tmi.twitch.tv');
     }
     
-    protected function process(string $data, ConnectionInterface $connection): void
+    protected function process(string $data): void
     {
-        if (trim($data) == 'PING :tmi.twitch.tv') $this->pingPong($connection);
+        if (trim($data) == 'PING :tmi.twitch.tv') $this->pingPong();
         elseif (preg_match('/PRIVMSG/', $data)) {
             if ($response = $this->parseCommand($data)) {
                 $this->discordRelay("[REPLY] #{$this->lastchannel} - $response");
@@ -353,16 +353,6 @@ class Twitch
     public function getDiscordOutput(): ?bool
     {
         return $this->discord_output;
-    }
-    
-    public function getGuildId(): ?string
-    {
-        return $this->guild_id;
-    }
-    
-    public function getChannelId(): ?string
-    {
-        return $this->channel_id;
     }
     
     public function getLastChannel(): ?string

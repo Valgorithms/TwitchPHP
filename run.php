@@ -2,13 +2,13 @@
 /*
  * This file is a part of the TwitchPHP project.
  *
- * Copyright (c) 2021 ValZarGaming <valzargaming@gmail.com>
+ * Copyright (c) 2021-2023 ValZarGaming <valzargaming@gmail.com>
  */
  
 require 'vendor/autoload.php';
 require 'Twitch/Twitch.php';
 
-$loop = React\EventLoop\Factory::create();
+$loop = \React\EventLoop\Loop::get();
 require 'secret.php'; //$secret
 $nick = 'ValZarGaming';  // Twitch username (Case sensitive)
 $logger = new \Monolog\Logger('New logger');

@@ -3,7 +3,7 @@
 /*
  * This file is a part of the TwitchPHP project.
  *
- * Copyright (c) 2021 ValZarGaming <valzargaming@gmail.com>
+ * Copyright (c) 2021-2023 ValZarGaming <valzargaming@gmail.com>
  */
 
 namespace Twitch;
@@ -97,7 +97,7 @@ class Commands
         if ($command == 'leave')
         {
             if ($this->verbose) $this->twitch->logger->info('[PART]');
-            $this->twitch->leaveChannel($this->twitch->lastchannel);
+            $this->twitch->leaveChannel($this->twitch->getLastChannel());
         }
         
         if ($command == 'so')
