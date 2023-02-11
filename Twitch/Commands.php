@@ -56,8 +56,10 @@ class Commands
             }
             if($responses || $functions) {
                 $commands .= '[Public] ';
-                if($responses) foreach(array_keys($responses) as $command) $commands .= "$command, ";
-                if($responses) foreach($functions as $command) $commands .= "$command, ";
+                if($responses) {
+                    foreach(array_keys($responses) as $command) $commands .= "$command, ";
+                    foreach($functions as $command) $commands .= "$command, ";
+                }
                 $commands = substr($commands, 0, strlen($commands)-2) . " ";
             }
             if($restricted_functions) {
