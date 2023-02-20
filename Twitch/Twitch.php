@@ -262,7 +262,7 @@ class Twitch
         $this->lastchannel = $this->parseChannel($data);
         $this->lastmessage = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->lastchannel)));
         
-        $msg = "#{$this->lastchannel} -  {$this->lastuser}: {$this->lastmessage}";
+        $msg = "#{$this->lastchannel} - {$this->lastuser}: {$this->lastmessage}";
         if ($this->verbose) $this->logger->info("[PRIVMSG] $msg");
         if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage) && $this->lastuser != $this->nick) {
             $this->ban($this->lastuser);
