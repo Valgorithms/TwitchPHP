@@ -197,7 +197,7 @@ class Twitch
     * This command should not be run while the bot is still connected to Twitch
     * Additional handling may be needed in the case of disconnect via $connection->on('close' (See: Issue #1 on GitHub)
     */ 
-    protected function connect(): VOID
+    protected function connect(): void
     {
         if (isset($this->connection) && $this->connection !== false) $this->logger->warning('[CONNECT] A connection already exists');
         else {
@@ -211,6 +211,10 @@ class Twitch
                     });
                     $connection->on('close', function () {
                         $this->logger->info('[CLOSE]');
+                        unset($this->connection);
+                        $this->loop->addTimer(30, function () {
+                            if ($this->running) $this->connect();
+                        });
                     });
                     $this->logger->info('[CONNECTED]');
                 },
