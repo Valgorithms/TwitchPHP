@@ -12,18 +12,38 @@ namespace Twitch;
  * Provides an easy way to have triggerable commands.
  */
  
+/**
+ * Commands class represents a collection of Twitch chat commands.
+ *
+ * @package Twitch
+ */
 class Commands
 {
-    protected $twitch;
-    protected $verbose;
-    protected $debug;
-    
+    protected Twitch $twitch;
+    protected bool $verbose;
+    protected bool $debug;
+
+    /**
+     * Constructor for the Commands class.
+     *
+     * @param Twitch $twitch The Twitch object to use for API requests.
+     * @param bool|null $verbose Whether to output verbose logging information.
+     * @param bool|null $debug Whether to output debug logging information.
+     */
     public function __construct(Twitch $twitch, ?bool $verbose = false, ?bool $debug = false)
     {
         $this->twitch = $twitch;
         $this->verbose = $verbose;
         $this->debug = $debug;
     }
+
+    /**
+     * Handles a Twitch chat command.
+     *
+     * @param string $command The command to handle.
+     * @param array|null $args An optional array of arguments for the command.
+     * @return string|null The response to the command, if any.
+     */
     public function handle(string $command, ?array $args = []): ?string
     {
         if ($this->verbose) {
@@ -31,7 +51,7 @@ class Commands
             $this->twitch->logger->info('[ARGS] ' . implode(', ', $args));
         }
         
-        if($this->debug) {
+        if ($this->debug) {
             $i = 0;
             foreach ($args as $arg) {
                 $args[$i] = preg_replace('/[^A-Za-z0-9\-]/', '', trim($arg));
@@ -54,20 +74,20 @@ class Commands
                 foreach($commandsymbol as $symbol) $commands .= "$symbol, ";
                 $commands = substr($commands, 0, strlen($commands)-2) . " ";
             }
-            if($responses || $functions) {
+            if ($responses || $functions) {
                 $commands .= '[Public] ';
-                if($responses) {
+                if ($responses) {
                     foreach(array_keys($responses) as $command) $commands .= "$command, ";
                     foreach($functions as $command) $commands .= "$command, ";
                 }
                 $commands = substr($commands, 0, strlen($commands)-2) . " ";
             }
-            if($restricted_functions) {
+            if ($restricted_functions) {
                 $commands .= '[Whitelisted] ';
                 foreach($restricted_functions as $command) $commands .= "$command, ";
                 $commands = substr($commands, 0, strlen($commands)-2) . " ";
             }
-            if($private_functions) {            
+            if ($private_functions) {            
                 $commands .= '[Private] ';
                 foreach($private_functions as $command) $commands .= "$command, ";
                 $commands = substr($commands, 0, strlen($commands)-2) . " ";
@@ -92,7 +112,7 @@ class Commands
         if ($command == 'join')
         {
             if ($this->verbose) $this->twitch->logger->info('[JOIN]' . $args[1]);
-            if (!$args[1]) return null;
+            if (! $args[1]) return null;
             $this->twitch->joinChannel($args[1]);
         }
         
@@ -105,7 +125,7 @@ class Commands
         if ($command == 'so')
         {
             if ($this->verbose) $this->twitch->logger->info('[SO] ' . $args[1]);
-            if (!$args[1]) return null;
+            if (! $args[1]) return null;
             $this->twitch->sendMessage('Hey, go check out ' . $args[1] . ' at https://www.twitch.tv/' . $args[1] . ' They are good peeples! Pretty good. Pretty good!');
         }
         

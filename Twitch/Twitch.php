@@ -11,60 +11,72 @@ namespace Twitch;
 
 use Twitch\Commands;
 
-//use Evenement\EventEmitterTrait;
+//use Discord\Discord; // DiscordPHP
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use React\EventLoop\Loop;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 
+/**
+ * Twitch class represents the Twitch API client.
+ *
+ * @category Twitch API
+ * @package  TwitchPHP
+ * @license  MIT License <https://opensource.org/licenses/MIT>
+ * @link     https://github.com/VZGCoders/TwitchPHP
+ * @link     https://github.com/discord-php/DiscordPHP/ Required if relaying messages to Discord
+ */
 class Twitch
 {
-
-    protected $loop;
-    protected $commands;
-    public $logger;
-    
+    protected Loop $loop;
+    protected Commands $commands;
+    public Logger $logger;
     
     private $discord;
-    private $discord_output;
+    private bool $discord_output;
     //private $guild_channel_ids; //guild=>channel assoc array
+    private array $socket_options = [];
     
-    private $verbose;
-    private $socket_options = [];
-    private $debug;
+    private bool $verbose = false;
+    private bool $debug = false;
     
-    private $secret;
-    private $nick;
-    private $channels;
-    private $commandsymbol;
-    private $badwords;
+    private string $secret = '';
+    private string $nick = '';
+    private array $channels = [];
+    private array $commandsymbol = [];
+    private array $badwords = [];
     
-    private $whitelist;
-    private $responses;
-    private $functions;
-    private $restricted_functions;
-    private $private_functions;
+    private array $whitelist = [];
+    private array $responses = [];
+    private array $functions = [];
+    private array $restricted_functions = [];
+    private array $private_functions = [];
     
-    protected $connector;
-    public $connection;
-    protected $running;
+    protected Connector $connector;
+    public ConnectionInterface $connection;
+    protected bool $running = false;
     
-    private $lastuser; //Who last sent a message in Twitch chat
-    private $lastchannel; //Where the last command was used
-    private $lastmessage; //What the last message was
+    private string $lastuser = ''; //Who last sent a message in Twitch chat
+    private string $lastchannel = ''; //Where the last command was used
+    private string $lastmessage = ''; //What the last message was
 
+    /**
+     * Twitch constructor.
+     *
+     * @param array $options An array of options to configure the Twitch client.
+     */
     function __construct(array $options = [])
     {
         if (php_sapi_name() !== 'cli') trigger_error('TwitchPHP will not run on a webserver. Please use PHP CLI to run a TwitchPHP self-bot.', E_USER_ERROR);
         
         $options = $this->resolveOptions($options);
         
-        $this->loop = $options['loop'];
+        $this->loop = $options['loop'] ?? Loop::get();
         $this->secret = $options['secret'];
         $this->nick = $options['nick'];
         $this->channels = $options['channels'];
-        if(is_null($this->channels)) $this->channels[$options['nick']] = [];
+        if (is_null($this->channels)) $this->channels[$options['nick']] = [];
         $this->commandsymbol = $options['commandsymbol'] ?? array('!');
         
         foreach ($options['whitelist'] as $whitelist) $this->whitelist[] = $whitelist;
@@ -91,10 +103,16 @@ class Twitch
         $this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
     }
     
+    /**
+     * Runs the Twitch client.
+     *
+     * @param bool $runLoop Whether to run the event loop or not.
+     * @return void
+     */
     public function run(bool $runLoop = true): void
     {
         if ($this->verbose) $this->logger->info('[RUN]');
-        if (!$this->running) {
+        if (! $this->running) {
             $this->running = true;
             $this->connect();
         }
@@ -102,6 +120,12 @@ class Twitch
         if ($runLoop) $this->loop->run();
     }
     
+    /**
+     * Closes the Twitch connection and stops the event loop.
+     *
+     * @param bool $closeLoop Whether to stop the event loop or not. Default is true.
+     * @return void
+     */
     public function close(bool $closeLoop = true): void
     {
         if ($this->verbose) $this->logger->info('[CLOSE]');
@@ -115,12 +139,25 @@ class Twitch
         }
     }
     
+    /**
+     * Writes a string to the connection.
+     *
+     * @param string $string The string to write.
+     * @return void
+     */
     public function write(string $string): void
     {
         if ($this->debug) $this->logger->debug("[WRITE] $string");
         $this->connection->write($string);
     }
     
+    /**
+     * Sends a message to a Twitch channel.
+     *
+     * @param string $data The message to be sent.
+     * @param string|null $channel The channel to send the message to. If null, the last channel used will be used.
+     * @return bool Returns true if the message was sent successfully, false otherwise.
+     */
     public function sendMessage(string $data, ?string $channel = null): bool
     {
         if (isset($this->connection) && ($this->connection !== false)) {
@@ -134,6 +171,14 @@ class Twitch
         return false;
     }
     
+    /**
+     * Joins a Twitch channel.
+     *
+     * @param string $string The name of the channel to join.
+     * @param string|null $guild_id The ID of the guild (optional).
+     * @param string|null $channel_id The ID of the channel (optional).
+     * @return bool Returns true if the channel was joined successfully, false otherwise.
+     */
     public function joinChannel(string $string = "", ?string $guild_id = '', ?string $channel_id = ''): bool
     {
         if ($this->verbose) $this->logger->info("[VERBOSE] [JOIN CHANNEL] `$string`");
@@ -146,12 +191,15 @@ class Twitch
         else $this->channels[$string][''] = '';
         return true;
     }
-    
-    /*
-    * Commands.php should never send a string so as to prevent users from being able to tell the bot to leave someone else's channel
-    * This command is exposed so other ReactPHP applications can call it, but those applications should always attempt to pass a valid string
-    * getChannels has also been exposed for the purpose of checking if the string exists before attempting to call this function
-    */
+
+    /**
+     * Leave a Twitch channel.
+     *
+     * @param string|null $string The name of the channel to leave. If null, the last channel joined will be left.
+     * @param string|null $guild_id The ID of the guild where the channel is located. Optional.
+     * @param string|null $channel_id The ID of the channel to leave. Optional.
+     * @return bool Returns true if the channel was successfully left, false otherwise.
+     */
     public function leaveChannel(?string $string, ?string $guild_id = '', ?string $channel_id = ''): bool
     {
         $string = strtolower($string ?? $this->lastchannel);
@@ -165,6 +213,13 @@ class Twitch
         return true;
     }
     
+    /**
+     * Bans a user from the chat.
+     *
+     * @param string $username The username of the user to be banned.
+     * @param string $reason The reason for the ban (optional).
+     * @return bool Returns true if the user was banned successfully, false otherwise.
+     */
     public function ban(string $username, $reason = ''): bool
     {
         if ($this->verbose) $this->logger->info("[BAN] $username - $reason");
@@ -177,12 +232,12 @@ class Twitch
     }
     
     /*
-    * Attempt to catch errors with the user-provided $options early
-    */
+     * Attempt to catch errors with the user-provided $options early
+     */
     protected function resolveOptions(array $options = []): array
     {
-        if (!$options['secret']) trigger_error('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
-        if (!$options['nick']) trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
+        if (! $options['secret']) trigger_error('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
+        if (! $options['nick']) trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
         $options['nick'] = strtolower($options['nick']);
         $options['loop'] = $options['loop'] ?? Loop::get();
         $options['symbol'] = $options['symbol'] ?? '!';
@@ -191,12 +246,14 @@ class Twitch
         
         return $options;
     }
-    
-    /*
-    * Connect the bot to Twitch
-    * This command should not be run while the bot is still connected to Twitch
-    * Additional handling may be needed in the case of disconnect via $connection->on('close' (See: Issue #1 on GitHub)
-    */ 
+
+    /**
+     * Connects to the Twitch IRC server.
+     * This command should not be run while the bot is still connected to Twitch
+     * Additional handling may be needed in the case of disconnect via $connection->on('close' (See: Issue #1 on GitHub)
+     *
+     * @return void
+     */
     protected function connect(): void
     {
         if (isset($this->connection) && $this->connection !== false) $this->logger->warning('[CONNECT] A connection already exists');
@@ -224,6 +281,12 @@ class Twitch
             );
         }
     }
+    
+    /**
+     * Initializes the IRC connection by sending the secret, nick, and joining the channels.
+     *
+     * @return void
+     */
     protected function initIRC(): void
     {
         $this->write("PASS {$this->secret}\n");
@@ -233,23 +296,47 @@ class Twitch
         if ($this->verbose) $this->logger->info('[INIT IRC]');
     }
 
+    /**
+     * Sends a PONG message to the Twitch server to maintain the connection.
+     *
+     * @return void
+     */
     protected function pingPong(): void
     {
         if ($this->debug) $this->logger->debug('[' . date('h:i:s') . '] PING :tmi.twitch.tv');
         $this->write("PONG :tmi.twitch.tv\n");
         if ($this->debug) $this->logger->debug('[' . date('h:i:s') . '] PONG :tmi.twitch.tv');
     }
-    
+
+    /**
+     * Processes the received data from Twitch.
+     *
+     * If the received data is a PING message, it sends a PONG message back to the server.
+     * If the received data is a PRIVMSG message, it parses the command and sends a response to the user.
+     * It also relays the response to Discord and logs a warning if the message fails to send to Twitch.
+     *
+     * @param string $data The received data from Twitch.
+     * @return void
+     */
     protected function process(string $data): void
     {
         if (trim($data) == 'PING :tmi.twitch.tv') $this->pingPong();
         elseif (preg_match('/PRIVMSG/', $data)) {
-            if ($response = $this->parseCommand($data)) {
+            $this->parseData($data);
+            if ($response = $this->parseCommand()) {
                 $this->discordRelay("[REPLY] #{$this->lastchannel} - $response");
-                if (!$this->sendMessage("@{$this->lastuser}, $response\n")) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
+                if (! $this->sendMessage("@{$this->lastuser}, $response\n")) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
             }
         }
     }
+
+    /**
+     * Checks if a message contains any bad words.
+     *
+     * @param string $message The message to check for bad words.
+     *
+     * @return bool Returns true if the message contains any bad words, false otherwise.
+     */
     protected function badwordsCheck($message): bool
     {
         if ($this->debug) $this->logger->debug("[BADWORD CHECK]  $message");
@@ -260,18 +347,31 @@ class Twitch
         return false;
     }
     
-    protected function parseCommand(string $data): string
+    /**
+     * Parses the data received from the Twitch IRC server and sets the last user, last channel, and last message properties.
+     *
+     * @param string $data The data received from the Twitch IRC server.
+     * @return void
+     */
+    protected function parseData(string $data): void
     {
         $this->lastuser = $this->parseUser($data);
         $this->lastchannel = $this->parseChannel($data);
         $this->lastmessage = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->lastchannel)));
-        
+    }
+
+    /**
+     * Parses a command from the given data and returns a response.
+     *
+     * @param string $data The data to parse the command from.
+     * @return string The response to the parsed command.
+     */
+    protected function parseCommand(): string
+    {
         $msg = "#{$this->lastchannel} - {$this->lastuser}: {$this->lastmessage}";
         if ($this->verbose) $this->logger->info("[PRIVMSG] $msg");
-        if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage) && $this->lastuser != $this->nick) {
-            $this->ban($this->lastuser);
-            $this->discordRelay("[BANNED - BAD WORD] #{$this->lastchannel} - {$this->lastuser}");
-        } else $this->discordRelay("[TTV] $msg");
+        if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage) && $this->lastuser != $this->nick && $this->ban($this->lastuser)) $this->discordRelay("[BANNED - BAD WORD] #{$this->lastchannel} - {$this->lastuser}");
+        else $this->discordRelay("[TTV] $msg");
         
         $called = false;
         foreach($this->commandsymbol as $symbol) if (str_starts_with($this->lastmessage, $symbol)) {
@@ -279,7 +379,7 @@ class Twitch
             $called = true;
             break;
         }
-        if (!$called) return '';
+        if (! $called) return '';
         
         $dataArr = explode(' ', $this->lastmessage);
         $command = strtolower(trim($dataArr[0]));
@@ -313,72 +413,150 @@ class Twitch
         return $response;
     }
     
+    /**
+     * Parses the user from the given data string.
+     *
+     * @param string $data The data string to parse.
+     *
+     * @return string|null The parsed user or null if the data string does not start with a colon.
+     */
     protected function parseUser(string $data): ?string
     {
         if (substr($data, 0, 1) == ":") return substr(explode('!', $data)[0], 1);
     }
     
+    /**
+     * Parses the channel name from the given data string.
+     *
+     * @param string $data The data string to parse the channel name from.
+     *
+     * @return string|null The parsed channel name, or null if it could not be parsed.
+     */
     protected function parseChannel(string $data): ?string
     {
         $arr = explode(' ', substr($data, strpos($data, '#')));
         if (substr($arr[0], 0, 1) == '#') return substr($arr[0], 1);
     }
     
+    /**
+     * Returns an array of channels.
+     *
+     * @return array An array of channels.
+     */
     public function getChannels(): array
     {
         return $this->channels;
     }
     
+    /**
+     * Returns the command symbol(s) used by the Twitch bot.
+     *
+     * @return array The command symbol(s) used by the Twitch bot.
+     */
     public function getCommandSymbol(): array
     {
         return $this->commandsymbol;
     }
     
+    /**
+     * Returns an array of responses.
+     *
+     * @return array An array of responses.
+     */
     public function getResponses(): array
     {
         return $this->responses;
     }
-    
+
+    /**
+     * Returns an array of functions.
+     *
+     * @return array An array of functions.
+     */
     public function getFunctions(): array
     {
         return $this->functions;
     }
-    
+
+    /**
+     * Returns an array of restricted functions.
+     *
+     * @return array An array of restricted functions.
+     */
     public function getRestrictedFunctions(): array
     {
         return $this->restricted_functions;
     }
-    
+
+    /**
+     * Returns an array of private functions.
+     *
+     * @return array An array of private functions.
+     */
     public function getPrivateFunctions(): array
     {
         return $this->private_functions;
     }
     
+    /**
+     * Returns whether the Discord output is enabled or not.
+     *
+     * @return bool|null True if Discord output is enabled, false if it's disabled, and null if it hasn't been set.
+     */
     public function getDiscordOutput(): ?bool
     {
         return $this->discord_output;
     }
-    
+
+    /**
+     * Returns the name of the last channel that received a message.
+     *
+     * @return string|null The name of the last channel that received a message, or null if it hasn't been set.
+     */
     public function getLastChannel(): ?string
     {
         return $this->lastchannel;
     }
-    
+
+    /**
+     * Returns the name of the last user that sent a message.
+     *
+     * @return string|null The name of the last user that sent a message, or null if it hasn't been set.
+     */
     public function getLastUser(): ?string
     {
         return $this->lastuser;
     }
-    
+
+    /**
+     * Returns the last message that was received.
+     *
+     * @return string|null The last message that was received, or null if it hasn't been set.
+     */
     public function getLastMessage(): ?string
     {
         return $this->lastmessage;
     }
-    
+
+    /**
+     * Links the Twitch bot to a Discord bot.
+     *
+     * @param mixed $discord The Discord bot to link to.
+     *
+     * @return void
+     */
     public function linkDiscord($discord): void
     {
         $this->discord = $discord;
     }
     
+    /**
+     * Sends a message to Discord channels that are configured for the current Twitch channel.
+     *
+     * @param string $payload The message to send to Discord.
+     *
+     * @return bool Returns true if the message was sent successfully, false otherwise.
+     */
     public function discordRelay(string $payload): bool
     {
         if (! $this->discord_output || ! $discord = $this->discord) return false;

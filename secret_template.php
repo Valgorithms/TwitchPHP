@@ -14,7 +14,7 @@ $scope = ["user:edit","user:read:email","viewing_activity_read"];
  ****************************************************************************
  */
 
-if (!$bot_token || !$refresh_token || !$bot_id || $bot_secret || strlen($secret) < 10) {
+if (! $bot_token || ! $refresh_token || ! $bot_id || $bot_secret || strlen($secret) < 10) {
     echo '[FATAL ERROR] secret.php is not set up properly!';
     die();
 }
