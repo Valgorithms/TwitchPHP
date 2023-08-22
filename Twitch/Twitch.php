@@ -220,7 +220,7 @@ class Twitch
      * @param string $reason The reason for the ban (optional).
      * @return bool Returns true if the user was banned successfully, false otherwise.
      */
-    public function ban(string $username, $reason = ''): bool
+    public function ban(string $username, string $reason = ''): bool
     {
         if ($this->verbose) $this->logger->info("[BAN] $username - $reason");
         if (! isset($this->connection) || $this->connection === false) return false;
@@ -337,7 +337,7 @@ class Twitch
      *
      * @return bool Returns true if the message contains any bad words, false otherwise.
      */
-    protected function badwordsCheck($message): bool
+    protected function badwordsCheck(string $message): bool
     {
         if ($this->debug) $this->logger->debug("[BADWORD CHECK]  $message");
         foreach ($this->badwords as $badword) if (str_contains(strtolower($message), strtolower($badword))) {
