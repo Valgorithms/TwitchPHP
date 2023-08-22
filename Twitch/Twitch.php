@@ -136,7 +136,7 @@ class Twitch
     
     public function joinChannel(string $string = "", ?string $guild_id = '', ?string $channel_id = ''): bool
     {
-        if ($this->verbose) $this->logger->info('[VERBOSE] [JOIN CHANNEL] `' . $string . '`');    
+        if ($this->verbose) $this->logger->info("[VERBOSE] [JOIN CHANNEL] `$string`");
         if (! isset($this->connection) || $this->connection === false) return false;
         if (! $string) return false;
         
@@ -226,8 +226,8 @@ class Twitch
     }
     protected function initIRC(): void
     {
-        $this->write("PASS " . $this->secret . "\n");
-        $this->write("NICK " . $this->nick . "\n");
+        $this->write("PASS {$this->secret}\n");
+        $this->write("NICK {$this->nick}\n");
         $this->write("CAP REQ :twitch.tv/membership\n");
         foreach (array_keys($this->channels) as $twitch_channel) $this->write("JOIN #$twitch_channel\n");
         if ($this->verbose) $this->logger->info('[INIT IRC]');
@@ -252,9 +252,9 @@ class Twitch
     }
     protected function badwordsCheck($message): bool
     {
-        if ($this->debug) $this->logger->debug('[BADWORD CHECK] ' . $message);
+        if ($this->debug) $this->logger->debug("[BADWORD CHECK]  $message");
         foreach ($this->badwords as $badword) if (str_contains(strtolower($message), strtolower($badword))) {
-            if ($this->verbose) $this->logger->info('[BADWORD] ' . $badword);
+            if ($this->verbose) $this->logger->info("[BADWORD] $badword");
             return true;
         }
         return false;
@@ -271,7 +271,7 @@ class Twitch
         if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage) && $this->lastuser != $this->nick) {
             $this->ban($this->lastuser);
             $this->discordRelay("[BANNED - BAD WORD] #{$this->lastchannel} - {$this->lastuser}");
-        } else $this->discordRelay("[MSG] $msg");
+        } else $this->discordRelay("[TTV] $msg");
         
         $called = false;
         foreach($this->commandsymbol as $symbol) if (str_starts_with($this->lastmessage, $symbol)) {
