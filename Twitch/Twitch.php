@@ -15,6 +15,7 @@ use Twitch\Commands;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use React\EventLoop\Loop;
+use React\EventLoop\StreamSelectLoop;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 
@@ -29,7 +30,7 @@ use React\Socket\Connector;
  */
 class Twitch
 {
-    protected Loop $loop;
+    protected Loop|StreamSelectLoop $loop;
     protected Commands $commands;
     public Logger $logger;
     
