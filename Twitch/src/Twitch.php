@@ -11,12 +11,17 @@ namespace Twitch;
 use Twitch\Commands;
 
 //use Discord\Discord; // DiscordPHP
-use Monolog\Logger;
+use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger as Monolog;
+use Monolog\Level;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
+use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Twitch class represents the Twitch API client.
@@ -31,7 +36,13 @@ class Twitch
 {
     protected Loop|StreamSelectLoop $loop;
     protected Commands $commands;
-    public Logger $logger;
+    
+    /**
+     * The logger.
+     *
+     * @var LoggerInterface Logger.
+     */
+    public $logger;
     
     private $discord;
     private bool $discord_output;
@@ -45,7 +56,6 @@ class Twitch
     private string $nick = '';
     private array $channels = [];
     private array $commandsymbol = [];
-    private array $badwords = [];
     
     private array $whitelist = [];
     private array $responses = [];
@@ -88,9 +98,10 @@ class Twitch
         if (isset($options['socket_options'])) $this->socket_options = $options['socket_options'];
         if (isset($options['verbose'])) $this->verbose = $options['verbose'];
         if (isset($options['debug'])) $this->debug = $options['debug'];
-        if (isset($options['logger']) && $options['logger'] instanceof Logger) $this->logger = $options['logger'];
+        if (isset($options['logger']) && $options['logger'] instanceof Monolog) $this->logger = $options['logger'];
         else {
-            $this->logger = new Logger('New logger');
+            /** @var Monolog */
+            $this->logger = new Monolog('New logger');
             $this->logger->pushHandler(new StreamHandler('php://stdout'));
         }
         
@@ -182,7 +193,10 @@ class Twitch
     public function joinChannel(string $string = "", ?string $guild_id = '', ?string $channel_id = ''): bool
     {
         if ($this->verbose) $this->logger->info("[VERBOSE] [JOIN CHANNEL] `$string`");
-        if (! isset($this->connection) || $this->connection === false) return false;
+        if (! isset($this->connection) || $this->connection === false) {
+            $this->logger->warning('[JOIN CHANNEL] No connection to Twitch');
+            return false;
+        }
         if (! $string) return false;
         
         $string = strtolower($string);
@@ -203,8 +217,14 @@ class Twitch
     public function leaveChannel(?string $string, ?string $guild_id = '', ?string $channel_id = ''): bool
     {
         $string = strtolower($string ?? $this->lastchannel);
-        if (! isset($this->channels[$string])) return false;
-        if (! isset($this->connection) || $this->connection === false) return false;
+        if (! isset($this->channels[$string])) {
+            $this->logger->info('[LEAVE CHANNEL] Channel not found');
+            return false;
+        }
+        if (! isset($this->connection) || $this->connection === false) {
+            $this->logger->warning('[LEAVE CHANNEL] No connection to Twitch');
+            return false;
+        }
         if ($this->verbose) $this->logger->info("[VERBOSE] [LEAVE CHANNEL] `$string - $guild_id - $channel_id`");
         
         if (! $guild_id) unset($this->channels[$string]);
@@ -213,36 +233,65 @@ class Twitch
         return true;
     }
     
-    /**
-     * Bans a user from the chat.
-     *
-     * @param string $username The username of the user to be banned.
-     * @param string $reason The reason for the ban (optional).
-     * @return bool Returns true if the user was banned successfully, false otherwise.
-     */
-    public function ban(string $username, string $reason = ''): bool
-    {
-        if ($this->verbose) $this->logger->info("[BAN] $username - $reason");
-        if (! isset($this->connection) || $this->connection === false) return false;
-        if ($username != $this->nick && !in_array($username, array_keys($this->channels))) {
-            $this->write("/ban $username $reason");
-            return true;
-        }
-        return false;
-    }
-    
     /*
      * Attempt to catch errors with the user-provided $options early
+     * 
+     * @param  array     $options    The options to resolve.
+     * 
+     * @return array                 The resolved options.
      */
     protected function resolveOptions(array $options = []): array
     {
-        if (! $options['secret']) trigger_error('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
-        if (! $options['nick']) trigger_error('TwitchPHP requires a client username to connect. This should be the same username you use to log in.', E_USER_ERROR);
+        if (! isset($options['secret'])) throw new \Exception('TwitchPHP requires a client secret to connect. Get your Chat OAuth Password here => https://twitchapps.com/tmi/', E_USER_ERROR);
+        if (! isset($options['nick'])) throw new \Exception('TwitchPHP requires a client username to connect. This should be the same username you would use to log in.', E_USER_ERROR);
+        
+        $resolver = new OptionsResolver();
+
+        $resolver
+            ->setRequired(['secret', 'nick'])
+            ->setDefined([
+                'loop',
+                'logger',
+                'symbol',
+                'responses',
+                'functions',
+                'dnsConfig',
+            ])
+            ->setDefaults([
+                'logger' => null,
+            ])
+            ->setAllowedTypes('secret', 'string')
+            ->setAllowedTypes('nick', 'string')
+            ->setAllowedTypes('logger', ['null', LoggerInterface::class])
+            ->setAllowedTypes('loop', LoopInterface::class)
+            ->setAllowedTypes('socket_options', 'array');
+
+        $options = $resolver->resolve($options);
+
+        $options['loop'] ??= Loop::get();
+
+        if (null === $options['logger']) {
+            $streamHandler = new StreamHandler('php://stdout', Level::Debug);
+            $lineFormatter = new LineFormatter(null, null, true, true);
+            $streamHandler->setFormatter($lineFormatter);
+            $logger = new Monolog('TwitchPHP', [$streamHandler]);
+            $options['logger'] = $logger;   $dnsConfig = \React\Dns\Config\Config::loadSystemConfigBlocking();
+            if (! $dnsConfig->nameservers) {
+                $dnsConfig->nameservers[] = '8.8.8.8';
+            }
+
+            $options['dnsConfig'] = $dnsConfig;
+        }
+
         $options['nick'] = strtolower($options['nick']);
         $options['loop'] = $options['loop'] ?? Loop::get();
         $options['symbol'] = $options['symbol'] ?? '!';
         $options['responses'] = $options['responses'] ?? array();
         $options['functions'] = $options['functions'] ?? array();
+
+        // Twitch doesn't currently support IPv6
+        // This prevents xdebug from catching exceptions when trying to fetch IPv6
+        $options['socket_options']['happy_eyeballs'] = false;
         
         return $options;
     }
@@ -329,24 +378,6 @@ class Twitch
             }
         }
     }
-
-    /**
-     * Checks if a message contains any bad words.
-     *
-     * @param string $message The message to check for bad words.
-     *
-     * @return bool Returns true if the message contains any bad words, false otherwise.
-     */
-    protected function badwordsCheck(string $message): bool
-    {
-        if ($this->debug) $this->logger->debug("[BADWORD CHECK]  $message");
-        foreach ($this->badwords as $badword) if (str_contains(strtolower($message), strtolower($badword))) {
-            if ($this->verbose) $this->logger->info("[BADWORD] $badword");
-            return true;
-        }
-        return false;
-    }
-    
     /**
      * Parses the data received from the Twitch IRC server and sets the last user, last channel, and last message properties.
      *
@@ -370,8 +401,7 @@ class Twitch
     {
         $msg = "#{$this->lastchannel} - {$this->lastuser}: {$this->lastmessage}";
         if ($this->verbose) $this->logger->info("[PRIVMSG] $msg");
-        if (!empty($this->badwords) && $this->badwordsCheck($this->lastmessage) && $this->lastuser != $this->nick && $this->ban($this->lastuser)) $this->discordRelay("[BANNED - BAD WORD] #{$this->lastchannel} - {$this->lastuser}");
-        else $this->discordRelay("[TTV] $msg");
+        $this->discordRelay("[TTV] $msg");
         
         $called = false;
         foreach($this->commandsymbol as $symbol) if (str_starts_with($this->lastmessage, $symbol)) {
