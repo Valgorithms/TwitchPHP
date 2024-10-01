@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Twitch\\": "Twitch/"
+            "Twitch\\": "src/Twitch"
         }
     },
     "suggest": {
