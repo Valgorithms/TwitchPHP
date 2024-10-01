@@ -20,9 +20,12 @@ use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
 use React\Promise\PromiseInterface;
+use React\Promise\Deferred;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
+use function React\Promise\resolve;
 
 /**
  * Twitch class represents the Twitch API client.
@@ -73,6 +76,8 @@ class Twitch
     private string $lastuser = ''; //Who last sent a message in Twitch chat
     private string $lastchannel = ''; //Where the last command was used
     private string $lastmessage = ''; //What the last message was
+    
+    private int $retry = 0;
 
     /**
      * Twitch constructor.
@@ -92,6 +97,7 @@ class Twitch
         if (is_null($this->channels)) $this->channels[$options['nick']] = [];
         $this->commandsymbol = $options['commandsymbol'] ?? array('!');
         
+        $this->whitelist[] = strtolower($this->nick);
         foreach ($options['whitelist'] as $whitelist) $this->whitelist[] = $whitelist;
         $this->responses = $options['responses'] ?? array();
         $this->functions = $options['functions'] ?? array();
@@ -111,9 +117,8 @@ class Twitch
         if (isset($options['discord'])) $this->discord = $options['discord'];
         if (isset($options['discord_output'])) $this->discord_output = $options['discord_output'];
         
-        $this->connector = new Connector($this->loop, $this->socket_options);
+        $this->connector = new Connector($this->socket_options, $this->loop);
         
-        include 'Commands.php';
         $this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
     }
     
@@ -152,17 +157,58 @@ class Twitch
             $this->loop->stop();
         }
     }
+
+    public function log(string $method, string $message): string
+    {
+        $this->logger->$method($message);
+        return $message;
+    }
     
     /**
      * Writes a string to the connection.
      *
      * @param string $string The string to write.
-     * @return void
+     * @return PromiseInterface
      */
-    public function write(string $string): void
+    public function write(string $string): PromiseInterface
     {
         if ($this->debug) $this->logger->debug("[WRITE] $string");
-        $this->connection->write($string);
+
+        $deferred = new Deferred;
+
+        if ($this->connection->write($string)) {
+            $deferred->resolve();
+            return $deferred->promise();
+        }
+        
+        return $this->retryConnection($deferred_callback = fn () => $this->write($string))
+            ->then(null, function (\Exception $error) use ($deferred_callback) {
+                return is_string ($yield = yield $this->retryConnection($deferred_callback))
+                    ? $yield
+                    : $this->log('warning', $error->getMessage());
+            });
+    }
+
+    private function retryConnection(?callable $deferred_callback = null): PromiseInterface
+    {
+        $this->logger->warning('[RETRY CONNECTION]');
+        return $this->connect()->then(
+            function (ConnectionInterface $connection) use ($deferred_callback) {
+                $this->retry = 0;
+                $this->connection = $connection;
+                if ($deferred_callback) $deferred_callback();
+                return $connection;
+            },
+            function (\Exception $error) use ($deferred_callback) {
+                if ($this->retry++ > 5) {
+                    $this->logger->error('[RETRY CONNECTION] Failed to reconnect after 5 attempts');
+                    return $this->log('error', $error->getMessage());
+                }
+                return is_string ($yield = yield $this->retryConnection($deferred_callback))
+                    ? $yield
+                    : $this->log('warning', $error->getMessage());
+            }
+        );
     }
     
     /**
@@ -304,33 +350,37 @@ class Twitch
      * This command should not be run while the bot is still connected to Twitch
      * Additional handling may be needed in the case of disconnect via $connection->on('close' (See: Issue #1 on GitHub)
      *
-     * @return void
+     * @return PromiseInterface
      */
-    protected function connect(): void
+    protected function connect(?callable $deferred_callback = null): PromiseInterface
     {
-        if (isset($this->connection) && $this->connection !== false) {
+        if (isset($this->connection) && $this->connection instanceof ConnectionInterface) {
             $this->logger->warning('[CONNECT] A connection already exists');
-            return;
+            return resolve($this->connection);
         }
         if ($this->verbose) $this->logger->info('[CONNECT]');
-        $this->connector->connect(self::IRC_URL)->then(
+        return $this->connector->connect(self::IRC_URL)->then(
             fn (ConnectionInterface $connection) => $this->__connect($connection),
-            fn (\Exception $exception) => $this->logger->warning($exception->getMessage())
+            fn (\Exception $error) => $this->log('warning', $error->getMessage())
         );
     }
 
-    private function __connect(ConnectionInterface $connection)
+    private function __connect(ConnectionInterface $connection, ?callable $deferred_callback = null)
     {
+        if ($this->connection instanceof ConnectionInterface) {
+            if ($deferred_callback) $deferred_callback();
+            return;
+        }
         $this->initIRC($this->connection = $connection);
         $this->logger->info('[CONNECTED]');
+        if ($deferred_callback) $deferred_callback();
         $connection->on('data', fn($data) => $this->process($data));
         $connection->on('close', function () {
             if ($this->verbose) $this->logger->info('[CLOSE]');
             $this->logger->info('[DISCONNECTED, RECONNECTING IN 5 SECONDS]');
             unset($this->connection);
-            $this->loop->addTimer(5, fn () =>$this->running ? $this->connect() : null);
+            $this->loop->addTimer(5, fn () => $this->running ? $this->retryConnection() : null);
         });
-        return $connection;
     }
     
     /**
@@ -415,33 +465,33 @@ class Twitch
         if (! $called) return '';
         
         $dataArr = explode(' ', $this->lastmessage);
-        $command = strtolower(trim($dataArr[0]));
-        if ($this->verbose) $this->logger->info("[COMMAND] `$command`");         
+        $dataArr[0] = strtolower(trim($dataArr[0]));
+        if ($this->verbose) $this->logger->info("[COMMAND] `{$dataArr[0]}`");         
         
         $response = '';
         //Public commands
-        if (in_array($command, $this->functions)) {
+        if (in_array($dataArr[0], $this->functions)) {
             if ($this->verbose) $this->logger->info('[PUBLIC FUNCTION]');
-            $response = $this->commands->handle($command, $dataArr);
+            $response = $this->commands->handle($dataArr);
         }
         //Whitelisted commands
         if ( in_array($this->lastuser, $this->whitelist) || ($this->lastuser == $this->nick) ) {
-            if (in_array($command, $this->restricted_functions)) {
+            if (in_array($dataArr[0], $this->restricted_functions)) {
                 if ($this->verbose) $this->logger->info('[WHITELISTED FUNCTION]');
-                $response = $this->commands->handle($command, $dataArr);
+                $response = $this->commands->handle($dataArr);
             }
         }
         //Bot owner commands (shares the same username)
         if ($this->lastuser == $this->nick) {
-            if (in_array($command, $this->private_functions)) {
+            if (in_array($dataArr[0], $this->private_functions)) {
                 if ($this->verbose) $this->logger->info('[PRIVATE FUNCTION]');
-                $response = $this->commands->handle($command, $dataArr);
+                $response = $this->commands->handle($dataArr);
             }
         }
         //Reply with a preset message
-        if (isset($this->responses[$command])) {
+        if (isset($this->responses[$dataArr[0]])) {
             if ($this->verbose) $this->logger->info('[RESPONSE]');
-            $response = $this->responses[$command];
+            $response = $this->responses[$dataArr[0]];
         }
         return $response;
     }
