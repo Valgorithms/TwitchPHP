@@ -4,15 +4,33 @@
  *
  * Copyright (c) 2021-2023 ValZarGaming <valzargaming@gmail.com>
  */
- 
-require 'vendor/autoload.php';
-require 'Twitch/Twitch.php';
+
+namespace Twitch;
+
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\StreamHandler;
+use Monolog\Level;
+use Monolog\Logger;
+
+define('TWITCHBOT_START', microtime(true));
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
+set_time_limit(0);
+ignore_user_abort(1);
+ini_set('max_execution_time', 0);
+ini_set('memory_limit', '-1'); // Unlimited memory usage
+define('MAIN_INCLUDED', 1); // Token and SQL credential files may be protected locally and require this to be defined to access
 
 $loop = \React\EventLoop\Loop::get();
 require 'secret.php'; //$secret
 $nick = 'ValZarGaming';  // Twitch username (Case sensitive)
-$logger = new \Monolog\Logger('New logger');
-$logger->pushHandler(new \Monolog\Handler\StreamHandler('php://stdout'));
+$streamHandler = new StreamHandler('php://stdout', Level::Debug);
+$streamHandler->setFormatter(new LineFormatter(null, null, true, true, true));
+$logger = new Logger('Civ13', [$streamHandler]);
+file_put_contents('output.log', ''); // Clear the contents of 'output.log'
+$logger->pushHandler(new StreamHandler('output.log', Level::Debug));
+$logger->info('Loading configurations for the bot...');
 $options = array(
     //Required
     'secret' => $secret, // Client secret
@@ -40,12 +58,6 @@ $options = array(
         strtolower($nick),
         'shriekingechodanica',
     ],
-    'badwords' => [ // List of blacklisted words or phrases in their entirety; User will be immediately banned with reason 'badword' if spoken in chat
-        'Buy followers, primes and viewers',
-		'bigfollows . com',
-		'stearncomminuty',
-        'Get viewers, followers and primes on',
-    ],
     'social' => [ //NYI
         'twitter' => 'https://twitter.com/valzargaming',
 		'discord' => 'https://discord.gg/NU4BS5P36g',
@@ -65,7 +77,6 @@ $options = array(
     ],
     'restricted_functions' => [ // Enabled functions usable only by whitelisted users
         'so', //Advertise someone else
-        'ban', //Ban someone with or without a reason included after the username
     ],
     'private_functions' => [ // Enabled functions usable only by the bot owner sharing the same username as the bot
         'php', //Outputs the current version of PHP as a message
@@ -86,6 +97,6 @@ $options['responses']['discord'] = $options['social']['discord'];
 //include 'commands.php';
 //$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions
 
-$twitch = new Twitch\Twitch($options);
+$twitch = new Twitch($options);
 $twitch->run();
 ?>

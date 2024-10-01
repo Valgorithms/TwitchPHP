@@ -19,6 +19,7 @@ use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
+use React\Promise\PromiseInterface;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -34,6 +35,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class Twitch
 {
+    public const IRC_URL = "irc.chat.twitch.tv:6667";
+
     protected Loop|StreamSelectLoop $loop;
     protected Commands $commands;
     
@@ -305,30 +308,29 @@ class Twitch
      */
     protected function connect(): void
     {
-        if (isset($this->connection) && $this->connection !== false) $this->logger->warning('[CONNECT] A connection already exists');
-        else {
-            if ($this->verbose) $this->logger->info('[CONNECT]');
-            $this->connector->connect("irc.chat.twitch.tv:6667")->then(
-                function (ConnectionInterface $connection) {
-                    $this->initIRC($this->connection = $connection);
-                    $connection->on('data', function($data) {
-                        if ($this->debug) $this->logger->debug("[DATA] $data");
-                        if ($this->connection !== false) $this->process($data, $this->connection);
-                    });
-                    $connection->on('close', function () {
-                        $this->logger->info('[CLOSE]');
-                        unset($this->connection);
-                        $this->loop->addTimer(30, function () {
-                            if ($this->running) $this->connect();
-                        });
-                    });
-                    $this->logger->info('[CONNECTED]');
-                },
-                function (\Exception $exception) {
-                    $this->logger->warning($exception->getMessage());
-                }
-            );
+        if (isset($this->connection) && $this->connection !== false) {
+            $this->logger->warning('[CONNECT] A connection already exists');
+            return;
         }
+        if ($this->verbose) $this->logger->info('[CONNECT]');
+        $this->connector->connect(self::IRC_URL)->then(
+            fn (ConnectionInterface $connection) => $this->__connect($connection),
+            fn (\Exception $exception) => $this->logger->warning($exception->getMessage())
+        );
+    }
+
+    private function __connect(ConnectionInterface $connection)
+    {
+        $this->initIRC($this->connection = $connection);
+        $this->logger->info('[CONNECTED]');
+        $connection->on('data', fn($data) => $this->process($data));
+        $connection->on('close', function () {
+            if ($this->verbose) $this->logger->info('[CLOSE]');
+            $this->logger->info('[DISCONNECTED, RECONNECTING IN 5 SECONDS]');
+            unset($this->connection);
+            $this->loop->addTimer(5, fn () =>$this->running ? $this->connect() : null);
+        });
+        return $connection;
     }
     
     /**
@@ -369,6 +371,7 @@ class Twitch
      */
     protected function process(string $data): void
     {
+        if ($this->debug) $this->logger->debug("[DATA] $data");
         if (trim($data) == 'PING :tmi.twitch.tv') $this->pingPong();
         elseif (preg_match('/PRIVMSG/', $data)) {
             $this->parseData($data);

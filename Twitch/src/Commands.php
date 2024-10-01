@@ -129,13 +129,6 @@ class Commands
             $this->twitch->sendMessage('Hey, go check out ' . $args[1] . ' at https://www.twitch.tv/' . $args[1] . ' They are good peeples! Pretty good. Pretty good!');
         }
         
-        if ($command == 'ban') {
-            $reason = '';
-            for ($i=2; $i<count($args); $i++) $reason .= $args[$i] . ' ';
-            if ($this->verbose) $this->twitch->logger->info('[SO] ' . $args[1] . " $reason");
-            $this->twitch->ban($args[1], trim($reason)); //ban with optional reason
-        }
-        
         return $response ?? null;
     }
 }
