@@ -421,7 +421,7 @@ class Twitch
     protected function process(string $data): void
     {
         if ($this->debug) $this->logger->debug("[DATA] $data");
-        if (trim($data) == 'PING :tmi.twitch.tv') {
+        if (trim($data) === 'PING :tmi.twitch.tv') {
             $this->pingPong();
             return;
         }
@@ -441,7 +441,7 @@ class Twitch
      */
     protected function parseData(string $data): void
     {
-        $this->lastuser = $this->parseUser($data);
+        if ($us = $this->parseUser($data)) $this->lastuser = new User($this, $us);
         if ($ch = $this->parseChannel($data)) $this->lastchannel = new Channel($this, $ch);
         $this->lastmessage = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->lastchannel)));
     }
@@ -477,14 +477,14 @@ class Twitch
             $response = $this->commands->handle($dataArr);
         }
         //Whitelisted commands
-        if ( in_array($this->lastuser, $this->whitelist) || ($this->lastuser == $this->nick) ) {
+        if ( in_array($this->lastuser, $this->whitelist) || ($this->lastuser === $this->nick) ) {
             if (in_array($dataArr[0], $this->restricted_functions)) {
                 if ($this->verbose) $this->logger->info('[WHITELISTED FUNCTION]');
                 $response = $this->commands->handle($dataArr);
             }
         }
         //Bot owner commands (shares the same username)
-        if ($this->lastuser == $this->nick) {
+        if ($this->lastuser === $this->nick) {
             if (in_array($dataArr[0], $this->private_functions)) {
                 if ($this->verbose) $this->logger->info('[PRIVATE FUNCTION]');
                 $response = $this->commands->handle($dataArr);
@@ -507,7 +507,7 @@ class Twitch
      */
     protected function parseUser(string $data): ?string
     {
-        if (substr($data, 0, 1) == ":") return substr(explode('!', $data)[0], 1);
+        if (substr($data, 0, 1) === ":") return substr(explode('!', $data)[0], 1);
     }
     
     /**
