@@ -10,7 +10,7 @@ namespace Twitch;
 
 use Twitch\Commands;
 
-//use Discord\Discord; // DiscordPHP
+use Discord\Discord; // DiscordPHP
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger as Monolog;
@@ -74,7 +74,7 @@ class Twitch
     protected bool $running = false;
     
     private string $lastuser = ''; //Who last sent a message in Twitch chat
-    private string $lastchannel = ''; //Where the last command was used
+    private Channel|string $lastchannel = ''; //Where the last command was used
     private string $lastmessage = ''; //What the last message was
     
     private int $retry = 0;
@@ -168,7 +168,7 @@ class Twitch
      * Writes a string to the connection.
      *
      * @param string $string The string to write.
-     * @return PromiseInterface
+     * @return PromiseInterface<null, string> 
      */
     public function write(string $string): PromiseInterface
     {
@@ -218,17 +218,15 @@ class Twitch
      * @param string|null $channel The channel to send the message to. If null, the last channel used will be used.
      * @return bool Returns true if the message was sent successfully, false otherwise.
      */
-    public function sendMessage(string $data, ?string $channel = null): bool
+    public function sendMessage(string $data, Channel|string|null $channel = null): PromiseInterface|false
     {
-        if (isset($this->connection) && ($this->connection !== false)) {
-            if ($channel) $this->lastchannel = $channel;
-            if ($this->lastchannel) {
-                $this->write("PRIVMSG #{$this->lastchannel} :$data\n");
-                $this->logger->info("[REPLY] #{$this->lastchannel} - $data");
-                return true;
-            }
+        if (! $channel) {
+            $this->logger->warning('[SEND MESSAGE] No channel specified');
+            return false;
         }
-        return false;
+        $this->lastchannel = is_string($channel) ? new Channel($this, $channel) : $channel;
+        $this->logger->info("[REPLY] #{$this->lastchannel} - $data");
+        return $this->write("PRIVMSG #{$this->lastchannel} :$data\n");
     }
     
     /**
@@ -252,6 +250,7 @@ class Twitch
         /*if (!isset($this->channels[$string]))*/ $this->write("JOIN #$string\n");
         if ($channel_id) $this->channels[$string][$guild_id] = $channel_id;
         else $this->channels[$string][''] = '';
+        $this->channels[$string]['channel'] = new Channel($this, $string);
         return true;
     }
 
@@ -422,12 +421,15 @@ class Twitch
     protected function process(string $data): void
     {
         if ($this->debug) $this->logger->debug("[DATA] $data");
-        if (trim($data) == 'PING :tmi.twitch.tv') $this->pingPong();
-        elseif (preg_match('/PRIVMSG/', $data)) {
+        if (trim($data) == 'PING :tmi.twitch.tv') {
+            $this->pingPong();
+            return;
+        }
+        if (preg_match('/PRIVMSG/', $data)) {
             $this->parseData($data);
             if ($response = $this->parseCommand()) {
                 $this->discordRelay("[REPLY] #{$this->lastchannel} - $response");
-                if (! $this->sendMessage("@{$this->lastuser}, $response\n")) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
+                $this->sendMessage("@{$this->lastuser}, $response\n");
             }
         }
     }
@@ -440,7 +442,7 @@ class Twitch
     protected function parseData(string $data): void
     {
         $this->lastuser = $this->parseUser($data);
-        $this->lastchannel = $this->parseChannel($data);
+        if ($ch = $this->parseChannel($data)) $this->lastchannel = new Channel($this, $ch);
         $this->lastmessage = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->lastchannel)));
     }
 
@@ -515,10 +517,10 @@ class Twitch
      *
      * @return string|null The parsed channel name, or null if it could not be parsed.
      */
-    protected function parseChannel(string $data): ?string
+    protected static function parseChannel(string $data): ?string
     {
         $arr = explode(' ', substr($data, strpos($data, '#')));
-        if (substr($arr[0], 0, 1) == '#') return substr($arr[0], 1);
+        return ltrim($arr[0], '#');
     }
     
     /**
@@ -630,6 +632,10 @@ class Twitch
      */
     public function linkDiscord($discord): void
     {
+        if (isset($discord)) return;
+
+        if (! $discord instanceof Discord) throw new \Exception('The Discord bot must be an instance of DiscordPHP', E_USER_ERROR);
+
         $this->discord = $discord;
     }
     
@@ -642,14 +648,14 @@ class Twitch
      */
     public function discordRelay(string $payload): bool
     {
-        if (! $this->discord_output || ! $discord = $this->discord) return false;
+        if (! $this->discord_output || ! isset($this->discord)) return false;
         if (empty($this->channels)) return false;
         if (! isset($this->channels[$this->lastchannel])) return false;
         if ($this->verbose) $this->logger->info('[DISCORD CHAT RELAY]');
         foreach ($this->channels[$this->lastchannel] as $guild_id => $channel_id) {
             if (! $guild = $this->discord->guilds->get('id', $guild_id)) continue;
             if (! $channel = $guild->channels->get('id', $channel_id)) continue;
-            if (! $channel->sendMessage($payload)) $this->logger->warning('[FAILED TO SEND MESSAGE TO TWITCH]');
+            $channel->sendMessage($payload);
         }
         return true;
     }
