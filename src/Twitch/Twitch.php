@@ -28,6 +28,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Twitch\Http\Http;
 
 use function React\Promise\resolve;
+use function React\Promise\reject;
 
 /**
  * Twitch class represents the Twitch API client.
@@ -53,7 +54,7 @@ class Twitch
     public $logger;
     
     private $discord;
-    private bool $discord_output;
+    private bool $discord_output = false;
     //private $guild_channel_ids; //guild=>channel assoc array
     private array $socket_options = [];
     
@@ -108,7 +109,7 @@ class Twitch
         $this->nick = $options['nick'];
         $this->channels = $options['channels'];
         if (is_null($this->channels)) $this->channels[$options['nick']] = [];
-        $this->commandsymbol = $options['commandsymbol'] ?? array('!');
+        $this->commandsymbol = $options['symbol'] ?? array('!');
         
         $this->whitelist[] = strtolower($this->nick);
         foreach ($options['whitelist'] as $whitelist) $this->whitelist[] = $whitelist;
@@ -134,8 +135,20 @@ class Twitch
         
         $this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
 
-        //$this->factory = new Factory($this);
-        //$this->client = $this->factory->part(Client::class, []);
+        /*$this->http = new Http(
+            'Bot '.$this->token,
+            $this->loop,
+            $this->options['logger'],
+            new React($this->loop, $options['socket_options'])
+        );
+
+        $this->factory = new Factory($this);
+        $this->client = $this->factory->part(Client::class, []);*/
+    }
+
+    public function getLoop(): LoopInterface
+    {
+        return $this->loop;
     }
     
     /**
@@ -149,7 +162,10 @@ class Twitch
         if ($this->verbose) $this->logger->info('[RUN]');
         if (! $this->running) {
             $this->running = true;
-            $this->connect();
+            $this->connect()->then(
+                fn ($result) => var_dump($this->log('success', json_encode($result))),
+                fn ($error) => var_dump($this->log('error', json_encode($error)))
+            );
         }
         if ($this->verbose) $this->logger->info('[LOOP->RUN]');
         if ($runLoop) $this->loop->run();
@@ -172,11 +188,6 @@ class Twitch
             if ($this->verbose) $this->logger->info('[LOOP->STOP]');
             $this->loop->stop();
         }
-    }
-
-    public function getLoop(): LoopInterface
-    {
-        return $this->loop;
     }
 
     public function log(string $method, string $message): string
@@ -321,10 +332,19 @@ class Twitch
             ->setDefined([
                 'loop',
                 'logger',
-                'symbol',
-                'responses',
-                'functions',
+                'socket_options',
                 'dnsConfig',
+                'symbol',
+                'debug',
+                'verbose',
+                'channels',
+                'responses',
+                'social',
+                'tip',
+                'functions',
+                'private_functions',
+                'restricted_functions',
+                'whitelist',
             ])
             ->setDefaults([
                 'logger' => null,
@@ -370,7 +390,7 @@ class Twitch
      * This command should not be run while the bot is still connected to Twitch
      * Additional handling may be needed in the case of disconnect via $connection->on('close' (See: Issue #1 on GitHub)
      *
-     * @return PromiseInterface
+     * @return PromiseInterface<ConnectionInterface>
      */
     protected function connect(?callable $deferred_callback = null): PromiseInterface
     {
@@ -378,20 +398,24 @@ class Twitch
             $this->logger->warning('[CONNECT] A connection already exists');
             return resolve($this->connection);
         }
-        if ($this->verbose) $this->logger->info('[CONNECT]');
-        return $this->connector->connect(self::IRC_URL)->then(
-            fn (ConnectionInterface $connection) => $this->__connect($connection),
-            fn (\Exception $error) => $this->log('warning', $error->getMessage())
+        $promise = $this->connector->connect(self::IRC_URL)->then(
+            fn (ConnectionInterface $connection) => $this->__connect($this->connection = $connection),
+            fn (\Exception $error) => $this->log('error', json_encode($error))
         );
+        return $promise;
     }
 
     private function __connect(ConnectionInterface $connection, ?callable $deferred_callback = null)
     {
-        if ($this->connection instanceof ConnectionInterface) {
-            if ($deferred_callback) $deferred_callback();
-            return;
-        }
-        $this->initIRC($this->connection = $connection);
+        Helix::getUser($this->nick)->then(
+            fn (string $result) => $this->log('info', "Logged in as " . json_encode(json_decode($result)->data ?? '', JSON_PRETTY_PRINT)),
+            fn (string $error) => $this->log('error', json_encode($error))
+        );
+        if ($this->verbose) $this->logger->info('[CONNECT]');
+        
+        $this->connection = $connection;
+        
+        $this->initIRC($connection);
         $this->logger->info('[CONNECTED]');
         if ($deferred_callback) $deferred_callback();
         $connection->on('data', fn($data) => $this->process($data));
@@ -410,11 +434,11 @@ class Twitch
      */
     protected function initIRC(): void
     {
+        if ($this->verbose) $this->logger->info('[INIT IRC]');
         $this->write("PASS {$this->secret}\n");
         $this->write("NICK {$this->nick}\n");
         $this->write("CAP REQ :twitch.tv/membership\n");
         foreach (array_keys($this->channels) as $twitch_channel) $this->write("JOIN #$twitch_channel\n");
-        if ($this->verbose) $this->logger->info('[INIT IRC]');
     }
 
     /**
@@ -441,7 +465,7 @@ class Twitch
      */
     protected function process(string $data): void
     {
-        if ($this->debug) $this->logger->debug("[DATA] $data");
+        if ($this->verbose) $this->logger->debug("[DATA] $data");
         if (trim($data) === 'PING :tmi.twitch.tv') {
             $this->pingPong();
             return;
@@ -465,12 +489,12 @@ class Twitch
         $lastuser = $lastchannel = $lastmessage = null;
         if ($us = $this->parseUser($data)) {
             $lastuser = new User($this, $us);
-            $this->lastuser->seen();
+            $lastuser->seen();
         }
         if ($ch = $this->parseChannel($data)) {
             $lastchannel = new Channel($this, $ch);
         }
-        if ($msg = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($this->lastchannel)))) {
+        if ($msg = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($ch)))) {
             $lastmessage = new Message($this, $msg, $lastchannel, $lastuser);
         }
         
@@ -493,7 +517,7 @@ class Twitch
             );
         }
         if ($lastmessage) {
-            $lastmessage = new Message($this, $lastmessage, $lastchannel, $lastuser);
+            //
         }
 
         if ($lastuser instanceof User) {
@@ -505,9 +529,13 @@ class Twitch
             if ($lastmessage instanceof Message) $lastchannel->lastmessage = $lastmessage;
         }
         if ($lastmessage instanceof Message) {
-            if ($lastuser instanceof User) $lastmessage->lastuser = $lastuser;
-            if ($lastchannel instanceof Channel) $lastmessage->lastchannel = $lastchannel;
+            if ($lastuser instanceof User) $lastmessage->user = $lastuser;
+            if ($lastchannel instanceof Channel) $lastmessage->channel = $lastchannel;
         }
+
+        $this->lastuser = $lastuser;
+        $this->lastchannel = $lastchannel;
+        $this->lastmessage = $lastmessage;
     }
 
     /**

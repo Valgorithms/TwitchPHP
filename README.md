@@ -88,7 +88,7 @@ $options = array(
     'logger' => $logger,
     
     //Custom commands
-    'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
+    'symbol' => [ // Process commands if a message starts with a prefix in this array
         "@$nick", //Users can mention your channel instead of using a command symbol prefix
 		'!s',
     ],

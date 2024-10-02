@@ -1,16 +1,19 @@
 {
     "name": "vzgcoders/twitchphp",
     "description": "An unofficial API to interact with the IRC chat service used by Twitch.",
+    "type": "library",
+    "license": "MIT",
     "authors": [
         {
             "name": "Valithor Obsidion",
-            "email": "valzargaming@gmail.com"
+            "email": "valithor@valgorithms.com"
         }
     ],
     "require": {
         "php": "^8.0",
         "evenement/evenement": "^3.0 || ^2.0",
         "monolog/monolog": "^3.2",
+        "phpunit/phpunit": "^9.5",
         "nesbot/carbon": "^2.38 || ^3.0",
         "ratchet/pawl": "^0.4.1",
         "react/async": "^4.0 || ^3.0",
@@ -20,7 +23,10 @@
         "react/promise": "^2.2",
         "react/socket": "^1.11",
         "react/stream": "^1.1",
-        "symfony/options-resolver": "^5.1.11 || ^6.0 || ^7.0"
+        "symfony/options-resolver": "^5.1.11 || ^6.0 || ^7.0",
+        "team-reflex/discord-php": "dev-master",
+        "twitchphp/http": "dev-main",
+        "valzargaming/handler": "dev-main"
     },
     "autoload": {
         "psr-4": {

@@ -12,3 +12,6 @@ secret.php
 connect.php
 run.php
 temp/*
+.env
+output.log
+secret_template.php

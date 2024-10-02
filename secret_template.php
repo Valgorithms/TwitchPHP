@@ -1,6 +1,8 @@
 <?php
 //Rename this file to secret.php after all fields have been entered
 
+$nick = 'Valgorithms';
+
 $bot_token = ''; // Obtained from your own server using twitch_oauth.php
 $refresh_token = ''; // Obtained from your own server using twitch_oauth.php
 $secret = 'oauth:'; /* Get your Chat OAuth Password here => https://twitchapps.com/tmi/ */

@@ -2,7 +2,7 @@
 /*
  * This file is a part of the TwitchPHP project.
  *
- * Copyright (c) 2021-2023 ValZarGaming <valzargaming@gmail.com>
+ * Copyright (c) 2021-Present Valithor Obsidion <valithor@valgorithms.com>
  */
 
 namespace Twitch;
@@ -22,19 +22,36 @@ ini_set('max_execution_time', 0);
 ini_set('memory_limit', '-1'); // Unlimited memory usage
 define('MAIN_INCLUDED', 1); // Token and SQL credential files may be protected locally and require this to be defined to access
 
+ //if (! $token_included = require getcwd() . '/token.php') // $token
+    //throw new \Exception('Token file not found. Create a file named token.php in the root directory with the bot token.');
+if (! $autoloader = require file_exists(__DIR__.'/vendor/autoload.php') ? __DIR__.'/vendor/autoload.php' : __DIR__.'/../../autoload.php')
+throw new \Exception('Composer autoloader not found. Run `composer install` and try again.');
+function loadEnv(string $filePath = __DIR__ . '/.env'): void
+{
+    if (! file_exists($filePath)) throw new \Exception("The .env file does not exist.");
+
+    $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    $trimmedLines = array_map('trim', $lines);
+    $filteredLines = array_filter($trimmedLines, fn($line) => $line && ! str_starts_with($line, '#'));
+
+    array_walk($filteredLines, function($line) {
+        [$name, $value] = array_map('trim', explode('=', $line, 2));
+        if (! array_key_exists($name, $_ENV)) putenv(sprintf('%s=%s', $name, $value));
+    });
+}
+loadEnv(getcwd() . '/.env');
+
 $loop = \React\EventLoop\Loop::get();
-require 'secret.php'; //$secret
-$nick = 'ValZarGaming';  // Twitch username (Case sensitive)
 $streamHandler = new StreamHandler('php://stdout', Level::Debug);
 $streamHandler->setFormatter(new LineFormatter(null, null, true, true, true));
-$logger = new Logger('Civ13', [$streamHandler]);
+$logger = new Logger('TwitchPHP', [$streamHandler]);
 file_put_contents('output.log', ''); // Clear the contents of 'output.log'
 $logger->pushHandler(new StreamHandler('output.log', Level::Debug));
 $logger->info('Loading configurations for the bot...');
 $options = array(
     //Required
-    'secret' => $secret, // Client secret
-    'nick' => $nick,
+    'secret' => getenv('secret'), // Client secret
+    'nick' => getenv('nick'), // Twitch username (Case sensitive)
     
     //Optional
     //'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)    
@@ -49,18 +66,18 @@ $options = array(
     'logger' => $logger,
     
     //Custom commands
-    'commandsymbol' => [ // Process commands if a message starts with a prefix in this array
-        "@$nick", //Users can mention your channel instead of using a command symbol prefix
+    'symbol' => [ // Process commands if a message starts with a prefix in this array
+        "@" . getenv('nick'), //Users can mention your channel instead of using a command symbol prefix
         '!',
         ';',
     ],
     'whitelist' => [ // Users who are allowed to use restricted functions
-        strtolower($nick),
         'shriekingechodanica',
     ],
     'social' => [ //NYI
+        'discord' => 'https://discord.gg/0duG4FF1ElFGUFVq',
         'twitter' => 'https://twitter.com/valzargaming',
-		'discord' => 'https://discord.gg/NU4BS5P36g',
+        'x'       => 'https://x.com/valzargaming',
 		'youtube' => 'https://www.youtube.com/valzargaming',
     ],
     'tip' => [ //NYI
@@ -86,17 +103,24 @@ $options = array(
     ],
 );
 //Discord servers to relay chat for, formatted ['channels']['twitch_username']['discord_guild_id'] = 'discord_channel_id'
-$twitch_options['channels']['shriekingechodanica']['923969098185068594'] = '924019611534503996';
-$twitch_options['channels']['shriekingechodanica']['999053951670423643'] = '1014429625826414642';
-$twitch_options['channels'][strtolower($nick)]['923969098185068594'] = '924019611534503996';
+$options['channels'] = [
+    strtolower(getenv('nick')) => [ // Relay chat for the bot's channel
+        '923969098185068594' => '924019611534503996',
+    ],
+    'shriekingechodanica' => [ // Relay chat for another streamer's channel
+        '923969098185068594' => '924019611534503996',
+        '999053951670423643' => '1014429625826414642',
+    ],
+];
 // Responses that reference other values in options should be declared afterwards
-$options['responses']['social'] = 'Come follow the magick through several dimensions:  Twitter - '.$options['social']['twitter'].' |  Discord - '.$options['social']['discord'].' |  YouTube - '.$options['social']['youtube'];
-$options['responses']['tip'] = 'Wanna help fund the magick?  PayPal - '.$options['tip']['paypal'];
-$options['responses']['discord'] = $options['social']['discord'];
+$options['responses'] = array_merge($options['responses'], [
+    'social' => 'Come follow the magick through several dimensions:  Twitter - '.$options['social']['twitter'].' |  Discord - '.$options['social']['discord'].' |  YouTube - '.$options['social']['youtube'],
+    'tip' => 'Wanna help fund the magick?  PayPal - '.$options['tip']['paypal'],
+    'discord' => $options['social']['discord']
+]);
 
 //include 'commands.php';
 //$options['commands'] => $commands; // Import your own Twitch/Commands object to add additional functions
 
 $twitch = new Twitch($options);
 $twitch->run();
-?>
