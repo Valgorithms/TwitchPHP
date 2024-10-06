@@ -19,9 +19,7 @@ namespace Twitch;
  */
 class Commands
 {
-    protected Twitch $twitch;
-    protected bool $verbose;
-    protected bool $debug;
+    private Twitch $twitch;
 
     /**
      * Constructor for the Commands class.
@@ -30,11 +28,9 @@ class Commands
      * @param bool|null $verbose Whether to output verbose logging information.
      * @param bool|null $debug Whether to output debug logging information.
      */
-    public function __construct(Twitch $twitch, ?bool $verbose = false, ?bool $debug = false)
+    public function __construct(Twitch $twitch)
     {
         $this->twitch = $twitch;
-        $this->verbose = $verbose;
-        $this->debug = $debug;
     }
 
     /**
@@ -46,12 +42,12 @@ class Commands
      */
     public function handle(array $args = []): ?string
     {
-        if ($this->verbose) {
+        if ($this->twitch->verbose) {
             $this->twitch->logger->info("[HANDLE COMMAND] `$args[0]`");
             $this->twitch->logger->info('[ARGS] ' . implode(', ', $args));
         }
         
-        if ($this->debug) {
+        if ($this->twitch->debug) {
             $i = 0;
             foreach ($args as $arg) {
                 $args[$i] = preg_replace('/[^A-Za-z0-9\-]/', '', trim($arg));
@@ -93,19 +89,19 @@ class Commands
                 $commands = substr($commands, 0, strlen($commands)-2) . " ";
             }
             
-            if ($this->verbose) $this->twitch->logger->info("[COMMANDS] `$commands`");
+            if ($this->twitch->verbose) $this->twitch->logger->info("[COMMANDS] `$commands`");
             return $commands;
         }
         
         if ($args[0] == 'php')
         {
-            if ($this->verbose) $this->twitch->logger->info('[PHP]');
+            if ($this->twitch->verbose) $this->twitch->logger->info('[PHP]');
             $response = 'Current PHP version: ' . phpversion();
         }
 
         if ($args[0] == 'stop')
         {
-            if ($this->verbose) $this->twitch->logger->info('[STOP]');
+            if ($this->twitch->verbose) $this->twitch->logger->info('[STOP]');
             $this->twitch->close();
         }
         
@@ -113,7 +109,7 @@ class Commands
         
         if ($args[0] == 'leave')
         {
-            if ($this->verbose) $this->twitch->logger->info('[PART]');
+            if ($this->twitch->verbose) $this->twitch->logger->info('[PART]');
             $this->twitch->leaveChannel($this->twitch->getLastChannel());
         }
         
@@ -123,14 +119,14 @@ class Commands
 
         if ($args[0] == 'join')
         {
-            if ($this->verbose) $this->twitch->logger->info('[JOIN]' . $args[1]);
+            if ($this->twitch->verbose) $this->twitch->logger->info('[JOIN]' . $args[1]);
             $this->twitch->joinChannel($args[1]);
             return null;
         }
 
         if ($args[0] == 'so')
         {
-            if ($this->verbose) $this->twitch->logger->info('[SO] ' . $args[1]);
+            if ($this->twitch->verbose) $this->twitch->logger->info('[SO] ' . $args[1]);
             if (! $args[1]) return null;
             $this->twitch->sendMessage("Hey, go check out {$args[1]} at https://www.twitch.tv/{$args[1]} They are good peeples! Pretty good. Pretty good!");
             return null;
@@ -138,7 +134,7 @@ class Commands
 
         if ($args[0] == 'join')
         {
-            if ($this->verbose) $this->twitch->logger->info('[JOIN]' . $args[1]);
+            if ($this->twitch->verbose) $this->twitch->logger->info('[JOIN]' . $args[1]);
             $this->twitch->joinChannel($args[1]);
         }
         return $response ?? null;

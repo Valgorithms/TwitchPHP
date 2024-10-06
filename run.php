@@ -29,6 +29,7 @@ throw new \Exception('Composer autoloader not found. Run `composer install` and 
 function loadEnv(string $filePath = __DIR__ . '/.env'): void
 {
     if (! file_exists($filePath)) throw new \Exception("The .env file does not exist.");
+    putenv('env_path=' . $filePath);
 
     $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     $trimmedLines = array_map('trim', $lines);
@@ -50,8 +51,8 @@ $logger->pushHandler(new StreamHandler('output.log', Level::Debug));
 $logger->info('Loading configurations for the bot...');
 $options = array(
     //Required
-    'secret' => getenv('secret'), // Client secret
-    'nick' => getenv('nick'), // Twitch username (Case sensitive)
+    'secret' => getenv('twitch_secret'), // Client secret
+    'nick' => getenv('twitch_nick'), // Twitch username (Case sensitive)
     
     //Optional
     //'discord' => $discord, // Pass your own instance of DiscordPHP (https://github.com/discord-php/DiscordPHP)    
@@ -67,7 +68,7 @@ $options = array(
     
     //Custom commands
     'symbol' => [ // Process commands if a message starts with a prefix in this array
-        "@" . getenv('nick'), //Users can mention your channel instead of using a command symbol prefix
+        "@" . getenv('twitch_nick'), //Users can mention your channel instead of using a command symbol prefix
         '!',
         ';',
     ],
@@ -104,7 +105,7 @@ $options = array(
 );
 //Discord servers to relay chat for, formatted ['channels']['twitch_username']['discord_guild_id'] = 'discord_channel_id'
 $options['channels'] = [
-    strtolower(getenv('nick')) => [ // Relay chat for the bot's channel
+    strtolower(getenv('twitch_nick')) => [ // Relay chat for the bot's channel
         '923969098185068594' => '924019611534503996',
     ],
     'shriekingechodanica' => [ // Relay chat for another streamer's channel

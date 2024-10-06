@@ -9,11 +9,16 @@
 namespace Twitch;
 
 use Carbon\Carbon;
+use PHPUnit\Framework\MockObject\MockObject;
+use React\EventLoop\LoopInterface;
+use React\EventLoop\TimerInterface;
 Use React\Promise\Promise;
 use React\Promise\PromiseInterface;
 use Twitch\Exception\RateLimitException;
+use Twitch\Exception\RetryRateLimitException;
 use Twitch\Exception\QueryException;
 
+use function React\Async\await;
 use function React\Promise\resolve;
 use function React\Promise\reject;
 
@@ -22,27 +27,127 @@ use function React\Promise\reject;
  * 
  * This class provides methods to interact with the Twitch Helix API.
  * 
+ * @link https://dev.twitch.tv/docs/api/get-started
+ * @link https://dev.twitch.tv/docs/api/reference
+ * 
  * @package TwitchPHP
  */
 class Helix
 {
+    //
     public const SCHEME               = 'https://';
+    //
+    public const TOKEN                = 'id.twitch.tv/oauth2/token';
+    //
+    public const HELIX                = 'api.twitch.tv/helix/';
+    // GET
     public const GET_USER             = 'api.twitch.tv/helix/users?login=:nick';
+    //
     public const START_RAID           = 'api.twitch.tv/helix/raids?from_broadcaster_id=:from_id&to_broadcaster_id=:to_id';
+    //
     public const CANCEL_RAID          = 'api.twitch.tv/helix/raids?broadcaster_id=:broadcaster_id';
+    //
     public const GET_CREATOR_GOALS    = 'api.twitch.tv/helix/goals?broadcaster_id=:broadcaster_id';
+    //
     public const CREATE_POLL          = 'api.twitch.tv/helix/polls';
-    public const CREATE_PREDICTION    = 'api.twitch.tv/helix/predictions';
-    public const GET_PREDICTIONS      = 'api.twitch.tv/helix/predictions';
+    //
+    public const PREDICTIONS          = 'api.twitch.tv/helix/predictions';
+    //
     public const CLIPS                = 'api.twitch.tv/helix/clips';
-    public const CREATE_STREAM_MARKER = 'api.twitch.tv/helix/streams/markers';
-    public const GET_STREAM_MARKERS   = 'api.twitch.tv/helix/streams/markers';    
+    //
+    public const MARKERS              = 'api.twitch.tv/helix/streams/markers';
+    //
     public const VIDEOS               = 'api.twitch.tv/helix/videos';
+    //
     public const GET_SCHEDULE         = 'api.twitch.tv/helix/schedule';
+    //
     public const UPDATE_SCHEDULE      = 'api.twitch.tv/helix/schedule/settings';
+    //
     public const SEGMENT              = 'api.twitch.tv/helix/schedule/segment';
-   
-    public function __construct(public Twitch|\PHPUnit\Framework\MockObject\MockObject &$twitch){}
+
+    public function __construct(
+        public Twitch|MockObject &$twitch
+    ){}
+
+    /**
+     * Refreshes the access token using the provided refresh token.
+     *
+     * @param string $refreshToken The refresh token issued to the client.
+     * @return array An array containing the new access token and refresh token.
+     * @throws \Exception If the refresh request fails.
+     */
+    public static function refreshAccessToken(
+        string $refreshToken = null
+    ): ?array
+    {
+        if ($refreshToken === null) $refreshToken = getenv('twitch_refresh_token');
+        $clientId = getenv('twitch_client_id');
+        $clientSecret = getenv('twitch_client_secret');
+        $url = self::TOKEN;
+        $postData = http_build_query([
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+            'client_id' => $clientId,
+            'client_secret' => $clientSecret,
+        ]);
+        if (function_exists('curl_init')) {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, self::SCHEME . $url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/x-www-form-urlencoded',
+            ]);
+
+            /** @var string|false $result */
+            $result = curl_exec($ch);
+            if ($result === false) throw new \Exception('Failed to refresh access token: ' . curl_error($ch));
+        } else {
+            $context = stream_context_create([
+                'http' => [
+                    'method' => 'POST',
+                    'header' => 'Content-Type: application/x-www-form-urlencoded',
+                    'content' => $postData,
+                ],
+            ]);
+    
+            /** @var string|false $result */
+            $result = file_get_contents($url, false, $context);
+            if ($result === false) throw new \Exception('Failed to refresh access token using file_get_contents');
+        }
+        $data = json_decode($result, true);
+        if ($data === null) throw new \Exception('Failed to decode JSON response from token endpoint');
+        assert(is_array($data));
+        if (! isset($data['access_token'], $data['refresh_token'])) throw new \Exception('Invalid response from token endpoint');
+        // Store the new tokens securely
+        // Update the .env file with the new tokens
+        $envFile = getenv('env_path');
+        if (file_exists($envFile)) {
+            $envContent = file_get_contents($envFile);
+            $envContent = preg_replace('/^twitch_access_token=.*$/m', 'twitch_access_token=' . $data['access_token'], $envContent);
+            $envContent = preg_replace('/^twitch_refresh_token=.*$/m', 'twitch_refresh_token=' . $data['refresh_token'], $envContent);
+            file_put_contents($envFile, $envContent);
+        }
+
+        self::updateTokens($data['access_token'], $data['refresh_token']);
+        error_log('Access token refreshed');
+        return $data;
+    }
+
+    /**
+     * Stores the provided access and refresh tokens as environment variables.
+     *
+     * @param string $accessToken The access token to be stored.
+     * @param string $refreshToken The refresh token to be stored.
+     *
+     * @return void
+     */
+    private static function updateTokens(string $accessToken, string $refreshToken): void
+    {
+        putenv("twitch_access_token=$accessToken");
+        putenv("twitch_refresh_token=$refreshToken");
+    }
     
     /**
      * Executes a cURL request.
@@ -51,7 +156,11 @@ class Helix
      * @param string $method The HTTP method to use ('GET' or 'POST').
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function query(string $url, string $method = 'GET', ?string $data = null): PromiseInterface
+    public static function query(
+        string $url,
+        string $method = 'GET',
+        ?string $data = null
+    ): PromiseInterface
     {
         return new Promise(function ($resolve, $reject) use ($url, $method, $data) {
             if (function_exists('curl_init')) {
@@ -59,30 +168,29 @@ class Helix
                 curl_setopt($ch, CURLOPT_URL, self::SCHEME . $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Authorization: Bearer ' . getenv('bot_token'),
-                    'Client-Id: ' . getenv('client_id'),
+                    'Authorization: Bearer ' . getenv('twitch_access_token'),
+                    'Client-Id: ' . getenv('twitch_client_id'),
                 ]);
                 if ($method === 'POST') {
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
                 }
+                /** @var string|false $result */
                 $result = curl_exec($ch);
-                if ($error = curl_errno($ch)) {
+                if ($result === false) {
                     $response = (object)[
                         'status' => curl_getinfo($ch, CURLINFO_HTTP_CODE),
                         'headers' => curl_getinfo($ch),
                     ];
-                    $reject(new QueryException('Curl error: ' . curl_errno($ch), $error, null, $response));
-                } else {
-                    $resolve($result);
+                    $reject(new QueryException('Curl error: ' . curl_error($ch), curl_errno($ch), null, $response));
+                    return;
                 }
-                curl_close($ch);
             } else {
                 $options = [
                     'http' => [
                         'header' => [
-                            'Authorization: Bearer ' . getenv('bot_token'),
-                            'Client-Id: ' . getenv('client_id'),
+                            'Authorization: Bearer ' . getenv('twitch_access_token'),
+                            'Client-Id: ' . getenv('twitch_client_id'),
                         ],
                         'method' => $method,
                         'content' => $data,
@@ -96,10 +204,25 @@ class Helix
                         'headers' => $http_response_header,
                     ];
                     $reject(new QueryException('File get contents error', 0, null, $response));
-                } else {
-                    $resolve($result);
+                    return;
                 }
             }
+            if ($result === '{"error":"Unauthorized","status":401,"message":"OAuth token is missing"}') {
+                error_log("Oauth token is missing");
+                $reject($result);
+                return;
+            }
+            if ($result === '{"error":"Unauthorized","status":401,"message":"Invalid OAuth token"}') {
+                error_log("Oauth token expired, attempting to refresh...");
+                self::refreshAccessToken();
+                $result = await(self::query($url, $method, $data));
+                if ($result === '{"error":"Unauthorized","status":401,"message":"Invalid OAuth token"}') {
+                    error_log("Failed to refresh Oauth token");
+                    $reject($result);
+                    return;
+                }
+            }
+            $resolve($result);
         });
     }
 
@@ -111,35 +234,44 @@ class Helix
      * @param string|null $data The data to send with the request (for POST, PATCH).
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public function queryWithRateLimitHandling(string $url, string $method = 'GET', ?string $data = null): PromiseInterface
+    public static function queryWithRateLimitHandling(
+        LoopInterface $loop,
+        string $url,
+        string $method = 'GET',
+        ?string $data = null
+    ): PromiseInterface
     {
         error_log("Starting queryWithRateLimitHandling for URL: $url");
-
         return self::query($url, $method, $data)->then(
-            function ($response) use ($url) {
+            function ($response) use ($loop, $url, $method, $data) {
                 error_log("Query successful for URL: $url");
+                if ($response === '{"error":"Unauthorized","status":401,"message":"Invalid OAuth token"}') {
+                    error_log("Unauthorized error for URL: $url. Updating token.");
+                    self::refreshAccessToken();
+                    return await(self::queryWithRateLimitHandling($loop, $url, $method, $data));
+                }
                 return $response;
             },
-            function ($error) use ($url, $method, $data) {
+            function (\Throwable $error) use ($loop, $url, $method, $data) {
                 error_log("Query failed for URL: $url with error: " . $error->getMessage());
 
                 if ($error instanceof QueryException && $error->getResponse()->status === 429) {
                     $resetTime = $error->getResponse()->headers['Ratelimit-Reset'];
                     $waitTime = $resetTime - time();
-                    error_log("Rate limit exceeded for URL: $url. Retrying after $waitTime seconds.");
-
-                    return new Promise(function ($resolve) use ($url, $method, $data, $waitTime) {
-                        $this->twitch->getLoop()->addTimer($waitTime, function () use ($resolve, $url, $method, $data) {
-                            error_log("Retrying query for URL: $url");
-                            $resolve($this->query($url, $method, $data));
-                        });
-                    });
+                    $loop->addTimer($waitTime, fn () => self::queryWithRateLimitHandling($loop, $url, $method, $data));
+                    throw $err = new RetryRateLimitException('Rate limit exceeded', 429, null, $error->getResponse()->headers);
+                    error_log($err = "Rate limit exceeded for URL: $url. Retrying after $waitTime seconds.");
+                    return $err;
                 }
 
-                throw new RateLimitException('Rate limit exceeded', 429, null, $error->getResponse()->headers);
+                error_log('Rate limit exceeded');
+                
+                return throw new \Exception('Rate limit exceeded', 429, null);
             }
         );
     }
+
+    
    
     /**
      * Binds parameters to a URL. Placeholders in the URL should be prefixed with a colon.
@@ -148,7 +280,10 @@ class Helix
      * @param array $params An associative array of parameters to bind to the URL.
      * @return string The URL with bound parameters.
      */
-    public static function bindParams(string $url, array $params): string
+    public static function bindParams(
+        string $url,
+        array $params
+    ): string
     {
         return str_replace(array_map(fn($key) => ':' . $key, array_keys($params)), array_values($params), $url);
     }
@@ -159,9 +294,16 @@ class Helix
      * @param string $nick The Twitch username to retrieve information for.
      * @return PromiseInterface<string> A promise that resolves with the user information or rejects with an error.
      */
-    public static function getUser(string $nick): PromiseInterface
+    public static function getUser(
+        string $nick,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::GET_USER, ['nick' => $nick]));
+        $url = self::bindParams(self::GET_USER, ['nick' => $nick]);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -171,9 +313,18 @@ class Helix
      * @param string $toId The ID of the broadcaster being raided.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function startRaid(string $fromId, string $toId): PromiseInterface
+    public static function startRaid(
+        string $fromId,
+        string $toId,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::START_RAID, ['from_id' => $fromId, 'to_id' => $toId]), 'POST');
+        $url = self::bindParams(self::START_RAID, ['from_id' => $fromId, 'to_id' => $toId]);
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
     }
 
     /**
@@ -182,9 +333,17 @@ class Helix
      * @param string $broadcasterId The ID of the broadcaster that initiated the raid.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function cancelRaid(string $broadcasterId): PromiseInterface
+    public static function cancelRaid(
+        string $broadcasterId,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::CANCEL_RAID, ['broadcaster_id' => $broadcasterId]), 'DELETE');
+        $url = self::bindParams(self::CANCEL_RAID, ['broadcaster_id' => $broadcasterId]);
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
     }
 
     /**
@@ -193,12 +352,19 @@ class Helix
      * @param string $broadcasterId The ID of the broadcaster whose goals you want to get.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getCreatorGoals(string $broadcasterId): PromiseInterface
+    public static function getCreatorGoals(
+        string $broadcasterId,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::GET_CREATOR_GOALS, ['broadcaster_id' => $broadcasterId]));
+        $url = self::bindParams(self::GET_CREATOR_GOALS, ['broadcaster_id' => $broadcasterId]);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
-     /**
+    /**
      * Creates a poll for a broadcaster.
      * 
      * @param string $broadcasterId The ID of the broadcaster creating the poll.
@@ -215,21 +381,26 @@ class Helix
         array $choices,
         int $duration,
         bool $channelPointsVotingEnabled = false,
-        int $channelPointsPerVote = 0
+        int $channelPointsPerVote = 0,
+        ?loopInterFace $loop = null
     ): PromiseInterface {
+        $url = self::CREATE_POLL;
+        $method = 'POST';
         $data = [
             'broadcaster_id' => $broadcasterId,
             'title' => $title,
             'choices' => $choices,
             'duration' => $duration,
         ];
-    
         if ($channelPointsVotingEnabled) {
             $data['channel_points_voting_enabled'] = true;
             $data['channel_points_per_vote'] = $channelPointsPerVote;
         }
-    
-        return self::queryWithRateLimitHandling(self::CREATE_POLL, 'POST', json_encode($data));
+        $data = json_encode($data);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -243,15 +414,21 @@ class Helix
     public static function endPoll(
         string $broadcasterId,
         string $pollId,
-        string $status
+        string $status,
+        ?loopInterFace $loop = null
     ): PromiseInterface {
+        $url = self::CREATE_POLL;
+        $method = 'PATCH';
         $data = [
             'broadcaster_id' => $broadcasterId,
             'id' => $pollId,
             'status' => $status,
         ];
-
-        return self::queryWithRateLimitHandling(self::CREATE_POLL, 'PATCH', json_encode($data));
+        $data = json_encode($data);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -261,13 +438,18 @@ class Helix
      * @param string|null $pollId (optional) The ID of a specific poll to get.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getPolls(string $broadcasterId, ?string $pollId = null): PromiseInterface
+    public static function getPolls(
+        string $broadcasterId,
+        ?string $pollId = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
         $url = self::bindParams(self::CREATE_POLL, ['broadcaster_id' => $broadcasterId]);
-        if ($pollId !== null) {
-            $url .= '&id=' . $pollId;
-        }
-        return self::queryWithRateLimitHandling($url);
+        if ($pollId !== null) $url .= '&id=' . $pollId;
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -283,16 +465,22 @@ class Helix
         string $broadcasterId,
         string $title,
         array $outcomes,
-        int $predictionWindow
+        int $predictionWindow,
+        ?loopInterFace $loop = null
     ): PromiseInterface {
+        $url = self::PREDICTIONS;
+        $method = 'POST';
         $data = [
             'broadcaster_id' => $broadcasterId,
             'title' => $title,
             'outcomes' => $outcomes,
             'prediction_window' => $predictionWindow,
         ];
-
-        return self::queryWithRateLimitHandling(self::CREATE_PREDICTION, 'POST', json_encode($data));
+        $data = json_encode($data);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -308,17 +496,22 @@ class Helix
         string $broadcasterId,
         string $predictionId,
         string $status,
-        ?string $winningOutcomeId = null
+        ?string $winningOutcomeId = null,
+        ?loopInterFace $loop = null
     ): PromiseInterface {
+        $url = self::PREDICTIONS;
+        $method = 'PATCH';
         $data = [
             'broadcaster_id' => $broadcasterId,
             'id' => $predictionId,
             'status' => $status,
         ];
-
         if ($status === 'RESOLVED' && $winningOutcomeId !== null) $data['winning_outcome_id'] = $winningOutcomeId;
-
-        return self::queryWithRateLimitHandling(self::CREATE_PREDICTION, 'PATCH', json_encode($data));
+        $data = json_encode($data);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -328,16 +521,21 @@ class Helix
      * @param string|array|null $predictionIds (optional) A specific prediction ID or an array of prediction IDs to get.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getPredictions(string $broadcasterId, string|array|null $predictionIds = null): PromiseInterface
+    public static function getPredictions(
+        string $broadcasterId,
+        string|array|null $predictionIds = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        $url = self::bindParams(self::GET_PREDICTIONS, ['broadcaster_id' => $broadcasterId]);
-        
+        $url = self::bindParams(self::PREDICTIONS, ['broadcaster_id' => $broadcasterId]);
         if ($predictionIds !== null) {
             if (is_string($predictionIds)) $predictionIds = [$predictionIds];
             if (is_array($predictionIds) && count($predictionIds) > 0) $url .= '&id=' . implode('&id=', $predictionIds);
         }
-        
-        return self::queryWithRateLimitHandling($url);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -346,9 +544,17 @@ class Helix
      * @param string $broadcasterId The ID of the broadcaster whose stream you want to create a clip from.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function createClip(string $broadcasterId): PromiseInterface
+    public static function createClip(
+        string $broadcasterId,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::CLIPS, ['broadcaster_id' => $broadcasterId]), 'POST');
+        $url = self::bindParams(self::CLIPS, ['broadcaster_id' => $broadcasterId]);
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -359,7 +565,12 @@ class Helix
      * @param string|null $endedAt (optional) The end date for the date range filter in ISO 8601 format.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getClips(string $broadcasterId, ?string $startedAt = null, ?string $endedAt = null): PromiseInterface
+    public static function getClips(
+        string $broadcasterId,
+        ?string $startedAt = null,
+        ?string $endedAt = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
         $params = ['broadcaster_id' => $broadcasterId];
         if ($startedAt !== null) {
@@ -369,7 +580,11 @@ class Helix
                 $params['ended_at'] = $endDate;
             } else $params['ended_at'] = $endedAt;
         }
-        return self::queryWithRateLimitHandling(self::bindParams(self::CLIPS, $params));
+        $url = self::bindParams(self::CLIPS, $params);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -380,7 +595,12 @@ class Helix
      * @param string|null $endedAt (optional) The end date for the date range filter in ISO 8601 format.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getGameClips(string $gameId, ?string $startedAt = null, ?string $endedAt = null): PromiseInterface
+    public static function getGameClips(
+        string $gameId,
+        ?string $startedAt = null,
+        ?string $endedAt = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
         $params = ['game_id' => $gameId];
         if ($startedAt !== null) {
@@ -390,7 +610,11 @@ class Helix
                 $params['ended_at'] = $endDate;
             } else $params['ended_at'] = $endedAt;
         }
-        return self::queryWithRateLimitHandling(self::bindParams(self::CLIPS, $params));
+        $url = self::bindParams(self::CLIPS, $params);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -399,9 +623,16 @@ class Helix
      * @param array $clipIds An array of clip IDs to get.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getSpecificClips(array $clipIds): PromiseInterface
+    public static function getSpecificClips(
+        array $clipIds,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::CLIPS . '?id=' . implode('&id=', $clipIds));
+        $url = self::CLIPS . '?id=' . implode('&id=', $clipIds);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -411,20 +642,29 @@ class Helix
      * @param string|null $description (optional) A short description to help remind you why you created the marker.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function createStreamMarker(string $broadcasterId, ?string $description = null): PromiseInterface
+    public static function createStreamMarker(
+        string $broadcasterId,
+        ?string $description = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
+        $url = self::MARKERS;
+        $method = 'POST';
         $data = ['user_id' => $broadcasterId];
         if ($description !== null) $data['description'] = $description;
-
-        return self::queryWithRateLimitHandling(self::CREATE_STREAM_MARKER, 'POST', json_encode($data))
-            ->then(
-                fn ($response) => $response,
-                function ($error) {
-                    if (isset($error->response->status) && $error->response->status === 400)
-                        throw new \Exception('Bad Request: The request was invalid or cannot be otherwise served.');
-                    throw $error;
-                }
-            );
+        $data = json_encode($data);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+                ->then(
+                    fn ($response) => $response,
+                    function (\Throwable $error) {
+                        if (isset($error->response->status) && $error->response->status === 400)
+                            throw new \Exception('Bad Request: The request was invalid or cannot be otherwise served.');
+                        throw $error;
+                    }
+                )
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -436,28 +676,38 @@ class Helix
      * @param string|null $after (optional) The cursor used to fetch the next page of data.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getStreamMarkers(string $broadcasterId, ?string $videoId = null, ?int $first = null, ?string $after = null): PromiseInterface
+    public static function getStreamMarkers(
+        string $broadcasterId,
+        ?string $videoId = null,
+        ?int $first = null,
+        ?string $after = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
         $params = ['user_id' => $broadcasterId];
         if ($videoId !== null) $params['video_id'] = $videoId;
         if ($first !== null) $params['first'] = $first;
         if ($after !== null) $params['after'] = $after;
+        $url = self::bindParams(self::MARKERS, $params);
 
-        return self::queryWithRateLimitHandling(self::bindParams(self::GET_STREAM_MARKERS, $params))
-            ->then(
-                function ($response) {
-                    // Handle successful response
-                    return $response;
-                },
-                function ($error) {
-                    // Handle error response
-                    if (isset($error->response->status) && $error->response->status === 404) {
-                        throw new \Exception('No VODs found for the specified broadcaster.');
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+                ->then(
+                    function ($response) {
+                        // Handle successful response
+                        return $response;
+                    },
+                    function (\Throwable $error) {
+                        // Handle error response
+                        if (isset($error->response->status) && $error->response->status === 404) {
+                            throw new \Exception('No VODs found for the specified broadcaster.');
+                        }
+                        // Re-throw the error if it's not a known issue
+                        throw $error;
                     }
-                    // Re-throw the error if it's not a known issue
-                    throw $error;
-                }
-            );
+                )
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -466,9 +716,16 @@ class Helix
      * @param array $videoIds An array of video IDs to get.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getVideosById(array $videoIds): PromiseInterface
+    public static function getVideosById(
+        array $videoIds,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::VIDEOS, ['id' => $videoIds]));
+        $url = self::bindParams(self::VIDEOS, ['id' => $videoIds]);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -480,13 +737,23 @@ class Helix
      * @param string|null $after (optional) The cursor used to fetch the next page of data.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getVideosByBroadcaster(string $broadcasterId, ?string $type = null, ?int $first = null, ?string $after = null): PromiseInterface
+    public static function getVideosByBroadcaster(
+        string $broadcasterId,
+        ?string $type = null,
+        ?int $first = null,
+        ?string $after = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
         $params = ['user_id' => $broadcasterId];
         if ($type !== null) $params['type'] = $type;
         if ($first !== null) $params['first'] = $first;
         if ($after !== null) $params['after'] = $after;
-        return self::queryWithRateLimitHandling(self::bindParams(self::VIDEOS, $params));
+        $url = self::bindParams(self::VIDEOS, $params);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -501,7 +768,16 @@ class Helix
      * @param string|null $after (optional) The cursor used to fetch the next page of data.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getVideosByGame(string $gameId, ?string $type = null, ?string $language = null, ?string $period = null, ?string $sort = null, ?int $first = null, ?string $after = null): PromiseInterface
+    public static function getVideosByGame(
+        string $gameId,
+        ?string $type = null,
+        ?string $language = null,
+        ?string $period = null,
+        ?string $sort = null,
+        ?int $first = null,
+        ?string $after = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
         $params = ['game_id' => $gameId];
         if ($type !== null) $params['type'] = $type;
@@ -510,7 +786,11 @@ class Helix
         if ($sort !== null) $params['sort'] = $sort;
         if ($first !== null) $params['first'] = $first;
         if ($after !== null) $params['after'] = $after;
-        return self::queryWithRateLimitHandling(self::bindParams(self::VIDEOS, $params));
+        $url = self::bindParams(self::VIDEOS, $params);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -519,9 +799,17 @@ class Helix
      * @param array $videoIds An array of video IDs to delete.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function deleteVideos(array $videoIds): PromiseInterface
+    public static function deleteVideos(
+        array $videoIds,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::VIDEOS, ['id' => $videoIds]), 'DELETE');
+        $url = self::bindParams(self::VIDEOS, ['id' => $videoIds]);
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
     }
 
     /**
@@ -532,12 +820,21 @@ class Helix
      * @param string|null $id (optional) The ID of the segment to get.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getSchedule(string $broadcasterId, ?string $startTime = null, ?string $id = null): PromiseInterface
+    public static function getSchedule(        
+        string $broadcasterId,
+        ?string $startTime = null,
+        ?string $id = null,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
         $params = ['broadcaster_id' => $broadcasterId];
         if ($startTime !== null) $params['start_time'] = $startTime;
         if ($id !== null) $params['id'] = $id;
-        return self::queryWithRateLimitHandling(self::bindParams(self::GET_SCHEDULE, $params));
+        $url = self::bindParams(self::GET_SCHEDULE, $params);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url)
+            : self::query($url);
+        return $promise;
     }
 
     /**
@@ -547,9 +844,19 @@ class Helix
      * @param array $data The data for the new segment.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function createSegment(string $broadcasterId, array $data): PromiseInterface
+    public static function createSegment(
+        string $broadcasterId,
+        array $data,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId]), 'POST', json_encode($data));
+        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId]);
+        $method = 'POST';
+        $data = json_encode($data);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -560,9 +867,20 @@ class Helix
      * @param array $data The data to update the segment with.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function updateSegment(string $broadcasterId, string $segmentId, array $data): PromiseInterface
+    public static function updateSegment(
+        string $broadcasterId,
+        string $segmentId,
+        array $data,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]), 'PATCH', json_encode($data));
+        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $method = 'PATCH';
+        $data = json_encode($data);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -572,9 +890,19 @@ class Helix
      * @param string $segmentId The ID of the segment to cancel.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function cancelSegment(string $broadcasterId, string $segmentId): PromiseInterface
+    public static function cancelSegment(
+        string $broadcasterId,
+        string $segmentId,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]), 'PATCH', json_encode(['is_canceled' => true]));
+        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $method = 'PATCH';
+        $data = json_encode(['is_canceled' => true]);
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, 'PATCH', $data)
+            : self::query($url, $method, $data);
+        return $promise;
     }
 
     /**
@@ -584,15 +912,24 @@ class Helix
      * @param string $segmentId The ID of the segment to delete.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function deleteSegment(string $broadcasterId, string $segmentId): PromiseInterface
+    public static function deleteSegment(
+        string $broadcasterId,
+        string $segmentId,
+        ?loopInterFace $loop = null
+    ): PromiseInterface
     {
-        return self::queryWithRateLimitHandling(self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]), 'DELETE');
+        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
     }
 }
 
 namespace Twitch\Exception;
 
-class RateLimitException extends \Exception
+class RateLimitException extends QueryException
 {
     private $headers;
 
@@ -607,6 +944,7 @@ class RateLimitException extends \Exception
         return $this->headers;
     }
 }
+class RetryRateLimitException extends RateLimitException {}
 
 class QueryException extends \Exception
 {

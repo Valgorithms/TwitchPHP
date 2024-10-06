@@ -55,7 +55,7 @@ class HelixTest extends TestCase
         loadEnv(__DIR__ . '\..\.env');
 
         // Get the OAuth token from the .env file
-        $this->oauthToken = getenv('secret');
+        $this->oauthToken = getenv('twitch_secret');
 
         $this->twitchMock = $this->createMock(Twitch::class);
         $this->loopMock = $this->createMock(LoopInterface::class);
@@ -77,20 +77,14 @@ class HelixTest extends TestCase
         $data = null;
         $resetTime = time() + 5; // 5 seconds from now
 
-        // Mock the query method to simulate a rate limit error and a successful response
-        $this->helixMock->expects($this->exactly(5))
-            ->method('query')
-            ->withConsecutive(
-                [$url, $method, $data],
-                [$url, $method, $data]
-            )
-            ->willReturnOnConsecutiveCalls(
-                $this->createRejectedPromise(429, ['Ratelimit-Reset' => $resetTime]),
-                $this->createResolvedPromise('{"data":[{"id":"29034572","login":"valgorithms","display_name":"Valgorithms","type":"","broadcaster_type":"affiliate","description":"I\'m a teacher, programmer, and patient care advocate. I make things that make other things work. My primary focus is streaming games that my community enjoys playing.","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/f34c0861-ceef-45e4-a441-4b11944780b0-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/3553a8d3-4f03-4bb0-a7c9-38be8022aa9e-channel_offline_image-1920x1080.jpeg","view_count":0,"email":"valzargaming@gmail.com","created_at":"2012-03-15T22:32:11Z"}]}'),
-                $this->createResolvedPromise('{"data":[{"id":"29034572","login":"valgorithms","display_name":"Valgorithms","type":"","broadcaster_type":"affiliate","description":"I\'m a teacher, programmer, and patient care advocate. I make things that make other things work. My primary focus is streaming games that my community enjoys playing.","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/f34c0861-ceef-45e4-a441-4b11944780b0-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/3553a8d3-4f03-4bb0-a7c9-38be8022aa9e-channel_offline_image-1920x1080.jpeg","view_count":0,"email":"valzargaming@gmail.com","created_at":"2012-03-15T22:32:11Z"}]}'),
-                $this->createResolvedPromise('{"data":[{"id":"29034572","login":"valgorithms","display_name":"Valgorithms","type":"","broadcaster_type":"affiliate","description":"I\'m a teacher, programmer, and patient care advocate. I make things that make other things work. My primary focus is streaming games that my community enjoys playing.","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/f34c0861-ceef-45e4-a441-4b11944780b0-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/3553a8d3-4f03-4bb0-a7c9-38be8022aa9e-channel_offline_image-1920x1080.jpeg","view_count":0,"email":"valzargaming@gmail.com","created_at":"2012-03-15T22:32:11Z"}]}'),
-                $this->createResolvedPromise('{"data":[{"id":"29034572","login":"valgorithms","display_name":"Valgorithms","type":"","broadcaster_type":"affiliate","description":"I\'m a teacher, programmer, and patient care advocate. I make things that make other things work. My primary focus is streaming games that my community enjoys playing.","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/f34c0861-ceef-45e4-a441-4b11944780b0-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/3553a8d3-4f03-4bb0-a7c9-38be8022aa9e-channel_offline_image-1920x1080.jpeg","view_count":0,"email":"valzargaming@gmail.com","created_at":"2012-03-15T22:32:11Z"}]}'),
-            );
+        // Mock the query method to simulate multiple successful responses followed by a rate limit error
+        $this->helixMock->expects($this->exactly(2))
+        ->method('query')
+        ->with($url, $method, $data)
+        ->willReturnOnConsecutiveCalls(
+            $this->createRejectedPromise(429, ['Ratelimit-Reset' => $resetTime]),
+            $this->createResolvedPromise('{"data":[{"id":"29034572","login":"valgorithms","display_name":"Valgorithms","type":"","broadcaster_type":"affiliate","description":"I\'m a teacher, programmer, and patient care advocate. I make things that make other things work. My primary focus is streaming games that my community enjoys playing.","profile_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/f34c0861-ceef-45e4-a441-4b11944780b0-profile_image-300x300.png","offline_image_url":"https://static-cdn.jtvnw.net/jtv_user_pictures/3553a8d3-4f03-4bb0-a7c9-38be8022aa9e-channel_offline_image-1920x1080.jpeg","view_count":0,"email":"valzargaming@gmail.com","created_at":"2012-03-15T22:32:11Z"}]}')
+        );
 
         // Mock the addTimer method to immediately invoke the callback
         $this->loopMock->expects($this->once())
@@ -102,7 +96,7 @@ class HelixTest extends TestCase
             ->willReturn($this->createMock(TimerInterface::class));
 
         // Call the method and verify the result
-        $promise = $this->helixMock->queryWithRateLimitHandling($url, $method, $data);
+        $promise = $this->helixMock->queryWithRateLimitHandling($this->twitchMock->getLoop(), $url, $method, $data);
         $result = \React\Async\await($promise);
 
         // Debugging output
@@ -121,11 +115,11 @@ class HelixTest extends TestCase
             'status' => $status,
             'headers' => $headers,
         ];
-        return new \React\Promise\RejectedPromise(new QueryException('Rate limit exceeded', $status, null, $response));
+        return \React\Promise\reject(new QueryException('Rate limit exceeded', $status, null, $response));
     }
 
     private function createResolvedPromise($value): PromiseInterface
     {
-        return new \React\Promise\FulfilledPromise($value);
+        return \React\Promise\resolve($value);
     }
 }

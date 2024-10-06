@@ -11,6 +11,7 @@ namespace Twitch;
 use Twitch\Commands;
 
 use Discord\Discord; // DiscordPHP
+use Discord\Helpers\CacheConfig;
 use Discord\Helpers\Collection;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\StreamHandler;
@@ -25,8 +26,11 @@ use React\Promise\Deferred;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Twitch\Http\Http;
+use Twitch\Factory\Factory;
+use Twitch\Helix as Http;
+use Twitch\Repository\AbstractRepository;
 
+use function React\Async\await;
 use function React\Promise\resolve;
 use function React\Promise\reject;
 
@@ -42,6 +46,7 @@ use function React\Promise\reject;
 class Twitch
 {
     public const IRC_URL = "irc.chat.twitch.tv:6667";
+    public const REDACTED_WRITES = ['PASS'];
 
     protected Loop|StreamSelectLoop $loop;
     protected Commands $commands;
@@ -52,14 +57,35 @@ class Twitch
      * @var LoggerInterface Logger.
      */
     public $logger;
+
+    /**
+     * The HTTP client.
+     *
+     * @var Http Client.
+     */
+    protected $http;
+
+    /**
+     * The part/repository factory.
+     *
+     * @var Factory Part factory.
+     */
+    protected $factory;
+
+    /**
+     * The cache configuration.
+     *
+     * @var CacheConfig[]
+     */
+    protected $cacheConfig;
     
     private $discord;
     private bool $discord_output = false;
     //private $guild_channel_ids; //guild=>channel assoc array
     private array $socket_options = [];
     
-    private bool $verbose = false;
-    private bool $debug = false;
+    public bool $verbose = false;
+    public bool $debug = false;
     
     private string $secret = '';
     private string $nick = '';
@@ -103,6 +129,13 @@ class Twitch
         if (php_sapi_name() !== 'cli') trigger_error('TwitchPHP will not run on a webserver. Please use PHP CLI to run a TwitchPHP self-bot.', E_USER_ERROR);
         
         $options = $this->resolveOptions($options);
+
+        if (isset($options['cache'])) {
+            $this->cacheConfig = $options['cache'];
+            if ($cacheConfig = $this->getCacheConfig()) {
+                $this->logger->warning('Attached experimental CacheInterface: '.get_class($cacheConfig->interface));
+            }
+        }
         
         $this->loop = $options['loop'] ?? Loop::get();
         $this->secret = $options['secret'];
@@ -145,11 +178,6 @@ class Twitch
         $this->factory = new Factory($this);
         $this->client = $this->factory->part(Client::class, []);*/
     }
-
-    public function getLoop(): LoopInterface
-    {
-        return $this->loop;
-    }
     
     /**
      * Runs the Twitch client.
@@ -159,7 +187,7 @@ class Twitch
      */
     public function run(bool $runLoop = true): void
     {
-        if ($this->verbose) $this->logger->info('[RUN]');
+        if ($this->verbose) $this->logger->info('[LOOP->RUN]');
         if (! $this->running) {
             $this->running = true;
             $this->connect()->then(
@@ -167,7 +195,6 @@ class Twitch
                 fn ($error) => var_dump($this->log('error', json_encode($error)))
             );
         }
-        if ($this->verbose) $this->logger->info('[LOOP->RUN]');
         if ($runLoop) $this->loop->run();
     }
     
@@ -195,6 +222,54 @@ class Twitch
         $this->logger->$method($message);
         return $message;
     }
+
+    /**
+     * Allows access to the part/repository factory.
+     *
+     * @param string $class   The class to build.
+     * @param mixed  $data    Data to create the object.
+     * @param bool   $created Whether the object is created (if part).
+     *
+     * @return Part|AbstractRepository
+     *
+     * @see Factory::create()
+     *
+     * @deprecated 10.0.0 Use `new $class($discord, ...)`.
+     */
+    public function factory(string $class, $data = [], bool $created = false)
+    {
+        return $this->factory->create($class, $data, $created);
+    }
+
+    /**
+     * Gets the factory.
+     *
+     * @return Factory
+     */
+    public function getFactory(): Factory
+    {
+        return $this->factory;
+    }
+
+    /**
+     * Gets the HTTP client.
+     *
+     * @return Http
+     */
+    public function getHttpClient(): Http
+    {
+        return $this->http;
+    }
+
+    /**
+     * Gets the loop being used by the client.
+     *
+     * @return LoopInterface
+     */
+    public function getLoop(): LoopInterface
+    {
+        return $this->loop;
+    }
     
     /**
      * Writes a string to the connection.
@@ -204,7 +279,12 @@ class Twitch
      */
     public function write(string $string): PromiseInterface
     {
-        if ($this->debug) $this->logger->debug("[WRITE] $string");
+        if ($this->debug) {
+            $redactedString = array_reduce(self::REDACTED_WRITES, function ($carry, $redacted) use ($string) {
+                return str_starts_with($string, $redacted) ? "[WRITE] $redacted ********" : $carry;
+            }, "[WRITE] $string");
+            $this->logger->debug($redactedString);
+        }
 
         $deferred = new Deferred;
 
@@ -221,6 +301,16 @@ class Twitch
             });
     }
 
+    /**
+     * Attempts to retry the connection to the Twitch service.
+     * Logs a warning message before attempting to reconnect.
+     * If the connection is successful, resets the retry counter and sets the connection.
+     * If a deferred callback is provided, it will be executed upon successful connection.
+     * If the connection fails, it will retry up to 5 times before logging an error message.
+     * 
+     * @param callable|null $deferred_callback A callback to be executed upon successful connection.
+     * @return PromiseInterface A promise that resolves to the connection or logs an error message.
+     */
     private function retryConnection(?callable $deferred_callback = null): PromiseInterface
     {
         $this->logger->warning('[RETRY CONNECTION]');
@@ -330,6 +420,7 @@ class Twitch
         $resolver
             ->setRequired(['secret', 'nick'])
             ->setDefined([
+                'cache',
                 'loop',
                 'logger',
                 'socket_options',
@@ -353,7 +444,19 @@ class Twitch
             ->setAllowedTypes('nick', 'string')
             ->setAllowedTypes('logger', ['null', LoggerInterface::class])
             ->setAllowedTypes('loop', LoopInterface::class)
-            ->setAllowedTypes('socket_options', 'array');
+            ->setAllowedTypes('socket_options', 'array')
+            ->setAllowedTypes('cache', ['array', CacheConfig::class, \React\Cache\CacheInterface::class, \Psr\SimpleCache\CacheInterface::class])
+            ->setNormalizer('cache', function ($options, $value) {
+                if (! is_array($value)) {
+                    if (! ($value instanceof CacheConfig)) {
+                        $value = new CacheConfig($value);
+                    }
+
+                    return [AbstractRepository::class => $value];
+                }
+
+                return $value;
+            });
 
         $options = $resolver->resolve($options);
 
@@ -394,25 +497,26 @@ class Twitch
      */
     protected function connect(?callable $deferred_callback = null): PromiseInterface
     {
+        if ($this->verbose) $this->logger->info('[CONNECT]');
+        $user = await(Helix::getUser($this->nick));
+        if ($user === '{"error":"Unauthorized","status":401,"message":"OAuth token is missing"}') {
+            $this->logger->error("Oauth token is missing, exiting...");
+            return reject("Oauth token is missing");
+        }
+        $this->logger->info("[USER] " . json_encode($user));
         if (isset($this->connection) && $this->connection instanceof ConnectionInterface) {
             $this->logger->warning('[CONNECT] A connection already exists');
             return resolve($this->connection);
         }
         $promise = $this->connector->connect(self::IRC_URL)->then(
             fn (ConnectionInterface $connection) => $this->__connect($this->connection = $connection),
-            fn (\Exception $error) => $this->log('error', json_encode($error))
+            //fn (\Exception $error) => $this->log('error', json_encode($error))
         );
         return $promise;
     }
 
     private function __connect(ConnectionInterface $connection, ?callable $deferred_callback = null)
     {
-        Helix::getUser($this->nick)->then(
-            fn (string $result) => $this->log('info', "Logged in as " . json_encode(json_decode($result)->data ?? '', JSON_PRETTY_PRINT)),
-            fn (string $error) => $this->log('error', json_encode($error))
-        );
-        if ($this->verbose) $this->logger->info('[CONNECT]');
-        
         $this->connection = $connection;
         
         $this->initIRC($connection);
@@ -425,7 +529,7 @@ class Twitch
             unset($this->connection);
             $this->loop->addTimer(5, fn () => $this->running ? $this->retryConnection() : null);
         });
-    }
+    }   
     
     /**
      * Initializes the IRC connection by sending the secret, nick, and joining the channels.
@@ -750,5 +854,58 @@ class Twitch
             $channel->sendMessage($payload);
         }
         return true;
+    }
+
+    /**
+     * Gets the cache configuration.
+     *
+     * @param string $repository_class Repository class name.
+     *
+     * @return ?CacheConfig
+     */
+    public function getCacheConfig($repository_class = AbstractRepository::class)
+    {
+        if (! array_key_exists($repository_class, $this->cacheConfig)) {
+            $repository_class = AbstractRepository::class;
+        }
+
+        return $this->cacheConfig[$repository_class];
+    }
+
+    /**
+     * Handles dynamic get calls to the client.
+     *
+     * @param string $name Variable name.
+     *
+     * @return mixed
+     */
+    public function __get(string $name)
+    {
+        $allowed = ['loop', 'options', 'logger', 'http', 'application_commands'];
+
+        if (in_array($name, $allowed)) {
+            return $this->{$name};
+        }
+
+        if (null === $this->client) {
+            return;
+        }
+
+        return $this->client->{$name};
+    }
+
+    /**
+     * Handles dynamic set calls to the client.
+     *
+     * @param string $name  Variable name.
+     * @param mixed  $value Value to set.
+     */
+    public function __set(string $name, $value): void
+    {
+        if (null === $this->client) {
+            return;
+        }
+
+        $this->client->{$name} = $value;
     }
 }
