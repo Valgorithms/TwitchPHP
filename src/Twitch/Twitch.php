@@ -10,6 +10,7 @@ namespace Twitch;
 
 use Twitch\Commands;
 
+use Evenement\EventEmitterTrait;
 use Discord\Discord; // DiscordPHP
 use Discord\Helpers\CacheConfig;
 use Discord\Helpers\Collection;
@@ -27,12 +28,25 @@ use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Twitch\Factory\Factory;
-use Twitch\Helix as Http;
 use Twitch\Repository\AbstractRepository;
 
 use function React\Async\await;
 use function React\Promise\resolve;
 use function React\Promise\reject;
+
+enum MessageType: string
+{
+    case PING = 'PING';
+    case PRIVMSG = 'PRIVMSG';
+    case UNKNOWN = 'UNKNOWN';
+
+    public static function fromData(string $data): self
+    {
+        if (trim($data) === 'PING :tmi.twitch.tv') return self::PING;
+        if (str_contains($data, 'PRIVMSG')) return self::PRIVMSG;
+        return self::UNKNOWN;
+    }
+}
 
 /**
  * Twitch class represents the Twitch API client.
@@ -45,6 +59,8 @@ use function React\Promise\reject;
  */
 class Twitch
 {
+    use EventEmitterTrait;
+    
     public const IRC_URL = "irc.chat.twitch.tv:6667";
     public const REDACTED_WRITES = ['PASS'];
 
@@ -59,9 +75,9 @@ class Twitch
     public $logger;
 
     /**
-     * The HTTP client.
+     * The Helix client.
      *
-     * @var Http Client.
+     * @var Helix Client.
      */
     protected $http;
 
@@ -177,6 +193,9 @@ class Twitch
 
         $this->factory = new Factory($this);
         $this->client = $this->factory->part(Client::class, []);*/
+
+        $this->on('PRIVMSG', fn($data) => $this->privmsg($data));
+        $this->on('PING', fn($data) => $this->pingPong());
     }
     
     /**
@@ -252,11 +271,11 @@ class Twitch
     }
 
     /**
-     * Gets the HTTP client.
+     * Gets the Helix client.
      *
-     * @return Http
+     * @return Helix
      */
-    public function getHttpClient(): Http
+    public function getHttpClient(): Helix
     {
         return $this->http;
     }
@@ -503,7 +522,12 @@ class Twitch
             $this->logger->error("Oauth token is missing, exiting...");
             return reject("Oauth token is missing");
         }
-        $this->logger->info("[USER] " . json_encode($user));
+        $this->logger->info("[USER] " . $user);
+        $userData = json_decode($user, true);
+        // Check if the data is properly decoded and contains the expected structure
+        if (! isset($userData['data'][0]['id'])) $this->logger->error("Failed to extract user ID from the data.");
+        else $this->logger->info("[CHANNEL] " . await(Helix::getChannelInformation($userData['data'][0]['id'])));
+
         if (isset($this->connection) && $this->connection instanceof ConnectionInterface) {
             $this->logger->warning('[CONNECT] A connection already exists');
             return resolve($this->connection);
@@ -557,6 +581,15 @@ class Twitch
         if ($this->debug) $this->logger->debug('[' . date('h:i:s') . '] PONG :tmi.twitch.tv');
     }
 
+    protected function privmsg($data): void
+    {
+        $this->parseData($data);
+        if ($response = $this->parseCommand()) {
+            $this->discordRelay("[REPLY] #{$this->lastchannel} - $response");
+            $this->sendMessage("@{$this->lastuser}, $response\n");
+        }
+    }
+
     /**
      * Processes the received data from Twitch.
      *
@@ -570,18 +603,10 @@ class Twitch
     protected function process(string $data): void
     {
         if ($this->verbose) $this->logger->debug("[DATA] $data");
-        if (trim($data) === 'PING :tmi.twitch.tv') {
-            $this->pingPong();
-            return;
-        }
-        if (preg_match('/PRIVMSG/', $data)) {
-            $this->parseData($data);
-            if ($response = $this->parseCommand()) {
-                $this->discordRelay("[REPLY] #{$this->lastchannel} - $response");
-                $this->sendMessage("@{$this->lastuser}, $response\n");
-            }
-        }
+        $messageType = MessageType::fromData($data);
+        $this->emit($messageType->name, [$data]);
     }
+
     /**
      * Parses the data received from the Twitch IRC server and sets the last user, last channel, and last message properties.
      *
