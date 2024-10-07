@@ -526,7 +526,7 @@ class Twitch
         $userData = json_decode($user, true);
         // Check if the data is properly decoded and contains the expected structure
         if (! isset($userData['data'][0]['id'])) $this->logger->error("Failed to extract user ID from the data.");
-        else $this->logger->info("[CHANNEL] " . await(Helix::getChannelInformation($userData['data'][0]['id'])));
+        else $this->logger->info("[CHANNEL] " . await(Helix::getChannelInformation([$userData['data'][0]['id']])));
 
         if (isset($this->connection) && $this->connection instanceof ConnectionInterface) {
             $this->logger->warning('[CONNECT] A connection already exists');

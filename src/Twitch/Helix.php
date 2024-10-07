@@ -36,103 +36,126 @@ use function React\Promise\reject;
 class Helix //extends Http
 {
     // Base URLs
-    public const SCHEME                  = 'https://';
-    public const TOKEN                   = 'id.twitch.tv/oauth2/token';
-    public const HELIX                   = 'api.twitch.tv/helix/';
+    public const SCHEME                        = 'https://';
+    public const TOKEN                         = 'id.twitch.tv/oauth2/token';
+    public const HELIX                         = 'api.twitch.tv/helix/';
 
     // GET
-    public const USER                   = 'api.twitch.tv/helix/users?login=:nick';
+    public const USER                          = 'api.twitch.tv/helix/users?login=:nick';
     // PUT
-    public const UPDATE_USER                = 'api.twitch.tv/helix/users';
+    public const UPDATE_USER                   = 'api.twitch.tv/helix/users';
     // POST
-    public const START_RAID                 = 'api.twitch.tv/helix/raids?from_broadcaster_id=:from_id&to_broadcaster_id=:to_id';
+    public const START_RAID                    = 'api.twitch.tv/helix/raids?from_broadcaster_id=:from_id&to_broadcaster_id=:to_id';
     // DELETE
-    public const CANCEL_RAID                = 'api.twitch.tv/helix/raids?broadcaster_id=:broadcaster_id';
+    public const CANCEL_RAID                   = 'api.twitch.tv/helix/raids?broadcaster_id=:broadcaster_id';
     // GET
-    public const CREATOR_GOALS          = 'api.twitch.tv/helix/goals?broadcaster_id=:broadcaster_id';
+    public const CREATOR_GOALS                 = 'api.twitch.tv/helix/goals?broadcaster_id=:broadcaster_id';
     // POST, PATCH
-    public const POLLS                      = 'api.twitch.tv/helix/polls';
+    public const POLLS                         = 'api.twitch.tv/helix/polls';
     // GET, POST, PATCH
-    public const PREDICTIONS                = 'api.twitch.tv/helix/predictions';
+    public const PREDICTIONS                   = 'api.twitch.tv/helix/predictions';
     // GET, POST
-    public const CLIPS                      = 'api.twitch.tv/helix/clips';
+    public const CLIPS                         = 'api.twitch.tv/helix/clips';
     // GET, POST
-    public const MARKERS                    = 'api.twitch.tv/helix/streams/markers';
+    public const MARKERS                       = 'api.twitch.tv/helix/streams/markers';
     // GET, DELETE
-    public const VIDEOS                     = 'api.twitch.tv/helix/videos';
+    public const VIDEOS                        = 'api.twitch.tv/helix/videos';
     // GET
-    public const SCHEDULE               = 'api.twitch.tv/helix/schedule';
+    public const SCHEDULE                      = 'api.twitch.tv/helix/schedule';
     // PATCH
-    public const UPDATE_SCHEDULE            = 'api.twitch.tv/helix/schedule/settings';
+    public const UPDATE_SCHEDULE               = 'api.twitch.tv/helix/schedule/settings';
     // POST, PATCH, DELETE
-    public const SEGMENT                    = 'api.twitch.tv/helix/schedule/segment';
+    public const SEGMENT                       = 'api.twitch.tv/helix/schedule/segment';
     // POST
-    public const START_COMMERCIAL           = 'api.twitch.tv/helix/channels/commercial';
+    public const START_COMMERCIAL              = 'api.twitch.tv/helix/channels/commercial';
     // GET
-    public const AD_SCHEDULE            = 'api.twitch.tv/helix/channels/ads';
+    public const AD_SCHEDULE                   = 'api.twitch.tv/helix/channels/ads';
     // POST
-    public const SNOOZE_NEXT_AD             = 'api.twitch.tv/helix/channels/ads/schedule/snooze';
+    public const SNOOZE_NEXT_AD                = 'api.twitch.tv/helix/channels/ads/schedule/snooze';
     // GET
-    public const EXTENSION_ANALYTICS    = 'api.twitch.tv/helix/analytics/extensions';
+    public const EXTENSION_ANALYTICS           = 'api.twitch.tv/helix/analytics/extensions';
     // GET
-    public const GAME_ANALYTICS         = 'api.twitch.tv/helix/analytics/games';
+    public const GAME_ANALYTICS                = 'api.twitch.tv/helix/analytics/games';
     // GET
-    public const BITS_LEADERBOARD       = 'api.twitch.tv/helix/bits/leaderboard';
+    public const BITS_LEADERBOARD              = 'api.twitch.tv/helix/bits/leaderboard';
     // GET
-    public const CHEERMOTES             = 'api.twitch.tv/helix/bits/cheermotes';
+    public const CHEERMOTES                    = 'api.twitch.tv/helix/bits/cheermotes';
     // GET
-    public const EXTENSION_TRANSACTIONS = 'api.twitch.tv/helix/extensions/transactions';
+    public const EXTENSION_TRANSACTIONS        = 'api.twitch.tv/helix/extensions/transactions';
     // GET, PATCH
-    public const CHANNELS                   = 'api.twitch.tv/helix/channels';
+    public const CHANNELS                      = 'api.twitch.tv/helix/channels';
     // GET
-    public const CHANNEL_EDITORS        = 'api.twitch.tv/helix/channels/editors';
+    public const CHANNEL_EDITORS               = 'api.twitch.tv/helix/channels/editors';
     // GET
-    public const FOLLOWED_CHANNELS      = 'api.twitch.tv/helix/channels/followed';
+    public const FOLLOWED_CHANNELS             = 'api.twitch.tv/helix/channels/followed';
     // GET
-    public const CHANNEL_FOLLOWERS      = 'api.twitch.tv/helix/channels/followers';
+    public const CHANNEL_FOLLOWERS             = 'api.twitch.tv/helix/channels/followers';
     // GET, PATCH, POST, DELETE
-    public const CUSTOM_REWARDS         = 'api.twitch.tv/helix/channel_points/custom_rewards';
+    public const CUSTOM_REWARDS                = 'api.twitch.tv/helix/channel_points/custom_rewards';
     // GET, PATCH
-    public const CUSTOM_REWARD_REDEMPTIONS = 'api.twitch.tv/helix/channel_points/custom_rewards/redemptions';
+    public const CUSTOM_REWARD_REDEMPTIONS     = 'api.twitch.tv/helix/channel_points/custom_rewards/redemptions';
     // GET
-    public const CHARITY_CAMPAIGN = 'api.twitch.tv/helix/charity/campaigns';
+    public const CHARITY_CAMPAIGN              = 'api.twitch.tv/helix/charity/campaigns';
     // GET
-    public const CHARITY_CAMPAIGN_DONATIONS = 'api.twitch.tv/helix/charity/donations';
+    public const CHARITY_CAMPAIGN_DONATIONS    = 'api.twitch.tv/helix/charity/donations';
     // GET
-    public const CHATTERS = 'api.twitch.tv/helix/chat/chatters';
+    public const CHATTERS                      = 'api.twitch.tv/helix/chat/chatters';
     // GET
-    public const CHANNEL_EMOTES = 'api.twitch.tv/helix/chat/emotes';
+    public const CHANNEL_EMOTES                = 'api.twitch.tv/helix/chat/emotes';
     // GET
-    public const GLOBAL_EMOTES = 'api.twitch.tv/helix/chat/emotes/global';
+    public const GLOBAL_EMOTES                 = 'api.twitch.tv/helix/chat/emotes/global';
     // GET
-    public const EMOTE_SETS = 'api.twitch.tv/helix/chat/emotes/set';
+    public const EMOTE_SETS                    = 'api.twitch.tv/helix/chat/emotes/set';
     // GET
-    public const CHANNEL_CHAT_BADGES = 'api.twitch.tv/helix/chat/badges';
+    public const CHANNEL_CHAT_BADGES           = 'api.twitch.tv/helix/chat/badges';
     // GET
-    public const GLOBAL_CHAT_BADGES = 'api.twitch.tv/helix/chat/badges/global';
+    public const GLOBAL_CHAT_BADGES            = 'api.twitch.tv/helix/chat/badges/global';
     // GET, PATCH
-    public const CHAT_SETTINGS = 'api.twitch.tv/helix/chat/settings';
+    public const CHAT_SETTINGS                 = 'api.twitch.tv/helix/chat/settings';
     // GET
-    public const SHARED_CHAT_SESSION = 'api.twitch.tv/helix/shared_chat/session';
+    public const SHARED_CHAT_SESSION           = 'api.twitch.tv/helix/shared_chat/session';
     // GET
-    public const USER_EMOTES = 'api.twitch.tv/helix/chat/emotes/user';
+    public const USER_EMOTES                   = 'api.twitch.tv/helix/chat/emotes/user';
     // POST
-    public const CHAT_ANNOUNCEMENTS = 'api.twitch.tv/helix/chat/announcements';
+    public const CHAT_ANNOUNCEMENTS            = 'api.twitch.tv/helix/chat/announcements';
     // POST
-    public const SHOUTOUTS = 'api.twitch.tv/helix/chat/shoutouts';
+    public const SHOUTOUTS                     = 'api.twitch.tv/helix/chat/shoutouts';
     // POST
-    public const SEND_CHAT_MESSAGE          = 'api.twitch.tv/helix/chat/messages';
+    public const SEND_CHAT_MESSAGE             = 'api.twitch.tv/helix/chat/messages';
     // GET, PUT
-    public const USER_CHAT_COLOR = 'api.twitch.tv/helix/chat/color';
+    public const USER_CHAT_COLOR               = 'api.twitch.tv/helix/chat/color';
     // GET, POST, PATCH, DELETE
-    public const CONDUITS = 'api.twitch.tv/helix/eventsub/conduits';
+    public const CONDUITS                      = 'api.twitch.tv/helix/eventsub/conduits';
     // GET, PATCH
-    public const CONDUIT_SHARDS = 'api.twitch.tv/helix/eventsub/conduits/shards';
+    public const CONDUIT_SHARDS                = 'api.twitch.tv/helix/eventsub/conduits/shards';
     // GET
     public const CONTENT_CLASSIFICATION_LABELS = 'api.twitch.tv/helix/content_classification_labels';
+    // GET, PATH
+    public const DROPS_ENTITLEMENTS               = 'api.twitch.tv/helix/entitlements/drops';
+    // GET, PUT
+    public const EXTENSION_CONFIGURATION_SEGMENT  = 'api.twitch.tv/helix/extensions/configurations';
+    // PUT
+    public const EXTENSION_REQUIRED_CONFIGURATION = 'api.twitch.tv/helix/extensions/required_configuration';
+    // POST
+    public const EXTENSION_PUBSUB_MESSAGE         = 'api.twitch.tv/helix/extensions/pubsub';
     // GET
-    public const DROPS_ENTITLEMENTS = 'api.twitch.tv/helix/entitlements/drops';
-    // 
+    public const EXTENSION_LIVE_CHANNELS          = 'api.twitch.tv/helix/extensions/live';
+    // GET, POST
+    public const EXTENSION_SECRETS                = 'api.twitch.tv/helix/extensions/jwt/secrets';
+    // POST
+    public const EXTENSION_CHAT_MESSAGE           = 'api.twitch.tv/helix/extensions/chat';
+    // GET
+    public const EXTENSIONS                       = 'api.twitch.tv/helix/extensions';
+    // GET
+    public const RELEASED_EXTENSIONS              = 'api.twitch.tv/helix/extensions/released';
+    // GET, PUT
+    public const EXTENSION_BITS_PRODUCTS          = 'api.twitch.tv/helix/bits/extensions';
+    // POST, DELETE
+    public const EVENTSUB_SUBSCRIPTIONS           = 'api.twitch.tv/helix/eventsub/subscriptions';
+    // GET
+    public const TOP_GAMES                        = 'api.twitch.tv/helix/games/top';
+    // GET
+    public const GAMES                            = 'api.twitch.tv/helix/games';
 
     public function __construct(
         public Twitch|MockObject &$twitch
@@ -2068,6 +2091,371 @@ class Helix //extends Http
             $queryParams['locale'] = $locale;
         }
         $url = self::CONTENT_CLASSIFICATION_LABELS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets an organization’s list of entitlements that have been granted to a game, a user, or both.
+     *
+     * @param array $queryParams The query parameters to filter the entitlements.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getDropsEntitlements(
+        array $queryParams = [],
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::DROPS_ENTITLEMENTS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Updates the Drop entitlement’s fulfillment status.
+     *
+     * @param array $data The data to update the entitlements.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function updateDropsEntitlements(
+        array $data,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::DROPS_ENTITLEMENTS;
+        $method = 'PATCH';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets the specified configuration segment from the specified extension.
+     *
+     * @param array $queryParams The query parameters to filter the configuration segments.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getExtensionConfigurationSegment(
+        array $queryParams,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_CONFIGURATION_SEGMENT . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Updates a configuration segment.
+     *
+     * @param array $data The data to update the configuration segment.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function setExtensionConfigurationSegment(
+        array $data,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_CONFIGURATION_SEGMENT;
+        $method = 'PUT';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Updates the extension’s required_configuration string.
+     *
+     * @param array $data The data to update the required configuration.
+     * @param string $broadcasterId The ID of the broadcaster that installed the extension.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function setExtensionRequiredConfiguration(
+        array $data,
+        string $broadcasterId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_REQUIRED_CONFIGURATION . '?broadcaster_id=' . $broadcasterId;
+        $method = 'PUT';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Sends a message to one or more viewers.
+     *
+     * @param array $data The data to send the PubSub message.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function sendExtensionPubSubMessage(
+        array $data,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_PUBSUB_MESSAGE;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of broadcasters that are streaming live and have installed or activated the extension.
+     *
+     * @param array $queryParams The query parameters to filter the live channels.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getExtensionLiveChannels(
+        array $queryParams,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_LIVE_CHANNELS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets an extension’s list of shared secrets.
+     *
+     * @param array $queryParams The query parameters to filter the secrets.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getExtensionSecrets(
+        array $queryParams,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_SECRETS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Creates a shared secret used to sign and verify JWT tokens.
+     *
+     * @param array $queryParams The query parameters to create the secret.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function createExtensionSecret(
+        array $queryParams,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_SECRETS . '?' . http_build_query($queryParams);
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Sends a message to the specified broadcaster’s chat room.
+     *
+     * @param array $data The data to send the chat message.
+     * @param string $broadcasterId The ID of the broadcaster that has activated the extension.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function sendExtensionChatMessage(
+        array $data,
+        string $broadcasterId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_CHAT_MESSAGE . '?broadcaster_id=' . $broadcasterId;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets information about an extension.
+     *
+     * @param array $queryParams The query parameters to get the extension information.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getExtensions(
+        array $queryParams,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSIONS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets information about a released extension.
+     *
+     * @param array $queryParams The query parameters to get the released extension information.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getReleasedExtensions(
+        array $queryParams,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::RELEASED_EXTENSIONS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets the list of Bits products that belongs to the extension.
+     *
+     * @param array $queryParams The query parameters to filter the Bits products.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getExtensionBitsProducts(
+        array $queryParams = [],
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_BITS_PRODUCTS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Adds or updates a Bits product that the extension created.
+     *
+     * @param array $data The data to add or update the Bits product.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function updateExtensionBitsProduct(
+        array $data,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EXTENSION_BITS_PRODUCTS;
+        $method = 'PUT';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Creates an EventSub subscription.
+     *
+     * @param array $data The data to create the EventSub subscription.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function createEventSubSubscription(
+        array $data,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EVENTSUB_SUBSCRIPTIONS;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Deletes an EventSub subscription.
+     *
+     * @param string $id The ID of the subscription to delete.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function deleteEventSubSubscription(
+        string $id,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EVENTSUB_SUBSCRIPTIONS . '?id=' . $id;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of EventSub subscriptions that the client in the access token created.
+     *
+     * @param array $queryParams The query parameters to filter the subscriptions.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getEventSubSubscriptions(
+        array $queryParams = [],
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::EVENTSUB_SUBSCRIPTIONS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets information about all broadcasts on Twitch.
+     *
+     * @param array $queryParams The query parameters to filter the top games.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getTopGames(
+        array $queryParams = [],
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::TOP_GAMES . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets information about specified categories or games.
+     *
+     * @param array $queryParams The query parameters to filter the games.
+     * @param LoopInterface|null $loop The event loop instance (optional).
+     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     */
+    public static function getGames(
+        array $queryParams = [],
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GAMES . '?' . http_build_query($queryParams);
         $method = 'GET';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
