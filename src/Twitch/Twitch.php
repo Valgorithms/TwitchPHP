@@ -315,7 +315,7 @@ class Twitch
         return match ($method) {
             'websocket' => ['method' => $method, 'session_id' => $this->websocketSessionId],
             'webhook' => array_filter(['method' => $method, 'callback' => $callback, 'secret' => $this->secret]),
-            default => ['method' => $method, 'session_id' => $this->websocketSessionId],
+            default => ['method' => 'websocket', 'session_id' => $this->websocketSessionId],
         };
     }
 

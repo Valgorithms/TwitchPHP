@@ -261,14 +261,16 @@ class Helix //extends Http
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
                     'Content-Type' => 'application/json',
-                    'Authorization: Bearer ' . getenv('twitch_access_token'),
-                    'Client-Id: ' . getenv('twitch_client_id'),
-                    //'Accept-Encoding: gzip, deflate, br',
+                    'Authorization' => 'Bearer ' . getenv('twitch_access_token'),
+                    'Client-Id' => getenv('twitch_client_id'),
                 ]);
                 if ($method === 'POST') {
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
-                } else curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+                } else {
+                    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+                }
                 /** @var string|false $result */
                 $result = curl_exec($ch);
                 if ($result === false) {
@@ -282,21 +284,21 @@ class Helix //extends Http
             } else {
                 $options = [
                     'http' => [
-                        'header' => [
-                            'Content-Type' => 'application/json',
-                            'Authorization: Bearer ' . getenv('twitch_access_token'),
-                            'Client-Id: ' . getenv('twitch_client_id'),
-                        ],
+                        'header' => "Content-Type: application/json\r\n" .
+                                    "Authorization: Bearer " . getenv('twitch_access_token') . "\r\n" .
+                                    "Client-Id: " . getenv('twitch_client_id') . "\r\n",
                         'method' => $method,
                         'content' => $json_data,
                     ],
                 ];
                 $context = stream_context_create($options);
-                $result = file_get_contents(self::SCHEME . $url, false, $context);
+                $result = @file_get_contents(self::SCHEME . $url, false, $context);
                 if ($result === FALSE) {
+                    $error = error_get_last();
                     $response = (object)[
                         'status' => http_response_code(),
                         'headers' => $http_response_header,
+                        'error' => $error,
                     ];
                     $reject(new QueryException('File get contents error', 0, null, $response));
                     return;
