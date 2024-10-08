@@ -21,12 +21,14 @@
         "react/datagram": "^1.8",
         "react/event-loop": "^1.2",
         "react/promise": "^2.2",
-        "react/socket": "^1.11",
+        "react/socket": "^1.16",
         "react/stream": "^1.1",
         "symfony/options-resolver": "^5.1.11 || ^6.0 || ^7.0",
         "team-reflex/discord-php": "dev-master",
         "twitchphp/http": "dev-main",
-        "valzargaming/handler": "dev-main"
+        "valzargaming/handler": "dev-main",
+        "react/dns": "^1.13",
+        "react/http": "^1.10"
     },
     "autoload": {
         "psr-4": {
