@@ -188,9 +188,7 @@ class Helix //extends Http
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                'Content-Type: application/x-www-form-urlencoded',
-            ]);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json',]);
 
             /** @var string|false $result */
             $result = curl_exec($ch);
@@ -199,7 +197,7 @@ class Helix //extends Http
             $context = stream_context_create([
                 'http' => [
                     'method' => 'POST',
-                    'header' => 'Content-Type: application/x-www-form-urlencoded',
+                    'header' => 'Content-Type: application/json',
                     'content' => $postData,
                 ],
             ]);
@@ -254,19 +252,21 @@ class Helix //extends Http
         ?array $data = null
     ): PromiseInterface
     {
-        return new Promise(function ($resolve, $reject) use ($url, $method, $data) {
+        $promise = new Promise(function ($resolve, $reject) use ($url, $method, $data) {
             $json_data = json_encode($data);
+            error_log("[QUERY] $url - $method - $json_data");
             if (function_exists('curl_init')) {
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, self::SCHEME . $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Content-Type' => 'application/json',
                     'Authorization: Bearer ' . getenv('twitch_access_token'),
                     'Client-Id: ' . getenv('twitch_client_id'),
                 ]);
                 if ($method === 'POST') {
                     curl_setopt($ch, CURLOPT_POST, 1);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
                 }
                 /** @var string|false $result */
                 $result = curl_exec($ch);
@@ -282,6 +282,7 @@ class Helix //extends Http
                 $options = [
                     'http' => [
                         'header' => [
+                            'Content-Type' => 'application/json',
                             'Authorization: Bearer ' . getenv('twitch_access_token'),
                             'Client-Id: ' . getenv('twitch_client_id'),
                         ],
@@ -317,6 +318,11 @@ class Helix //extends Http
             }
             $resolve($result);
         });
+        $promise = $promise->then(
+            fn ($response) => isset(json_decode($response, true)['error']) ? reject(new \Exception(json_decode($response, true)['message'], json_decode($response, true)['status'])) : $response,
+            fn (\Throwable $error) => $error
+        );
+        return $promise;
     }
 
     /**

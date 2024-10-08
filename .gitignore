@@ -15,3 +15,4 @@ temp/*
 .env
 output.log
 secret_template.php
+index.php
