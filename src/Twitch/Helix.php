@@ -263,11 +263,12 @@ class Helix //extends Http
                     'Content-Type' => 'application/json',
                     'Authorization: Bearer ' . getenv('twitch_access_token'),
                     'Client-Id: ' . getenv('twitch_client_id'),
+                    //'Accept-Encoding: gzip, deflate, br',
                 ]);
                 if ($method === 'POST') {
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
-                }
+                } else curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
                 /** @var string|false $result */
                 $result = curl_exec($ch);
                 if ($result === false) {
