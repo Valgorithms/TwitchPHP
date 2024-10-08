@@ -19,6 +19,10 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger as Monolog;
 use Monolog\Level;
 use Psr\Log\LoggerInterface;
+use Ratchet\Client\Connector as PawlConnector; // For WSS connection
+use Ratchet\Client\WebSocket;
+use Ratchet\RFC6455\Messaging\MessageInterface;
+use React\Dns\Resolver\Factory as DnsFactory;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\StreamSelectLoop;
@@ -26,6 +30,8 @@ use React\Promise\PromiseInterface;
 use React\Promise\Deferred;
 use React\Socket\ConnectionInterface;
 use React\Socket\Connector;
+use React\Socket\SecureConnector;
+use React\Socket\TcpConnector;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Twitch\Factory\Factory;
 use Twitch\Repository\AbstractRepository;
@@ -48,6 +54,44 @@ enum MessageType: string
     }
 }
 
+enum WebSocketMessageType: string
+{
+    case SESSION_WELCOME = 'session_welcome';
+    case SESSION_KEEPALIVE = 'session_keepalive';
+    case NOTIFICATION = 'notification';
+    case SESSION_RECONNECT = 'session_reconnect';
+    case REVOCATION = 'revocation';
+    case UNKNOWN = 'unknown';
+
+    public static function fromString(string $type): self
+    {
+        return match ($type) {
+            'session_welcome' => self::SESSION_WELCOME,
+            'session_keepalive' => self::SESSION_KEEPALIVE,
+            'notification' => self::NOTIFICATION,
+            'session_reconnect' => self::SESSION_RECONNECT,
+            'revocation' => self::REVOCATION,
+            default => self::UNKNOWN,
+        };
+    }
+}
+
+enum WebSocketEventType: string
+{
+    case CHANNEL_FOLLOW = 'channel.follow';
+    case CHANNEL_CHAT_MESSAGE = 'channel.chat.message';
+    // Add other event types as needed
+
+    public function handleEvent(array $event, Twitch $twitch): void
+    {
+        match ($this) {
+            self::CHANNEL_FOLLOW => $twitch->handleChannelFollowEvent($event),
+            self::CHANNEL_CHAT_MESSAGE => $twitch->handleChannelChatMessageEvent($event),
+            // Add other event types as needed
+        };
+    }
+}
+
 /**
  * Twitch class represents the Twitch API client.
  *
@@ -61,11 +105,15 @@ class Twitch
 {
     use EventEmitterTrait;
     
+    public const WEBSOCKET_URL = 'wss://eventsub.wss.twitch.tv/ws';
     public const IRC_URL = "irc.chat.twitch.tv:6667";
     public const REDACTED_WRITES = ['PASS'];
 
     protected Loop|StreamSelectLoop $loop;
+    protected bool $running = false;
     protected Commands $commands;
+
+    public string $broadcasterId;
     
     /**
      * The logger.
@@ -114,9 +162,13 @@ class Twitch
     private array $restricted_functions = [];
     private array $private_functions = [];
     
-    protected Connector $connector;
-    public ConnectionInterface $connection;
-    protected bool $running = false;
+    private Connector $connector;
+    public ?ConnectionInterface $connection = null;
+    public ?WebSocket $websocketConnection = null;
+    private ?SecureConnector $secureConnector = null;
+    private ?string $websocketSessionId = null;
+    private int $keepaliveTimeout = 10;
+    private $keepaliveTimer;
 
     public $userCache = [];
     public $channelCache = [];
@@ -154,6 +206,24 @@ class Twitch
         }
         
         $this->loop = $options['loop'] ?? Loop::get();
+        $dnsResolverFactory = new DnsFactory();
+        $dns = $dnsResolverFactory->create('8.8.8.8', $this->loop);
+
+        $tcpConnector = new TcpConnector($this->loop);
+        $this->secureConnector = new SecureConnector($tcpConnector, $this->loop, [
+            'dns' => $dns,
+            'tls' => [
+                'verify_peer' => false,
+                'verify_peer_name' => false,
+            ]
+        ]);
+
+        $this->connector = new Connector(array_merge([
+            'tcp' => $tcpConnector,
+            'tls' => $this->secureConnector,
+        ], $this->socket_options), $this->loop);
+        //$this->connector = new Connector($this->socket_options, $this->loop);
+
         $this->secret = $options['secret'];
         $this->nick = $options['nick'];
         $this->channels = $options['channels'];
@@ -179,8 +249,6 @@ class Twitch
         
         if (isset($options['discord'])) $this->discord = $options['discord'];
         if (isset($options['discord_output'])) $this->discord_output = $options['discord_output'];
-        
-        $this->connector = new Connector($this->socket_options, $this->loop);
         
         $this->commands = $options['commands'] ?? new Commands($this, $this->verbose);
 
@@ -240,6 +308,210 @@ class Twitch
     {
         $this->logger->$method($message);
         return $message;
+    }
+
+    private function getTransport(string $method = 'websocket', ?string $callback = null): array
+    {
+        return match ($method) {
+            'websocket' => ['method' => $method, 'session_id' => $this->websocketSessionId],
+            'webhook' => array_filter(['method' => $method, 'callback' => $callback, 'secret' => $this->secret]),
+            default => ['method' => $method, 'session_id' => $this->websocketSessionId],
+        };
+    }
+
+    /**
+     * Initializes the WebSocket connection.
+     *
+     * @param int $keepaliveTimeout The keepalive timeout in seconds.
+     * @return void
+     */
+    public function initializeWebSocket(): void
+    {
+        $url = self::WEBSOCKET_URL . '?keepalive_timeout_seconds=' . $this->keepaliveTimeout;
+        $this->logger->info('[WEBSOCKET INITIALIZING] Connecting to: ' . $url);
+        $reactConnector = new \React\Socket\Connector([
+            'dns' => '8.8.8.8',
+            'timeout' => 10
+        ]);
+        $connector = new PawlConnector($this->loop, $reactConnector);
+        $connector($url)->then(
+            function (WebSocket $connection) {
+                $this->websocketConnection = $connection;
+                $this->logger->info('[WEBSOCKET CONNECTED]');
+                $connection->on('message', fn(MessageInterface $msg) => $this->handleWebSocketMessage($msg));
+                $connection->on('close', fn($code = null, $reason = null) => $this->handleWebSocketClose($code, $reason));
+            },
+            fn (\Exception $error) => $this->logger->error('[WEBSOCKET CONNECTION ERROR] ' . $error->getMessage())
+        );
+    }
+
+    /**
+     * Handles the WebSocket close event.
+     *
+     * @return void
+     */
+    private function handleWebSocketClose($code = null, $reason = null): void
+    {
+        $this->logger->warning("[WEBSOCKET CLOSED] $code - $reason");
+        $this->websocketConnection = null;
+        $this->websocketSessionId = null;
+        $this->loop->cancelTimer($this->keepaliveTimer);
+    }
+
+    /**
+     * Handles incoming WebSocket messages.
+     *
+     * @param string $data The incoming message data.
+     * @return void
+     */
+    private function handleWebSocketMessage(MessageInterface $msg): void
+    {
+        $message = json_decode($msg, true);
+        $messageType = WebSocketMessageType::fromString($message['metadata']['message_type'] ?? '');
+
+        match ($messageType) {
+            WebSocketMessageType::SESSION_WELCOME => $this->handleWebSocketWelcome($message),
+            WebSocketMessageType::SESSION_KEEPALIVE => $this->handleWebSocketKeepalive(),
+            WebSocketMessageType::NOTIFICATION => $this->handleWebSocketNotification($message),
+            WebSocketMessageType::SESSION_RECONNECT => $this->handleWebSocketReconnect($message),
+            WebSocketMessageType::REVOCATION => $this->handleWebSocketRevocation($message),
+            WebSocketMessageType::UNKNOWN => $this->logger->warning('[WEBSOCKET UNKNOWN MESSAGE] ' . $msg),
+        };
+
+        $this->resetKeepaliveTimer();
+    }
+
+    /**
+     * Handles the welcome message from the WebSocket.
+     *
+     * @param array $message The welcome message data.
+     * @return void
+     */
+    private function handleWebSocketWelcome(array $message): void
+    {
+        $this->logger->info('[WEBSOCKET WELCOME] ' . json_encode($message));
+        $this->websocketSessionId = $message['payload']['session']['id'];
+        $this->keepaliveTimeout = $message['payload']['session']['keepalive_timeout_seconds'];
+        $this->logger->info('[WEBSOCKET WELCOME] Session ID: ' . $this->websocketSessionId);
+        $this->subscribeToChatMessageEvent($this->broadcasterId);
+    }
+
+    /**
+     * Subscribes to the channel.chat.message event.
+     *
+     * @return void
+     */
+    private function subscribeToChatMessageEvent(string $broadcaster_id): void
+    {
+        $data = [
+            'type' => 'channel.chat.message',
+            'version' => '1',
+            'condition' => [
+                'broadcaster_user_id' => $broadcaster_id,
+                'user_id' => $broadcaster_id
+            ],
+            'transport' => $this->getTransport()
+        ];
+
+        Helix::createEventSubSubscription($data)->then(
+            fn ($response) => $this->logger->info('[SUBSCRIPTION CREATED] ' . $response),
+            fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
+        );
+    }
+
+    /**
+     * Handles the keepalive message from the WebSocket.
+     *
+     * @return void
+     */
+    private function handleWebSocketKeepalive(): void
+    {
+        $this->logger->debug('[WEBSOCKET KEEPALIVE]');
+
+    }
+
+    /**
+     * Handles the notification message from the WebSocket.
+     *
+     * @param array $message The notification message data.
+     * @return void
+     */
+    private function handleWebSocketNotification(array $message): void
+    {
+        $event = $message['payload']['event'];
+        $subscriptionType = WebSocketEventType::tryFrom($message['metadata']['subscription_type'] ?? '');
+
+        if ($subscriptionType === null) {
+            $this->logger->warning('[WEBSOCKET UNKNOWN EVENT] ' . json_encode($message));
+            return;
+        }
+
+        $this->logger->info('[WEBSOCKET NOTIFICATION] ' . json_encode($event));
+
+        $subscriptionType->handleEvent($event, $this);
+    }
+
+    /**
+     * Handles the channel.follow event.
+     *
+     * @param array $event The event data.
+     * @return void
+     */
+    public function handleChannelFollowEvent(array $event): void
+    {
+        $this->logger->info('[CHANNEL FOLLOW] User ' . $event['user_name'] . ' followed ' . $event['broadcaster_user_name'] . ' at ' . $event['followed_at']);
+        // Additional processing can be done here
+    }
+
+    /**
+     * Handles the channel.chat.message event.
+     *
+     * @param array $event The event data.
+     * @return void
+     */
+    public function handleChannelChatMessageEvent(array $event): void
+    {
+        $this->logger->info('[CHANNEL CHAT MESSAGE] ' . json_encode($event));
+        // Additional processing can be done here
+    }
+
+    /**
+     * Handles the reconnect message from the WebSocket.
+     *
+     * @param array $message The reconnect message data.
+     * @return void
+     */
+    private function handleWebSocketReconnect(array $message): void
+    {
+        $reconnectUrl = $message['payload']['session']['reconnect_url'];
+        $this->logger->info('[WEBSOCKET RECONNECT] Reconnecting to: ' . $reconnectUrl);
+        $this->initializeWebSocket($this->keepaliveTimeout);
+    }
+
+    /**
+     * Handles the revocation message from the WebSocket.
+     *
+     * @param array $message The revocation message data.
+     * @return void
+     */
+    private function handleWebSocketRevocation(array $message): void
+    {
+        $this->logger->warning('[WEBSOCKET REVOCATION] ' . json_encode($message));
+    }
+
+    /**
+     * Resets the keepalive timer.
+     *
+     * @return void
+     */
+    private function resetKeepaliveTimer(): void
+    {
+        if ($this->keepaliveTimer) $this->loop->cancelTimer($this->keepaliveTimer);
+
+        $this->keepaliveTimer = $this->loop->addTimer($this->keepaliveTimeout, function () {
+            $this->logger->warning('[WEBSOCKET KEEPALIVE TIMEOUT] Reconnecting...');
+            $this->initializeWebSocket($this->keepaliveTimeout);
+        });
     }
 
     /**
@@ -526,7 +798,13 @@ class Twitch
         $userData = json_decode($user, true);
         // Check if the data is properly decoded and contains the expected structure
         if (! isset($userData['data'][0]['id'])) $this->logger->error("Failed to extract user ID from the data.");
-        else $this->logger->info("[CHANNEL] " . await(Helix::getChannelInformation([$userData['data'][0]['id']])));
+        else {
+            $channelInfo = await(Helix::getChannelInformation([$userData['data'][0]['id']]));
+            $this->logger->info("[CHANNEL] " . $channelInfo);
+            $channelData = json_decode($channelInfo, true);
+            $this->broadcasterId = $channelData['data'][0]['broadcaster_id'];
+            $this->initializeWebSocket();
+        }
 
         if (isset($this->connection) && $this->connection instanceof ConnectionInterface) {
             $this->logger->warning('[CONNECT] A connection already exists');
