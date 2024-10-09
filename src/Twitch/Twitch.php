@@ -170,13 +170,13 @@ class Twitch
     private int $keepaliveTimeout = 10;
     private $keepaliveTimer;
 
-    public $userCache = [];
-    public $channelCache = [];
-    public $messageCache = [];
+    public Collection $userCache;
+    public Collection $channelCache;
+    public Collection $messageCache;
     
-    private User|string $lastuser = ''; //Who last sent a message in Twitch chat
-    private Channel|string $lastchannel = ''; //Where the last command was used
-    private Message|string $lastmessage = ''; //What the last message was
+    public User|string|null $lastuser = ''; //Who last sent a message in Twitch chat
+    public Channel|string|null $lastchannel = ''; //Where the last command was used
+    public Message|string $lastmessage = ''; //What the last message was
     
     private int $retry = 0;
 
@@ -204,6 +204,9 @@ class Twitch
                 $this->logger->warning('Attached experimental CacheInterface: '.get_class($cacheConfig->interface));
             }
         }
+        $this->messageCache = new Collection([], 'message_id', Message::class);
+        $this->channelCache = new Collection([], 'broadcaster_user_id', Channel::class);
+        $this->userCache = new Collection([], 'id', User::class);
         
         $this->loop = $options['loop'] ?? Loop::get();
         $dnsResolverFactory = new DnsFactory();
@@ -472,7 +475,11 @@ class Twitch
     public function handleChannelChatMessageEvent(array $event): void
     {
         $this->logger->info('[CHANNEL CHAT MESSAGE] ' . json_encode($event));
-        // Additional processing can be done here
+        if ($event) $message = new Message($this, json_encode($event));
+        // Emit an event for the message and channel being cached
+        var_dump($this->channelCache);
+        var_dump($this->messageCache);
+        var_dump($this->userCache);
     }
 
     /**
@@ -637,7 +644,7 @@ class Twitch
             $this->logger->warning('[SEND MESSAGE] No channel specified');
             return false;
         }
-        $this->lastchannel = is_string($channel) ? new Channel($this, $channel) : $channel;
+        $this->lastchannel = "$channel";
         $this->logger->info("[REPLY] #{$this->lastchannel} - $data");
         return $this->write("PRIVMSG #{$this->lastchannel} :$data\n");
     }
@@ -663,7 +670,7 @@ class Twitch
         /*if (!isset($this->channels[$string]))*/ $this->write("JOIN #$string\n");
         if ($channel_id) $this->channels[$string][$guild_id] = $channel_id;
         else $this->channels[$string][''] = '';
-        $this->channels[$string]['channel'] = new Channel($this, $string);
+        $this->channels[$string]['channel'] = $string;
         return true;
     }
 
@@ -814,7 +821,7 @@ class Twitch
         }
         $promise = $this->connector->connect(self::IRC_URL)->then(
             fn (ConnectionInterface $connection) => $this->__connect($this->connection = $connection),
-            //fn (\Exception $error) => $this->log('error', json_encode($error))
+            fn (\Exception $error) => $this->log('error', '[REACT SOCKET CONNECTION ERROR] ' . $error->getMessage())
         );
         return $promise;
     }
@@ -895,41 +902,43 @@ class Twitch
      */
     protected function parseData(string $data): void
     {
+        return; // Disabled for now
+
         $lastuser = $lastchannel = $lastmessage = null;
         if ($us = $this->parseUser($data)) {
-            $lastuser = new User($this, $us);
-            $lastuser->seen();
+            //$lastuser = new User($this, $us);
+            //$lastuser->seen();
         }
         if ($ch = $this->parseChannel($data)) {
-            $lastchannel = new Channel($this, $ch);
+            //$lastchannel = new Channel($this, $ch);
         }
         if ($msg = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($ch)))) {
-            $lastmessage = new Message($this, $msg, $lastchannel, $lastuser);
+            //$lastmessage = new Message($this, $msg, $lastchannel, $lastuser);
         }
         
         if ($us) {
-            $lastuser = new User(
+            /*$lastuser = new User(
                 $this,
                 $us,
                 $lastchannel,
                 new Collection(),
                 $lastmessage,
-            );
+            );*/
         }
         if ($ch) {
-            $lastchannel = new Channel(
+            /*$lastchannel = new Channel(
                 $this,
                 $ch,
                 new Collection(),
                 $lastmessage,
                 $lastuser
-            );
+            );*/
         }
         if ($lastmessage) {
             //
         }
 
-        if ($lastuser instanceof User) {
+        /*if ($lastuser instanceof User) {
             if ($lastchannel instanceof Channel) $lastuser->lastchannel = $lastchannel;
             if ($lastmessage instanceof Message) $lastuser->lastmessage = $lastmessage;
         }
@@ -940,7 +949,7 @@ class Twitch
         if ($lastmessage instanceof Message) {
             if ($lastuser instanceof User) $lastmessage->user = $lastuser;
             if ($lastchannel instanceof Channel) $lastmessage->channel = $lastchannel;
-        }
+        }*/
 
         $this->lastuser = $lastuser;
         $this->lastchannel = $lastchannel;

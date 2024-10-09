@@ -43,7 +43,7 @@ function loadEnv(string $filePath = __DIR__ . '/.env'): void
 loadEnv(getcwd() . '/.env');
 
 $loop = \React\EventLoop\Loop::get();
-$streamHandler = new StreamHandler('php://stdout', Level::Debug);
+$streamHandler = new StreamHandler('php://stdout', Level::Info);
 $streamHandler->setFormatter(new LineFormatter(null, null, true, true, true));
 $logger = new Logger('TwitchPHP', [$streamHandler]);
 file_put_contents('output.log', ''); // Clear the contents of 'output.log'
