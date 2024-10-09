@@ -74,8 +74,8 @@ class Message
     private function __afterConstruct(){
         $this->twitch->messageCache->pushItem($this);
         $this->twitch->lastmessage = $this;
-        $this->getChannelAttribute(); 
-        $this->getUserAttribute();
+        if ($channel = $this->getChannelAttribute()) $this->twitch->lastchannel = $channel;
+        if ($user = $this->getUserAttribute()) $this->twitch->lastuser = $user;
     }
 
     public function fill(string|array $json_data): void
