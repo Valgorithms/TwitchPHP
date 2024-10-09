@@ -340,7 +340,7 @@ class Twitch
     {
         if ($this->websocketConnection instanceof WebSocket) $this->websocketConnection->close();
         $url = self::WEBSOCKET_URL . '?keepalive_timeout_seconds=' . $this->keepaliveTimeout;
-        $this->logger->info('[WEBSOCKET INITIALIZING] Connecting to: ' . $url);
+        $this->logger->debug('[WEBSOCKET INITIALIZING] Connecting to: ' . $url);
         $reactConnector = new \React\Socket\Connector([
             'dns' => '8.8.8.8',
             'timeout' => 10
@@ -364,7 +364,7 @@ class Twitch
      */
     private function handleWebSocketClose($code = null, $reason = null): void
     {
-        $this->logger->warning("[WEBSOCKET CLOSED] $code - $reason");
+        $this->logger->debug("[WEBSOCKET CLOSED] $code - $reason");
         $this->websocketConnection = null;
         $this->websocketSessionId = null;
         $this->loop->cancelTimer($this->keepaliveTimer);
@@ -401,10 +401,10 @@ class Twitch
      */
     private function handleWebSocketWelcome(array $message): PromiseInterface
     {
-        $this->logger->debug('[WEBSOCKET WELCOME] ' . json_encode($message));
+        //$this->logger->debug('[WEBSOCKET WELCOME] ' . json_encode($message));
         $this->websocketSessionId = $message['payload']['session']['id'];
         $this->keepaliveTimeout = $message['payload']['session']['keepalive_timeout_seconds'];
-        $this->logger->info('[WEBSOCKET WELCOME] Session ID: ' . $this->websocketSessionId);
+        $this->logger->debug('[WEBSOCKET WELCOME] Session ID: ' . $this->websocketSessionId);
         $promise = $this->subscribeToChatMessageEvent($this->broadcasterId);
         $promise = $promise->then(
             function (Subscription $subscription) {
