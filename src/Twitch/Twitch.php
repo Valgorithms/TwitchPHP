@@ -421,7 +421,10 @@ class Twitch
         ];
 
         Helix::createEventSubSubscription($data)->then(
-            fn ($data) => new Subscription($this, $data),
+            function ($data) {
+                $subscription = new Subscription($this, $data);
+                $this->emit('eventsub.subscription.create', [$subscription]);
+            },
             fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
         );
     }
@@ -479,7 +482,10 @@ class Twitch
     public function handleChannelChatMessageEvent(array $event): void
     {
         //$this->logger->info('[CHANNEL CHAT MESSAGE] ' . json_encode($event));
-        if ($event) $message = new Message($this, json_encode($event));
+        if ($event) {
+            $message = new Message($this, json_encode($event));
+            $this->emit(WebSocketEventType::CHANNEL_CHAT_MESSAGE, [$message]);
+        }
         $this->logger->info("#{$message->broadcaster_user_name} - {$message->chatter_user_name}: {$message->message['text']}");
         // Emit an event for the message and channel being cached
         //$message->sendReply('Hello, world!');
@@ -908,55 +914,10 @@ class Twitch
      */
     protected function parseData(string $data): void
     {
-        return; // Disabled for now
-
         $lastuser = $lastchannel = $lastmessage = null;
-        if ($us = $this->parseUser($data)) {
-            //$lastuser = new User($this, $us);
-            //$lastuser->seen();
-        }
-        if ($ch = $this->parseChannel($data)) {
-            //$lastchannel = new Channel($this, $ch);
-        }
-        if ($msg = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($ch)))) {
-            //$lastmessage = new Message($this, $msg, $lastchannel, $lastuser);
-        }
-        
-        if ($us) {
-            /*$lastuser = new User(
-                $this,
-                $us,
-                $lastchannel,
-                new Collection(),
-                $lastmessage,
-            );*/
-        }
-        if ($ch) {
-            /*$lastchannel = new Channel(
-                $this,
-                $ch,
-                new Collection(),
-                $lastmessage,
-                $lastuser
-            );*/
-        }
-        if ($lastmessage) {
-            //
-        }
-
-        /*if ($lastuser instanceof User) {
-            if ($lastchannel instanceof Channel) $lastuser->lastchannel = $lastchannel;
-            if ($lastmessage instanceof Message) $lastuser->lastmessage = $lastmessage;
-        }
-        if ($lastchannel instanceof Channel) {
-            if ($lastuser instanceof User) $lastchannel->lastuser = $lastuser;
-            if ($lastmessage instanceof Message) $lastchannel->lastmessage = $lastmessage;
-        }
-        if ($lastmessage instanceof Message) {
-            if ($lastuser instanceof User) $lastmessage->user = $lastuser;
-            if ($lastchannel instanceof Channel) $lastmessage->channel = $lastchannel;
-        }*/
-
+        if ($us = $this->parseUser($data)) $lastuser = $us;
+        if ($ch = $this->parseChannel($data)) $lastchannel = $ch;
+        if ($msg = trim(substr($data, strpos($data, 'PRIVMSG')+11+strlen($ch)))) $lastmessage = $msg;
         $this->lastuser = $lastuser;
         $this->lastchannel = $lastchannel;
         $this->lastmessage = $lastmessage;
