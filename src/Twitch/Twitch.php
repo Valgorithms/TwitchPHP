@@ -173,6 +173,7 @@ class Twitch
     public Collection $userCache;
     public Collection $channelCache;
     public Collection $messageCache;
+    public Collection $subscriptionCache;
     
     public User|string|null $lastuser = ''; //Who last sent a message in Twitch chat
     public Channel|string|null $lastchannel = ''; //Where the last command was used
@@ -204,9 +205,12 @@ class Twitch
                 $this->logger->warning('Attached experimental CacheInterface: '.get_class($cacheConfig->interface));
             }
         }
-        $this->messageCache = new Collection([], 'message_id', Message::class);
-        $this->channelCache = new Collection([], 'broadcaster_user_id', Channel::class);
+        
         $this->userCache = new Collection([], 'id', User::class);
+        $this->channelCache = new Collection([], 'broadcaster_user_id', Channel::class);
+        $this->messageCache = new Collection([], 'message_id', Message::class);
+        $this->subscriptionCache = new Collection([], 'id', Subscription::class);
+        
         
         $this->loop = $options['loop'] ?? Loop::get();
         $dnsResolverFactory = new DnsFactory();
@@ -417,7 +421,7 @@ class Twitch
         ];
 
         Helix::createEventSubSubscription($data)->then(
-            fn ($response) => $this->logger->info('[SUBSCRIPTION CREATED] ' . $response),
+            fn ($data) => new Subscription($this, $data),
             fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
         );
     }
@@ -449,7 +453,7 @@ class Twitch
             return;
         }
 
-        $this->logger->info('[WEBSOCKET NOTIFICATION] ' . json_encode($event));
+        $this->logger->debug('[WEBSOCKET NOTIFICATION] ' . json_encode($event));
 
         $subscriptionType->handleEvent($event, $this);
     }
@@ -474,12 +478,14 @@ class Twitch
      */
     public function handleChannelChatMessageEvent(array $event): void
     {
-        $this->logger->info('[CHANNEL CHAT MESSAGE] ' . json_encode($event));
+        //$this->logger->info('[CHANNEL CHAT MESSAGE] ' . json_encode($event));
         if ($event) $message = new Message($this, json_encode($event));
+        $this->logger->info("#{$message->broadcaster_user_name} - {$message->chatter_user_name}: {$message->message['text']}");
         // Emit an event for the message and channel being cached
-        var_dump($this->channelCache);
-        var_dump($this->messageCache);
-        var_dump($this->userCache);
+        //$message->sendReply('Hello, world!');
+        //var_dump($this->channelCache);
+        //var_dump($this->messageCache);
+        //var_dump($this->userCache);
     }
 
     /**

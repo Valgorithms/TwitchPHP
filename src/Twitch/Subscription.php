@@ -10,19 +10,34 @@ namespace Twitch;
 
 use Carbon\Carbon;
 use Discord\Helpers\Collection;
+use Discord\Parts\Part;
+use React\Promise\PromiseInterface;
 
-class User
+class Subscription
 {
-    public ?string $id;
-    public ?string $display_name;
-    public ?string $type;
-    public ?string $broadcaster_type;
-    public ?string $description;
-    public ?string $profile_image_url;
-    public ?string $offline_image_url;
-    public ?int $view_count;
-    public ?string $email;
-    public ?Carbon $created_at;
+    /**
+     * @var array<array{
+     *     id: string,
+     *     status: string,
+     *     type: string,
+     *     version: string,
+     *     condition: array{
+     *         broadcaster_user_id: string,
+     *         user_id: string
+     *     },
+     *     created_at: string,
+     *     transport: array{
+     *         method: string,
+     *         session_id: string,
+     *         connected_at: string
+     *     },
+     *     cost: int
+     * }>
+     */
+    public array $data;
+    public int $max_total_cost;
+    public int $total;
+    public int $total_cost;
 
     public function __construct(
         public Twitch &$twitch,
@@ -32,9 +47,7 @@ class User
         $this->__afterConstruct();
     }
     private function __afterConstruct(){
-        $this->twitch->userCache->pushItem($this);
-        $this->twitch->lastuser = $this;
-        $this->getChannelAttribute();
+        $this->twitch->subscriptionCache->pushItem($this);
     }
 
     public function fill(string|array $json_data): void
@@ -45,66 +58,59 @@ class User
         });
     }
 
-    public function seen(?Carbon $timestamp = null): Carbon
+    public function __toString(): string
     {
-        $this->twitch->logger->debug("[SEEN] $this");
-        return $this->lastseen = $timestamp ?? Carbon::now();
+        return $this->message['text'] ?? '';
     }
 
-    public function lastseen(): ?Carbon
+    /**
+     * Returns the channel attribute.
+     *
+     * @return Channel|null
+     */
+    protected function getChannelAttribute(): ?Channel
     {
-        return $this->lastseen;
-    }
-
-    public function getBroadcasterUserIdAttribute(): string
-    {
-        return $this->id ?? '';
-    }
-    
-    public function setBroadcasterUserIdAttribute(string $value): void
-    {
-        $this->id = $value;
-    }
-
-    public function getBroadcasterUserLogin(): string
-    {
-        return strtolower($this->display_name) ?? '';
-    }
-
-    public function getBroadcasterUserName(): string
-    {
-        return $this->display_name ?? '';
-    }
-
-    public function setBroadcasterUserName(string $value): void
-    {
-        $this->display_name = $value;
-    }
-
-    public function getChannelAttribute(): ?Channel
-    {
-        if (! isset($this->id)) return null;
+        if (! isset($this->data[0]['condition']['broadcaster_user_id'])) return null;
 
         $channel = null;
         if ($channels = &$this->twitch->channelCache) {
-            if (! $channel = $channels->get('broadcaster_user_id', $this->getBroadcasterUserIdAttribute())) {
-                $json_data = [
-                    'broadcaster_user_id' => $this->getBroadcasterUserIdAttribute(),
-                    'broadcaster_user_login' => $this->getBroadcasterUserLogin(),
-                    'broadcaster_user_name' => $this->getBroadcasterUserName()
-                ];
-                $channel = new Channel($this->twitch, $json_data);
-                $channels->push($channel);
+            if (! $channel = $channels->get('broadcaster_user_id', $this->data[0]['condition']['broadcaster_user_id'])) {
+                if (is_string($this->json_data)) $json_data = json_decode($this->json_data, true);
+                if (is_array($json_data)) {
+                    $channel = new Channel($this->twitch, $json_data);
+                    $channels->push($channel);
+                }
             }
         }
 
-        /** @var Channel|null $user */
+        /** @var Channel|null $channel */
         return $channel;
     }
 
-    public function __toString(): string
+    /**
+     * Returns the user attribute.
+     *
+     * @return User|null
+     */
+    protected function getUserAttribute(): ?User
     {
-        return $this->display_name ?? $this->broadcaster_user_name ?? '';
+        if (! isset($this->data[0]['condition']['user_id'])) return null;
+        
+        $user = null;
+        if ($users = &$this->twitch->userCache) {
+            if (! $user = $users->get('id', $this->data[0]['condition']['user_id'])) {
+                if (is_string($this->json_data)) $json_data = json_decode($this->json_data, true);
+                if (is_array($json_data)) {
+                    $json_data['id'] = $this->data[0]['condition']['user_id'];
+                    $json_data['display_name'] = $this->data[0]['condition']['user_id']; // Assuming display_name is the same as user_id
+                    $user = new User($this->twitch, $json_data);
+                    $users->push($user);
+                }
+            }
+        }
+
+        /** @var User|null $user */
+        return $user;
     }
 
     /**
@@ -189,14 +195,15 @@ class User
         }*/
 
         if ($str = $this->checkForGetMutator($key)) {
+            error_log("Calling $str");
             return $this->{$str}();
         }
 
-        if (! isset($this->attributes[$key])) {
+        if (! isset($this->$key)) {
             return null;
         }
 
-        return $this->attributes[$key];
+        return $this->$key;
     }
 
     /**
@@ -216,7 +223,6 @@ class User
             $this->$key = $value;
         }
     }
-    
     
     /**
      * Handles dynamic get calls onto the part.

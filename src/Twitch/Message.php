@@ -11,11 +11,12 @@ namespace Twitch;
 use Carbon\Carbon;
 use Discord\Helpers\Collection;
 use Discord\Parts\Part;
+use React\Promise\PromiseInterface;
+
+use function React\Promise\reject;
 
 class Message
 {
-    public string $discrim = 'message_id';
-
     public string $broadcaster_user_id;
     public string $broadcaster_user_login;
     public string $broadcaster_user_name;
@@ -27,9 +28,35 @@ class Message
     public string $chatter_user_name;
     public string $message_id;
     public ?string $source_message_id;
+    /**
+     * @var array{
+     *     text: string,
+     *     fragments: array<array{
+     *         type: string,
+     *         text: string,
+     *         cheermote: ?string,
+     *         emote: ?string,
+     *         mention: ?string
+     *     }>
+     * }
+     */
     public array $message;
     public string $color;
+    /**
+     * @var array<array{
+     *     set_id: string,
+     *     id: string,
+     *     info: string
+     * }>
+     */
     public array $badges;
+    /**
+     * @var ?array<array{
+     *     set_id: string,
+     *     id: string,
+     *     info: string
+     * }>
+     */
     public ?array $source_badges;
     public string $message_type;
     public ?array $cheer;
@@ -57,6 +84,12 @@ class Message
         if (is_array($json_data)) array_walk($json_data, function($value, $key) {
             if (property_exists($this, $key)) $this->$key = $value;
         });
+    }
+
+    public function sendReply(string $content): PromiseInterface
+    {
+        if ($channel = $this->getChannelAttribute()) return $channel->sendMessage("@{$this->chatter_user_name}, $content");
+        return reject(new \Exception("Could not find channel to send reply to."));
     }
 
     public function __toString(): string
@@ -120,8 +153,6 @@ class Message
      * @param string $string The string to convert.
      *
      * @return string
-     *
-     * @since 10.0.0
      */
     private static function studly(string $string): string
     {
@@ -143,8 +174,6 @@ class Message
      *
      * @param string $key The attribute name to check.
      *
-     * @since 10.0.0 Replaces checkForMutator($key, 'get')
-     *
      * @return string|false Either a string if it is a method or false.
      */
     private function checkForGetMutator(string $key)
@@ -162,8 +191,6 @@ class Message
      * Checks if there is a set mutator present.
      *
      * @param string $key The attribute name to check.
-     *
-     * @since 10.0.0 Replaces checkForMutator($key, 'set')
      *
      * @return string|false Either a string if it is a method or false.
      */

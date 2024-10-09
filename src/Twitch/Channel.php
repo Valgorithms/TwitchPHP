@@ -10,6 +10,7 @@ namespace Twitch;
 
 use Carbon\Carbon;
 use Discord\Helpers\Collection;
+use React\Promise\PromiseInterface;
 
 class Channel
 {
@@ -44,7 +45,8 @@ class Channel
         
         $user = null;
         if ($users = &$this->twitch->userCache) {
-            if (! $user = $users->get('broadcaster_user_id', $this->broadcaster_user_id)) {
+            if (! $user = $users->get('id', $this->broadcaster_user_id)) {
+                $json_data = null;
                 if (is_string($this->json_data)) $json_data = json_decode($this->json_data, true);
                 if (is_array($json_data)) {
                     $json_data['id'] = $this->chatter_user_id;
@@ -67,10 +69,10 @@ class Channel
      *
      * @return void
      */
-    public function sendMessage(string $data): void
+    public function sendMessage(string $data): PromiseInterface
     {
-        $this->twitch->write("PRIVMSG #$this :$data\n");
         $this->twitch->logger->info("[REPLY] #$this - $data");
+        return $this->twitch->write("PRIVMSG #$this :$data\n");
     }
     
     public function __toString(): string
@@ -89,8 +91,6 @@ class Channel
      * @param string $string The string to convert.
      *
      * @return string
-     *
-     * @since 10.0.0
      */
     private static function studly(string $string): string
     {
@@ -112,8 +112,6 @@ class Channel
      *
      * @param string $key The attribute name to check.
      *
-     * @since 10.0.0 Replaces checkForMutator($key, 'get')
-     *
      * @return string|false Either a string if it is a method or false.
      */
     private function checkForGetMutator(string $key)
@@ -131,8 +129,6 @@ class Channel
      * Checks if there is a set mutator present.
      *
      * @param string $key The attribute name to check.
-     *
-     * @since 10.0.0 Replaces checkForMutator($key, 'set')
      *
      * @return string|false Either a string if it is a method or false.
      */
