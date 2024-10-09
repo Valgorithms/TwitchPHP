@@ -127,14 +127,19 @@ class Message
         
         $user = null;
         if ($users = &$this->twitch->userCache) {
-            if (! $user = $users->get('broadcaster_user_id', $this->broadcaster_user_id)) {
-                if (is_string($this->json_data)) $json_data = json_decode($this->json_data, true);
-                if (is_array($json_data)) {
-                    $json_data['id'] = $this->chatter_user_id;
-                    $json_data['display_name'] = $this->chatter_user_name;
-                    $user = new User($this->twitch, $json_data);
-                    $users->push($user);
-                }
+            if (is_string($this->json_data)) $json_data = json_decode($this->json_data, true);
+            if (is_array($json_data)) {
+                $json_data['id'] = $this->chatter_user_id;
+                $json_data['display_name'] = $this->chatter_user_name;
+            }
+            /** @var User|null $user */
+            if ($user = $users->get('broadcaster_user_id', $this->broadcaster_user_id)) {
+                /** @var User $user */
+                $user->fill($json_data);
+                $users->offsetSet($user->id, $user);
+            } else {
+                $user = new User($this->twitch, $json_data);
+                $users->push($user);
             }
         }
 
@@ -224,7 +229,6 @@ class Message
         }*/
 
         if ($str = $this->checkForGetMutator($key)) {
-            error_log("Calling $str");
             return $this->{$str}();
         }
 

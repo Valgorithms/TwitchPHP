@@ -221,7 +221,7 @@ class Helix //extends Http
         }
 
         self::updateTokens($data['access_token'], $data['refresh_token']);
-        error_log('Access token refreshed');
+        //error_log('Access token refreshed');
         return $data;
     }
 
@@ -254,7 +254,7 @@ class Helix //extends Http
     {
         $promise = new Promise(function ($resolve, $reject) use ($url, $method, $data) {
             $json_data = json_encode($data);
-            error_log("[QUERY] $url - $method - $json_data");
+            //error_log("[QUERY] $url - $method - $json_data");
             if (function_exists('curl_init')) {
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, self::SCHEME . $url);

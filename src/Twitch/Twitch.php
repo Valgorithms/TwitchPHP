@@ -111,6 +111,7 @@ class Twitch
 
     protected Loop|StreamSelectLoop $loop;
     protected bool $running = false;
+    protected bool $ready = false;
     protected Commands $commands;
 
     public string $broadcasterId;
@@ -271,6 +272,9 @@ class Twitch
 
         $this->on('PRIVMSG', fn($data) => $this->privmsg($data));
         $this->on('PING', fn($data) => $this->pingPong());
+        $this->on('ready', function() {
+            if ($channel = $this->channelCache->get('broadcaster_user_login', $this->nick)) $channel->sendMessage('TwitchPHP Online!');
+        });
     }
     
     /**
@@ -281,7 +285,7 @@ class Twitch
      */
     public function run(bool $runLoop = true): void
     {
-        if ($this->verbose) $this->logger->info('[LOOP->RUN]');
+        if ($this->verbose) $this->logger->debug('[LOOP->RUN]');
         if (! $this->running) {
             $this->running = true;
             $this->connect()->then(
@@ -344,7 +348,7 @@ class Twitch
         $connector($url)->then(
             function (WebSocket $connection) {
                 $this->websocketConnection = $connection;
-                $this->logger->info('[WEBSOCKET CONNECTED]');
+                $this->logger->debug('[WEBSOCKET CONNECTED]');
                 $connection->on('message', fn(MessageInterface $msg) => $this->handleWebSocketMessage($msg));
                 $connection->on('close', fn($code = null, $reason = null) => $this->handleWebSocketClose($code, $reason));
             },
@@ -394,21 +398,33 @@ class Twitch
      * @param array $message The welcome message data.
      * @return void
      */
-    private function handleWebSocketWelcome(array $message): void
+    private function handleWebSocketWelcome(array $message): PromiseInterface
     {
-        $this->logger->info('[WEBSOCKET WELCOME] ' . json_encode($message));
+        $this->logger->debug('[WEBSOCKET WELCOME] ' . json_encode($message));
         $this->websocketSessionId = $message['payload']['session']['id'];
         $this->keepaliveTimeout = $message['payload']['session']['keepalive_timeout_seconds'];
         $this->logger->info('[WEBSOCKET WELCOME] Session ID: ' . $this->websocketSessionId);
-        $this->subscribeToChatMessageEvent($this->broadcasterId);
+        $promise = $this->subscribeToChatMessageEvent($this->broadcasterId);
+        $promise = $promise->then(
+            function ($data) {
+                $this->logger->debug('[CHAT MESSAGE SUBSCRIPTION SUCCESS]');
+                $this->logger->info('[READY]');
+                if (! $this->ready) {
+                    $this->ready = true;
+                    $this->emit('ready');
+                }
+            },
+            fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
+        );
+        return $promise;
     }
 
     /**
      * Subscribes to the channel.chat.message event.
      *
-     * @return void
+     * @return PromiseInterface
      */
-    private function subscribeToChatMessageEvent(string $broadcaster_id): void
+    private function subscribeToChatMessageEvent(string $broadcaster_id): PromiseInterface
     {
         $data = [
             'type' => 'channel.chat.message',
@@ -420,13 +436,17 @@ class Twitch
             'transport' => $this->getTransport()
         ];
 
-        Helix::createEventSubSubscription($data)->then(
+        $promise = Helix::createEventSubSubscription($data);
+        $promise = $promise->then(
             function ($data) {
                 $subscription = new Subscription($this, $data);
+                //var_dump($subscription);
+                $this->logger->info("[SUBSCRIPTION CREATED] {$subscription->user->id} - {$subscription->data[0]['type']}");
                 $this->emit('eventsub.subscription.create', [$subscription]);
             },
             fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
         );
+        return $promise;
     }
 
     /**
@@ -437,7 +457,7 @@ class Twitch
     private function handleWebSocketKeepalive(): void
     {
         $this->logger->debug('[WEBSOCKET KEEPALIVE]');
-
+        // TODO
     }
 
     /**
@@ -470,7 +490,7 @@ class Twitch
     public function handleChannelFollowEvent(array $event): void
     {
         $this->logger->info('[CHANNEL FOLLOW] User ' . $event['user_name'] . ' followed ' . $event['broadcaster_user_name'] . ' at ' . $event['followed_at']);
-        // Additional processing can be done here
+        $this->emit(WebSocketEventType::CHANNEL_FOLLOW->value, [$event]);
     }
 
     /**
@@ -481,17 +501,9 @@ class Twitch
      */
     public function handleChannelChatMessageEvent(array $event): void
     {
-        //$this->logger->info('[CHANNEL CHAT MESSAGE] ' . json_encode($event));
-        if ($event) {
-            $message = new Message($this, json_encode($event));
-            $this->emit(WebSocketEventType::CHANNEL_CHAT_MESSAGE, [$message]);
-        }
-        $this->logger->info("#{$message->broadcaster_user_name} - {$message->chatter_user_name}: {$message->message['text']}");
-        // Emit an event for the message and channel being cached
-        //$message->sendReply('Hello, world!');
-        //var_dump($this->channelCache);
-        //var_dump($this->messageCache);
-        //var_dump($this->userCache);
+        $message = new Message($this, json_encode($event));
+        $this->logger->info("[CHANNEL CHAT MESSAGE] #{$message->broadcaster_user_login} - {$message->chatter_user_name}: {$message->message['text']}");
+        $this->emit(WebSocketEventType::CHANNEL_CHAT_MESSAGE->value, [$message]);
     }
 
     /**
@@ -505,6 +517,7 @@ class Twitch
         $reconnectUrl = $message['payload']['session']['reconnect_url'];
         $this->logger->info('[WEBSOCKET RECONNECT] Reconnecting to: ' . $reconnectUrl);
         $this->initializeWebSocket($this->keepaliveTimeout);
+        $this->emit('eventsub.session.reconnect', [$message]);
     }
 
     /**
@@ -516,6 +529,7 @@ class Twitch
     private function handleWebSocketRevocation(array $message): void
     {
         $this->logger->warning('[WEBSOCKET REVOCATION] ' . json_encode($message));
+        $this->emit('eventsub.subscription.revoke', [$message]);
     }
 
     /**
@@ -528,7 +542,7 @@ class Twitch
         if ($this->keepaliveTimer) $this->loop->cancelTimer($this->keepaliveTimer);
 
         $this->keepaliveTimer = $this->loop->addTimer($this->keepaliveTimeout, function () {
-            $this->logger->warning('[WEBSOCKET KEEPALIVE TIMEOUT] Reconnecting...');
+            $this->logger->info('[WEBSOCKET KEEPALIVE TIMEOUT] Reconnecting...');
             $this->initializeWebSocket($this->keepaliveTimeout);
         });
     }
@@ -807,7 +821,7 @@ class Twitch
      */
     protected function connect(?callable $deferred_callback = null): PromiseInterface
     {
-        if ($this->verbose) $this->logger->info('[CONNECT]');
+        if ($this->verbose) $this->logger->debug('[CONNECT]');
         //$user = await(Helix::getUser($this->nick));
         $user = '{"data": [{"broadcaster_type": "affiliate", "created_at": "2012-03-15T22:32:11Z", "description": "I\'m a teacher, programmer, and patient care advocate. I make things that make other things work. My primary focus is streaming games that my community enjoys playing.", "display_name": "Valgorithms", "email": "valzargaming@gmail.com", "id": "29034572", "login": "valgorithms", "offline_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/3553a8d3-4f03-4bb0-a7c9-38be8022aa9e-channel_offline_image-1920x1080.jpeg", "profile_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/f34c0861-ceef-45e4-a441-4b11944780b0-profile_image-300x300.png", "type": "", "view_count": 0}]}';
         if ($user === '{"error":"Unauthorized","status":401,"message":"OAuth token is missing"}') {
@@ -823,9 +837,10 @@ class Twitch
             //$this->logger->info("[CHANNEL] " . $channelInfo);
             //$channelData = json_decode($channelInfo, true);
             //$this->broadcasterId = $channelData['data'][0]['broadcaster_id'];
-            $this->broadcasterId = '29034572';
-            $this->initializeWebSocket();
+            $this->broadcasterId = getenv('twitch_broadcasterId') ?? '29034572';
         }
+        new Channel($this, ['broadcaster_user_id' => $this->broadcasterId, 'broadcaster_user_login' => strtolower($this->nick), 'broadcaster_user_name' => $this->nick]);
+        $this->initializeWebSocket();
 
         if (isset($this->connection) && $this->connection instanceof ConnectionInterface) {
             $this->logger->warning('[CONNECT] A connection already exists');
@@ -843,7 +858,7 @@ class Twitch
         $this->connection = $connection;
         
         $this->initIRC($connection);
-        $this->logger->info('[CONNECTED]');
+        $this->logger->debug('[IRC CONNECTED]');
         if ($deferred_callback) $deferred_callback();
         $connection->on('data', fn($data) => $this->process($data));
         $connection->on('close', function () {
@@ -861,7 +876,7 @@ class Twitch
      */
     protected function initIRC(): void
     {
-        if ($this->verbose) $this->logger->info('[INIT IRC]');
+        if ($this->verbose) $this->logger->debug('[INIT IRC]');
         $this->write("PASS {$this->secret}\n");
         $this->write("NICK {$this->nick}\n");
         $this->write("CAP REQ :twitch.tv/membership\n");

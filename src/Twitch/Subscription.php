@@ -70,16 +70,22 @@ class Subscription
      */
     protected function getChannelAttribute(): ?Channel
     {
-        if (! isset($this->data[0]['condition']['broadcaster_user_id'])) return null;
+        if (!isset($this->data[0]['condition']['broadcaster_user_id'])) return null;
 
+        $broadcasterUserId = $this->data[0]['condition']['broadcaster_user_id'];
         $channel = null;
+
         if ($channels = &$this->twitch->channelCache) {
-            if (! $channel = $channels->get('broadcaster_user_id', $this->data[0]['condition']['broadcaster_user_id'])) {
-                if (is_string($this->json_data)) $json_data = json_decode($this->json_data, true);
-                if (is_array($json_data)) {
-                    $channel = new Channel($this->twitch, $json_data);
-                    $channels->push($channel);
+            if (! $channel = $channels->get('broadcaster_user_id', $broadcasterUserId)) {
+                $json_data['broadcaster_user_id'] = $broadcasterUserId;
+                if ($user = $this->getUserAttribute()) {
+                    $json_data += [
+                        'broadcaster_user_login' => $user->getBroadcasterUserLogin(),
+                        'broadcaster_user_name' => $user->getBroadcasterUserName()
+                    ];
                 }
+                $channel = new Channel($this->twitch, $json_data);
+                $channels->push($channel);
             }
         }
 
@@ -94,18 +100,19 @@ class Subscription
      */
     protected function getUserAttribute(): ?User
     {
-        if (! isset($this->data[0]['condition']['user_id'])) return null;
-        
+        if (!isset($this->data[0]['condition']['user_id'])) {
+            return null;
+        }
+
+        $userId = $this->data[0]['condition']['user_id'];
         $user = null;
+
         if ($users = &$this->twitch->userCache) {
-            if (! $user = $users->get('id', $this->data[0]['condition']['user_id'])) {
-                if (is_string($this->json_data)) $json_data = json_decode($this->json_data, true);
-                if (is_array($json_data)) {
-                    $json_data['id'] = $this->data[0]['condition']['user_id'];
-                    $json_data['display_name'] = $this->data[0]['condition']['user_id']; // Assuming display_name is the same as user_id
-                    $user = new User($this->twitch, $json_data);
-                    $users->push($user);
-                }
+            if (! $user = $users->get('id', $userId)) {
+                $json_data['id'] = $userId;
+                $json_data['display_name'] = $userId; // Placeholder, but required
+                $user = new User($this->twitch, $json_data);
+                $users->push($user);
             }
         }
 
@@ -195,7 +202,6 @@ class Subscription
         }*/
 
         if ($str = $this->checkForGetMutator($key)) {
-            error_log("Calling $str");
             return $this->{$str}();
         }
 
