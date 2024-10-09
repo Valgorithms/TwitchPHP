@@ -80,6 +80,12 @@ enum WebSocketEventType: string
 {
     case CHANNEL_FOLLOW = 'channel.follow';
     case CHANNEL_CHAT_MESSAGE = 'channel.chat.message';
+    case CHANNEL_CHAT_CLEAR = 'channel.chat.clear';
+    case CHANNEL_SUBSCRIBE = 'channel.subscribe';
+    case CHANNEL_UPDATE = 'channel.update';
+    case CHANNEL_AD_BREAK_BEGIN = 'channel.ad_break.begin';
+    case STREAM_ONLINE = 'stream.online';
+    case STREAM_OFFLINE = 'stream.offline';
     // Add other event types as needed
 
     public function handleEvent(array $event, Twitch $twitch): void
@@ -87,6 +93,12 @@ enum WebSocketEventType: string
         match ($this) {
             self::CHANNEL_FOLLOW => $twitch->handleChannelFollowEvent($event),
             self::CHANNEL_CHAT_MESSAGE => $twitch->handleChannelChatMessageEvent($event),
+            self::CHANNEL_CHAT_CLEAR => $twitch->handleChannelChatClearEvent($event),
+            self::CHANNEL_SUBSCRIBE => $twitch->handleChannelSubscribe($event),
+            self::CHANNEL_UPDATE => $twitch->handleChannelUpdate($event),
+            self::CHANNEL_AD_BREAK_BEGIN => $twitch->handleChannelAdBreakBegin($event),
+            self::STREAM_ONLINE => $twitch->handleStreamOnline($event),
+            self::STREAM_OFFLINE => $twitch->handleStreamOffline($event),
             // Add other event types as needed
         };
     }
@@ -481,51 +493,66 @@ class Twitch
         // TODO
     }
 
-    /**
-     * Handles the notification message from the WebSocket.
-     *
-     * @param array $message The notification message data.
-     * @return void
-     */
     private function handleWebSocketNotification(array $message): void
     {
         $event = $message['payload']['event'];
+        $this->logger->debug('[WEBSOCKET NOTIFICATION] ' . json_encode($event));
         $subscriptionType = WebSocketEventType::tryFrom($message['metadata']['subscription_type'] ?? '');
-
         if ($subscriptionType === null) {
             $this->logger->warning('[WEBSOCKET UNKNOWN EVENT] ' . json_encode($message));
             return;
         }
-
-        $this->logger->debug('[WEBSOCKET NOTIFICATION] ' . json_encode($event));
-
         $subscriptionType->handleEvent($event, $this);
         $this->resetKeepaliveTimer();
     }
 
-    /**
-     * Handles the channel.follow event.
-     *
-     * @param array $event The event data.
-     * @return void
-     */
     public function handleChannelFollowEvent(array $event): void
     {
         $this->logger->info('[CHANNEL FOLLOW] User ' . $event['user_name'] . ' followed ' . $event['broadcaster_user_name'] . ' at ' . $event['followed_at']);
         $this->emit(WebSocketEventType::CHANNEL_FOLLOW->value, [$event]);
     }
 
-    /**
-     * Handles the channel.chat.message event.
-     *
-     * @param array $event The event data.
-     * @return void
-     */
     public function handleChannelChatMessageEvent(array $event): void
     {
         $message = new Message($this, json_encode($event));
         $this->logger->info("[CHANNEL CHAT MESSAGE] #{$message->broadcaster_user_login} - {$message->chatter_user_name}: {$message->message['text']}");
         $this->emit(WebSocketEventType::CHANNEL_CHAT_MESSAGE->value, [$message]);
+    }
+    
+    public function handleChannelChatClearEvent(array $event): void
+    {
+        $this->logger->debug("[CHANNEL CHAT CLEAR] Broadcaster: {$event['broadcaster_user_name']} ({$event['broadcaster_user_id']})");
+        $this->emit(WebSocketEventType::CHANNEL_CHAT_CLEAR->value, $event);
+    }
+
+    public function handleChannelSubscribe(array $event): void
+    {
+        $this->logger->info('[CHANNEL SUBSCRIBE] User ' . $event['user_name'] . ' subscribed to ' . $event['broadcaster_user_name'] . ' at ' . $event['subscribed_at']);
+        $this->emit(WebSocketEventType::CHANNEL_SUBSCRIBE->value, [$event]);
+    }
+
+    public function handleChannelUpdate(array $event): void
+    {
+        $this->logger->info('[CHANNEL UPDATE] ' . $event['broadcaster_user_name'] . ' updated their channel at ' . $event['updated_at']);
+        $this->emit(WebSocketEventType::CHANNEL_UPDATE->value, [$event]);
+    }
+
+    public function handleChannelAdBreakBegin(array $event): void
+    {
+        $this->logger->info('[CHANNEL AD BREAK BEGIN] ' . $event['broadcaster_user_name'] . ' started an ad break at ' . $event['started_at']);
+        $this->emit(WebSocketEventType::CHANNEL_AD_BREAK_BEGIN->value, [$event]);
+    }
+
+    public function handleStreamOnline(array $event): void
+    {
+        $this->logger->info('[STREAM ONLINE] ' . $event['broadcaster_user_name'] . ' started streaming at ' . $event['started_at']);
+        $this->emit(WebSocketEventType::STREAM_ONLINE->value, [$event]);
+    }
+
+    public function handleStreamOffline(array $event): void
+    {
+        $this->logger->info('[STREAM OFFLINE] ' . $event['broadcaster_user_name'] . ' stopped streaming at ' . $event['ended_at']);
+        $this->emit(WebSocketEventType::STREAM_OFFLINE->value, [$event]);
     }
 
     /**
