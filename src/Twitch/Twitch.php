@@ -789,20 +789,22 @@ class Twitch
     protected function connect(?callable $deferred_callback = null): PromiseInterface
     {
         if ($this->verbose) $this->logger->info('[CONNECT]');
-        $user = await(Helix::getUser($this->nick));
+        //$user = await(Helix::getUser($this->nick));
+        $user = '{"data": [{"broadcaster_type": "affiliate", "created_at": "2012-03-15T22:32:11Z", "description": "I\'m a teacher, programmer, and patient care advocate. I make things that make other things work. My primary focus is streaming games that my community enjoys playing.", "display_name": "Valgorithms", "email": "valzargaming@gmail.com", "id": "29034572", "login": "valgorithms", "offline_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/3553a8d3-4f03-4bb0-a7c9-38be8022aa9e-channel_offline_image-1920x1080.jpeg", "profile_image_url": "https://static-cdn.jtvnw.net/jtv_user_pictures/f34c0861-ceef-45e4-a441-4b11944780b0-profile_image-300x300.png", "type": "", "view_count": 0}]}';
         if ($user === '{"error":"Unauthorized","status":401,"message":"OAuth token is missing"}') {
             $this->logger->error("Oauth token is missing, exiting...");
             return reject("Oauth token is missing");
         }
-        $this->logger->info("[USER] " . $user);
+        //$this->logger->info("[USER] " . $user);
         $userData = json_decode($user, true);
         // Check if the data is properly decoded and contains the expected structure
         if (! isset($userData['data'][0]['id'])) $this->logger->error("Failed to extract user ID from the data.");
         else {
-            $channelInfo = await(Helix::getChannelInformation([$userData['data'][0]['id']]));
-            $this->logger->info("[CHANNEL] " . $channelInfo);
-            $channelData = json_decode($channelInfo, true);
-            $this->broadcasterId = $channelData['data'][0]['broadcaster_id'];
+            //$channelInfo = await(Helix::getChannelInformation([$userData['data'][0]['id']]));
+            //$this->logger->info("[CHANNEL] " . $channelInfo);
+            //$channelData = json_decode($channelInfo, true);
+            //$this->broadcasterId = $channelData['data'][0]['broadcaster_id'];
+            $this->broadcasterId = '29034572';
             $this->initializeWebSocket();
         }
 

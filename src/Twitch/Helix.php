@@ -260,9 +260,9 @@ class Helix //extends Http
                 curl_setopt($ch, CURLOPT_URL, self::SCHEME . $url);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . getenv('twitch_access_token'),
-                    'Client-Id' => getenv('twitch_client_id'),
+                    'Content-Type: application/json',
+                    'Authorization: Bearer ' . getenv('twitch_access_token'),
+                    'Client-Id: ' . getenv('twitch_client_id'),
                 ]);
                 if ($method === 'POST') {
                     curl_setopt($ch, CURLOPT_POST, 1);
