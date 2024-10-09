@@ -338,6 +338,7 @@ class Twitch
      */
     public function initializeWebSocket(): void
     {
+        if ($this->websocketConnection instanceof WebSocket) $this->websocketConnection->close();
         $url = self::WEBSOCKET_URL . '?keepalive_timeout_seconds=' . $this->keepaliveTimeout;
         $this->logger->info('[WEBSOCKET INITIALIZING] Connecting to: ' . $url);
         $reactConnector = new \React\Socket\Connector([
@@ -406,11 +407,10 @@ class Twitch
         $this->logger->info('[WEBSOCKET WELCOME] Session ID: ' . $this->websocketSessionId);
         $promise = $this->subscribeToChatMessageEvent($this->broadcasterId);
         $promise = $promise->then(
-            function ($data) {
-                $this->logger->debug('[CHAT MESSAGE SUBSCRIPTION SUCCESS]');
-                $this->logger->info('[READY]');
+            function (Subscription $subscription) {
                 if (! $this->ready) {
                     $this->ready = true;
+                    $this->logger->info('[READY]');
                     $this->emit('ready');
                 }
             },
@@ -440,9 +440,9 @@ class Twitch
         $promise = $promise->then(
             function ($data) {
                 $subscription = new Subscription($this, $data);
-                //var_dump($subscription);
                 $this->logger->info("[SUBSCRIPTION CREATED] {$subscription->user->id} - {$subscription->data[0]['type']}");
                 $this->emit('eventsub.subscription.create', [$subscription]);
+                return $subscription;
             },
             fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
         );
