@@ -479,6 +479,7 @@ class Twitch
         $this->logger->debug('[WEBSOCKET NOTIFICATION] ' . json_encode($event));
 
         $subscriptionType->handleEvent($event, $this);
+        $this->resetKeepaliveTimer();
     }
 
     /**
