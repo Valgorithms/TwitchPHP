@@ -25,7 +25,7 @@ class Channel
         $this->fill($json_data);
         $this->__afterConstruct();
     }
-    private function __afterConstruct(){
+    private function __afterConstruct() {
         $this->twitch->channelCache->pushItem($this);
         $this->twitch->lastchannel = $this;
         $this->getUserAttribute();
@@ -35,7 +35,7 @@ class Channel
     {
         if (is_string($json_data)) $json_data = json_decode($json_data, true);
         if (is_array($json_data)) array_walk($json_data, function($value, $key) {
-            if (property_exists($this, $key)) $this->$key = $value;
+            if (property_exists($this, $key) && $value !== null && $value !== '') $this->$key = $value;
         });
     }
 
@@ -218,10 +218,21 @@ class Channel
         $this->setAttribute($key, $value);
     }
 
-    public function __debugInfo(): ?array
+    public function __unserialize(array $data): void
+    {
+        $this->fill($data);
+        $this->__afterConstruct();
+    }
+    
+    public function __serialize(): array
     {
         $properties = get_object_vars($this);
         unset($properties['twitch']);
         return $properties;
+    }
+
+    public function __debugInfo(): array
+    {
+        return $this->__serialize();
     }
 }

@@ -425,7 +425,6 @@ class Twitch
             $carry[trim($key)] = (int) trim($value);
             return $carry;
         }, []);
-        var_dump($events);
         foreach ($events as $event => $version) {
             $promise = $this->subscribeToEvent($event, $version, $this->broadcasterId);
             $promise = $promise->then(
@@ -508,6 +507,8 @@ class Twitch
 
     public function handleChannelFollowEvent(array $event): void
     {
+        if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
+        if (! $this->userCache->get('id', $event['user_id'])) new User($this, ['id' => $event['user_id'], 'display_name' => $event['user_name']]);
         $this->logger->info('[CHANNEL FOLLOW] User ' . $event['user_name'] . ' followed ' . $event['broadcaster_user_name'] . ' at ' . $event['followed_at']);
         $this->emit(WebSocketEventType::CHANNEL_FOLLOW->value, [$event]);
     }
@@ -515,42 +516,51 @@ class Twitch
     public function handleChannelChatMessageEvent(array $event): void
     {
         $message = new Message($this, json_encode($event));
+        //if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
+        //if (! $this->userCache->get('id', $event['user_id'])) new User($this, ['id' => $event['chatter_user_id'], 'display_name' => $event['chatter_user_name']]);
         $this->logger->info("[CHANNEL CHAT MESSAGE] #{$message->broadcaster_user_login} - {$message->chatter_user_name}: {$message->message['text']}");
         $this->emit(WebSocketEventType::CHANNEL_CHAT_MESSAGE->value, [$message]);
     }
     
     public function handleChannelChatClearEvent(array $event): void
     {
+        if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
         $this->logger->debug("[CHANNEL CHAT CLEAR] Broadcaster: {$event['broadcaster_user_name']} ({$event['broadcaster_user_id']})");
         $this->emit(WebSocketEventType::CHANNEL_CHAT_CLEAR->value, $event);
     }
 
     public function handleChannelSubscribe(array $event): void
     {
+        if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
+        if (! $this->userCache->get('id', $event['user_id'])) new User($this, ['id' => $event['user_id'], 'display_name' => $event['user_name']]);
         $this->logger->info('[CHANNEL SUBSCRIBE] User ' . $event['user_name'] . ' subscribed to ' . $event['broadcaster_user_name'] . ' at ' . $event['subscribed_at']);
         $this->emit(WebSocketEventType::CHANNEL_SUBSCRIBE->value, [$event]);
     }
 
     public function handleChannelUpdate(array $event): void
     {
+        if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
         $this->logger->info('[CHANNEL UPDATE] ' . $event['broadcaster_user_name'] . ' updated their channel at ' . $event['updated_at']);
         $this->emit(WebSocketEventType::CHANNEL_UPDATE->value, [$event]);
     }
 
     public function handleChannelAdBreakBegin(array $event): void
     {
+        if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
         $this->logger->info('[CHANNEL AD BREAK BEGIN] ' . $event['broadcaster_user_name'] . ' started an ad break at ' . $event['started_at']);
         $this->emit(WebSocketEventType::CHANNEL_AD_BREAK_BEGIN->value, [$event]);
     }
 
     public function handleStreamOnline(array $event): void
     {
+        if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
         $this->logger->info('[STREAM ONLINE] ' . $event['broadcaster_user_name'] . ' started streaming at ' . $event['started_at']);
         $this->emit(WebSocketEventType::STREAM_ONLINE->value, [$event]);
     }
 
     public function handleStreamOffline(array $event): void
     {
+        if (! $this->channelCache->get('broadcaster_user_id', $event['broadcaster_user_id'])) new Channel($this, ['broadcaster_user_id' => $event['broadcaster_user_id'], 'broadcaster_user_login' => $event['broadcaster_user_login'], 'broadcaster_user_name' => $event['broadcaster_user_name']]);
         $this->logger->info('[STREAM OFFLINE] ' . $event['broadcaster_user_name'] . ' stopped streaming at ' . $event['ended_at']);
         $this->emit(WebSocketEventType::STREAM_OFFLINE->value, [$event]);
     }
