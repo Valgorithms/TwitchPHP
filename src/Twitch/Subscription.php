@@ -23,7 +23,8 @@ class Subscription
      *     version: string,
      *     condition: array{
      *         broadcaster_user_id: string,
-     *         user_id: string
+     *         user_id: string,
+     *         moderator_user_id: string,
      *     },
      *     created_at: string,
      *     transport: array{

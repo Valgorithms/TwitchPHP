@@ -405,16 +405,35 @@ class Twitch
         $this->websocketSessionId = $message['payload']['session']['id'];
         $this->keepaliveTimeout = $message['payload']['session']['keepalive_timeout_seconds'];
         $this->logger->debug('[WEBSOCKET WELCOME] Session ID: ' . $this->websocketSessionId);
-        $promise = $this->subscribeToChatMessageEvent($this->broadcasterId);
-        $promise = $promise->then(
-            function (Subscription $subscription) {
+        //$promise = $this->subscribeToEvent('channel.chat.message', $this->broadcasterId);
+        $events = getenv('twitch_events');
+        $events = array_map('trim', explode(',', trim($events, '[]')));
+        $events = array_reduce($events, function ($carry, $item) {
+            [$key, $value] = explode('=>', $item);
+            $carry[trim($key)] = (int) trim($value);
+            return $carry;
+        }, []);
+        var_dump($events);
+        foreach ($events as $event => $version) {
+            $promise = $this->subscribeToEvent($event, $version, $this->broadcasterId);
+            $promise = $promise->then(
+                function (Subscription $subscription) {
+                    if (! $this->ready) {
+                        $this->ready = true;
+                        $this->logger->info('[READY]');
+                        $this->emit('ready');
+                    }
+                },
+                fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
+            );
+        }
+        $promise = $promise->then(function () {
                 if (! $this->ready) {
                     $this->ready = true;
                     $this->logger->info('[READY]');
                     $this->emit('ready');
                 }
-            },
-            fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
+            }, fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
         );
         return $promise;
     }
@@ -424,14 +443,16 @@ class Twitch
      *
      * @return PromiseInterface
      */
-    private function subscribeToChatMessageEvent(string $broadcaster_id): PromiseInterface
+    private function subscribeToEvent(string $event, string $version, string $broadcaster_id): PromiseInterface
     {
+        $this->logger->debug("[SUBSCRIBE] $event");
         $data = [
-            'type' => 'channel.chat.message',
-            'version' => '1',
+            'type' => $event,
+            'version' => $version,
             'condition' => [
                 'broadcaster_user_id' => $broadcaster_id,
-                'user_id' => $broadcaster_id
+                'user_id' => $broadcaster_id,
+                'moderator_user_id' => $broadcaster_id,
             ],
             'transport' => $this->getTransport()
         ];
@@ -440,7 +461,7 @@ class Twitch
         $promise = $promise->then(
             function ($data) {
                 $subscription = new Subscription($this, $data);
-                $this->logger->info("[SUBSCRIPTION CREATED] {$subscription->user->id} - {$subscription->data[0]['type']}");
+                $this->logger->info("[SUBSCRIPTION CREATED] {$subscription->data[0]['condition']['broadcaster_user_id']} - {$subscription->data[0]['type']}");
                 $this->emit('eventsub.subscription.create', [$subscription]);
                 return $subscription;
             },
