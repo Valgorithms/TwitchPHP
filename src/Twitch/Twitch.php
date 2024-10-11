@@ -34,6 +34,7 @@ use React\Socket\SecureConnector;
 use React\Socket\TcpConnector;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Twitch\Factory\Factory;
+use Twitch\Helpers\NullCollection;
 use Twitch\Repository\AbstractRepository;
 
 use function React\Async\await;
@@ -221,7 +222,9 @@ class Twitch
         
         $this->userCache = new Collection([], 'id', User::class);
         $this->channelCache = new Collection([], 'broadcaster_user_id', Channel::class);
-        $this->messageCache = new Collection([], 'message_id', Message::class);
+        $this->messageCache = (getenv('twitch_store_messages'))
+            ? new Collection([], 'message_id', Message::class)
+            : new NullCollection([], 'message_id', Message::class);
         $this->subscriptionCache = new Collection([], 'id', Subscription::class);
         
         
