@@ -20,6 +20,7 @@ use Twitch\Exception\RetryRateLimitException;
 use Twitch\Exception\QueryException;
 
 use function React\Async\await;
+use function React\Async\delay;
 use function React\Promise\resolve;
 use function React\Promise\reject;
 
@@ -42,30 +43,30 @@ class Helix //extends Http
 
     // GET
     public const USER                          = 'api.twitch.tv/helix/users?login=:nick';
-    // PUT
-    public const UPDATE_USER                   = 'api.twitch.tv/helix/users';
+    // GET, PUT
+    public const USERS                         = 'api.twitch.tv/helix/users';
     // POST
     public const START_RAID                    = 'api.twitch.tv/helix/raids?from_broadcaster_id=:from_id&to_broadcaster_id=:to_id';
     // DELETE
     public const CANCEL_RAID                   = 'api.twitch.tv/helix/raids?broadcaster_id=:broadcaster_id';
     // GET
     public const CREATOR_GOALS                 = 'api.twitch.tv/helix/goals?broadcaster_id=:broadcaster_id';
-    // POST, PATCH
+    // GET, POST, PATCH
     public const POLLS                         = 'api.twitch.tv/helix/polls';
     // GET, POST, PATCH
     public const PREDICTIONS                   = 'api.twitch.tv/helix/predictions';
     // GET, POST
     public const CLIPS                         = 'api.twitch.tv/helix/clips';
     // GET, POST
-    public const MARKERS                       = 'api.twitch.tv/helix/streams/markers';
+    public const STREAM_MARKERS                = 'api.twitch.tv/helix/streams/markers';
     // GET, DELETE
     public const VIDEOS                        = 'api.twitch.tv/helix/videos';
     // GET
     public const SCHEDULE                      = 'api.twitch.tv/helix/schedule';
+    // POST, PATCH, DELTE
+    public const SCHEDULE_SEGMENT              = 'api.twitch.tv/helix/schedule/segment';
     // PATCH
-    public const UPDATE_SCHEDULE               = 'api.twitch.tv/helix/schedule/settings';
-    // POST, PATCH, DELETE
-    public const SEGMENT                       = 'api.twitch.tv/helix/schedule/segment';
+    public const SCHEDULE_SETTINGS             = 'api.twitch.tv/helix/schedule/settings';
     // POST
     public const START_COMMERCIAL              = 'api.twitch.tv/helix/channels/commercial';
     // GET
@@ -156,6 +157,72 @@ class Helix //extends Http
     public const TOP_GAMES                        = 'api.twitch.tv/helix/games/top';
     // GET
     public const GAMES                            = 'api.twitch.tv/helix/games';
+    // GET, PUT
+    public const GUEST_STAR_CHANNEL_SETTINGS      = 'api.twitch.tv/helix/guest_star/channel_settings';
+    // GET, POST, DELETE
+    public const GUEST_STAR_SESSION               = 'api.twitch.tv/helix/guest_star/session';
+    // GET, POST, DELETE
+    public const GUEST_STAR_INVITES               = 'api.twitch.tv/helix/guest_star/invites';
+    // POST, PATCH, DELETE
+    public const GUEST_STAR_SLOT                  = 'api.twitch.tv/helix/guest_star/slot';
+    // PATCH
+    public const GUEST_STAR_SLOT_SETTINGS         = 'api.twitch.tv/helix/guest_star/slot_settings';
+    // GET
+    public const HYPE_TRAIN_EVENTS                = 'api.twitch.tv/helix/hypetrain/events';
+    // POST
+    public const AUTOMOD_STATUS                   = 'api.twitch.tv/helix/moderation/enforcements/status';
+    // POST
+    public const HELD_AUTOMOD_MESSAGES            = 'api.twitch.tv/helix/moderation/automod/message';
+    // GET, PUT
+    public const AUTOMOD_SETTINGS                 = 'api.twitch.tv/helix/moderation/automod/settings';
+    // GET
+    public const BANNED_USERS                     = 'api.twitch.tv/helix/moderation/banned';
+    // POST, DELETE
+    public const BANS                             = 'api.twitch.tv/helix/moderation/bans';
+    // GET, PATCH
+    public const UNBAN_REQUESTS                   = 'api.twitch.tv/helix/moderation/unban_requests';
+    // GET, POST, DELETE
+    public const BLOCKED_TERMS                    = 'api.twitch.tv/helix/moderation/blocked_terms';
+    // DELETE
+    public const CHAT_MESSAGES                    = 'api.twitch.tv/helix/moderation/chat';
+    // GET
+    public const MODERATED_CHANNELS               = 'api.twitch.tv/helix/moderation/channels';
+    // GET, POST, DELETE
+    public const MODERATION_MODERATORS            = 'api.twitch.tv/helix/moderation/moderators';
+    // GET, POST, DELETE
+    public const CHANNEL_VIPS                     = 'api.twitch.tv/helix/channels/vips';
+    // GET, PUT
+    public const SHIELD_MODE                      = 'api.twitch.tv/helix/moderation/shield_mode';
+    // POST
+    public const WARNINGS                         = 'api.twitch.tv/helix/moderation/warnings';
+    // GET
+    public const SEARCH_CATEGORIES                = 'api.twitch.tv/helix/search/categories';
+    // GET
+    public const SEARCH_CHANNELS                  = 'api.twitch.tv/helix/search/channels';
+    // GET
+    public const STREAM_KEY                       = 'api.twitch.tv/helix/streams/key';
+    // GET
+    public const STREAMS                          = 'api.twitch.tv/helix/streams';
+    // GET
+    public const FOLLOWED_STREAMS                 = 'api.twitch.tv/helix/streams/followed';
+    // GET
+    public const BROADCASTER_SUBSCRIPTIONS        = 'api.twitch.tv/helix/subscriptions';
+    // GET
+    public const USER_SUBSCRIPTION                = 'api.twitch.tv/helix/subscriptions/user';
+    // GET
+    public const ALL_STREAM_TAGS                  = 'api.twitch.tv/helix/tags/streams';
+    // GET
+    public const STREAM_TAGS                      = 'api.twitch.tv/helix/streams/tags';
+    // GET
+    public const CHANNEL_TEAMS                    = 'api.twitch.tv/helix/teams/channel';
+    // GET
+    public const TEAMS                            = 'api.twitch.tv/helix/teams';
+    // GET, PUT, DELETE
+    public const USER_BLOCKS                      = 'api.twitch.tv/helix/users/blocks';
+    // GET
+    public const USERS_EXTENSIONS_LIST            = 'api.twitch.tv/helix/users/extensions/list';
+    // GET, PUT
+    public const USERS_EXTENSIONS                 = 'api.twitch.tv/helix/users/extensions';
 
     public function __construct(
         public Twitch|MockObject &$twitch
@@ -356,18 +423,16 @@ class Helix //extends Http
             },
             function (\Throwable $error) use ($loop, $url, $method, $data) {
                 error_log("Query failed for URL: $url with error: " . $error->getMessage());
-
                 if ($error instanceof QueryException && $error->getResponse()->status === 429) {
                     $resetTime = $error->getResponse()->headers['Ratelimit-Reset'];
                     $waitTime = $resetTime - time();
-                    $loop->addTimer($waitTime, fn () => self::queryWithRateLimitHandling($loop, $url, $method, $data));
-                    throw $err = new RetryRateLimitException('Rate limit exceeded', 429, null, $error->getResponse()->headers);
                     error_log($err = "Rate limit exceeded for URL: $url. Retrying after $waitTime seconds.");
-                    return $err;
+                    delay($waitTime);
+                    return self::queryWithRateLimitHandling($loop, $url, $method, $data);
+                    //$loop->addTimer($waitTime, fn () => self::queryWithRateLimitHandling($loop, $url, $method, $data));
+                    //throw $err = new RetryRateLimitException('Rate limit exceeded', 429, null, $error->getResponse()->headers);
+                    //return $err;
                 }
-
-                error_log('Rate limit exceeded');
-                
                 return throw new \Exception('Rate limit exceeded', 429, null);
             }
         );
@@ -409,42 +474,20 @@ class Helix //extends Http
     }
 
     /**
-     * Updates the specified user's information.
+     * Starts a raid by sending the broadcaster’s viewers to the targeted channel.
      *
-     * @param string $description The string to update the channel’s description to. The description is limited to a maximum of 300 characters.
-     * @param LoopInterface|null $loop The event loop instance (optional).
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     * @param string $fromBroadcasterId The ID of the broadcaster that’s sending the raiding party. This ID must match the user ID in the user access token.
+     * @param string $toBroadcasterId The ID of the broadcaster to raid.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the raid information.
+     * @throws QueryException If the query fails.
      */
-    public static function updateUser(
-        ?string $description = null,
+    public function startRaid(
+        string $fromBroadcasterId,
+        string $toBroadcasterId,
         ?LoopInterface $loop = null
     ): PromiseInterface {
-        if (strlen($description) > 300) return reject(new \Exception('Description is limited to a maximum of 300 characters'));
-        $url = self::UPDATE_USER;
-        $method = 'PUT';
-        $data = [];
-        $data['description'] = $description ?? '';
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
-            : self::query($url, $method, $data);
-
-        return $promise;
-    }
-
-    /**
-     * Starts a raid from one broadcaster to another.
-     * 
-     * @param string $fromId The ID of the broadcaster initiating the raid.
-     * @param string $toId The ID of the broadcaster being raided.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function startRaid(
-        string $fromId,
-        string $toId,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::bindParams(self::START_RAID, ['from_id' => $fromId, 'to_id' => $toId]);
+        $url = self::START_RAID . '?from_broadcaster_id=' . $fromBroadcasterId . '&to_broadcaster_id=' . $toBroadcasterId;
         $method = 'POST';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
@@ -453,17 +496,18 @@ class Helix //extends Http
     }
 
     /**
-     * Cancels a raid initiated by a broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster that initiated the raid.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     * Cancels a pending raid.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that initiated the raid. This ID must match the user ID in the user access token.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the raid is canceled.
+     * @throws QueryException If the query fails.
      */
-    public static function cancelRaid(
+    public function cancelRaid(
         string $broadcasterId,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::bindParams(self::CANCEL_RAID, ['broadcaster_id' => $broadcasterId]);
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::CANCEL_RAID . '?broadcaster_id=' . $broadcasterId;
         $method = 'DELETE';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
@@ -483,180 +527,6 @@ class Helix //extends Http
     ): PromiseInterface
     {
         $url = self::bindParams(self::CREATOR_GOALS, ['broadcaster_id' => $broadcasterId]);
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url)
-            : self::query($url);
-        return $promise;
-    }
-
-    /**
-     * Creates a poll for a broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster creating the poll.
-     * @param string $title The title of the poll.
-     * @param array $choices An array of choices for the poll. Each choice should be an associative array with a 'title' key.
-     * @param int $duration The duration of the poll in seconds.
-     * @param bool $channelPointsVotingEnabled (optional) Whether Channel Points voting is enabled.
-     * @param int $channelPointsPerVote (optional) The number of Channel Points required per additional vote.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function createPoll(
-        string $broadcasterId,
-        string $title,
-        array $choices,
-        int $duration,
-        bool $channelPointsVotingEnabled = false,
-        int $channelPointsPerVote = 0,
-        ?loopInterFace $loop = null
-    ): PromiseInterface {
-        $url = self::POLLS;
-        $method = 'POST';
-        $data = [
-            'broadcaster_id' => $broadcasterId,
-            'title' => $title,
-            'choices' => $choices,
-            'duration' => $duration,
-        ];
-        if ($channelPointsVotingEnabled) {
-            $data['channel_points_voting_enabled'] = true;
-            $data['channel_points_per_vote'] = $channelPointsPerVote;
-        }
-        
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
-            : self::query($url, $method, $data);
-        return $promise;
-    }
-
-    /**
-     * Ends a poll for a broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster ending the poll.
-     * @param string $pollId The ID of the poll to end.
-     * @param string $status The status to set for the poll ('TERMINATED' or 'ARCHIVED').
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function endPoll(
-        string $broadcasterId,
-        string $pollId,
-        string $status,
-        ?loopInterFace $loop = null
-    ): PromiseInterface {
-        $url = self::POLLS;
-        $method = 'PATCH';
-        $data = [
-            'broadcaster_id' => $broadcasterId,
-            'id' => $pollId,
-            'status' => $status,
-        ];
-        
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
-            : self::query($url, $method, $data);
-        return $promise;
-    }
-
-    /**
-     * Gets the current state of polls for a broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster whose polls you want to get.
-     * @param string|null $pollId (optional) The ID of a specific poll to get.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function getPolls(
-        string $broadcasterId,
-        ?string $pollId = null,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::bindParams(self::POLLS, ['broadcaster_id' => $broadcasterId]);
-        if ($pollId !== null) $url .= '&id=' . $pollId;
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url)
-            : self::query($url);
-        return $promise;
-    }
-
-    /**
-     * Creates a prediction for a broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster creating the prediction.
-     * @param string $title The title of the prediction.
-     * @param array $outcomes An array of outcomes for the prediction. Each outcome should be an associative array with a 'title' key.
-     * @param int $predictionWindow The duration of the prediction in seconds.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function createPrediction(
-        string $broadcasterId,
-        string $title,
-        array $outcomes,
-        int $predictionWindow,
-        ?loopInterFace $loop = null
-    ): PromiseInterface {
-        $url = self::PREDICTIONS;
-        $method = 'POST';
-        $data = [
-            'broadcaster_id' => $broadcasterId,
-            'title' => $title,
-            'outcomes' => $outcomes,
-            'prediction_window' => $predictionWindow,
-        ];
-        
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
-            : self::query($url, $method, $data);
-        return $promise;
-    }
-
-    /**
-     * Ends, cancels, or locks a prediction for a broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster ending the prediction.
-     * @param string $predictionId The ID of the prediction to end.
-     * @param string $status The status to set for the prediction ('RESOLVED', 'CANCELED', or 'LOCKED').
-     * @param string|null $winningOutcomeId (optional) The ID of the winning outcome. Required if status is 'RESOLVED'.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function endPrediction(
-        string $broadcasterId,
-        string $predictionId,
-        string $status,
-        ?string $winningOutcomeId = null,
-        ?loopInterFace $loop = null
-    ): PromiseInterface {
-        $url = self::PREDICTIONS;
-        $method = 'PATCH';
-        $data = [
-            'broadcaster_id' => $broadcasterId,
-            'id' => $predictionId,
-            'status' => $status,
-        ];
-        if ($status === 'RESOLVED' && $winningOutcomeId !== null) $data['winning_outcome_id'] = $winningOutcomeId;
-        
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
-            : self::query($url, $method, $data);
-        return $promise;
-    }
-
-    /**
-     * Gets the current state of predictions for a broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster whose predictions you want to get.
-     * @param string|array|null $predictionIds (optional) A specific prediction ID or an array of prediction IDs to get.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function getPredictions(
-        string $broadcasterId,
-        string|array|null $predictionIds = null,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::bindParams(self::PREDICTIONS, ['broadcaster_id' => $broadcasterId]);
-        if ($predictionIds !== null) {
-            if (is_string($predictionIds)) $predictionIds = [$predictionIds];
-            if (is_array($predictionIds) && count($predictionIds) > 0) $url .= '&id=' . implode('&id=', $predictionIds);
-        }
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url)
             : self::query($url);
@@ -761,72 +631,77 @@ class Helix //extends Http
     }
 
     /**
-     * Creates a stream marker for a broadcaster's live stream.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster whose stream you want to mark.
-     * @param string|null $description (optional) A short description to help remind you why you created the marker.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     * Gets information about one or more published videos.
+     *
+     * @param ?array $ids A list of IDs that identify the videos you want to get. You may specify a maximum of 100 IDs.
+     * @param ?string $userId The ID of the user whose list of videos you want to get.
+     * @param ?string $gameId A category or game ID. The response contains a maximum of 500 videos that show this content.
+     * @param ?string $language A filter used to filter the list of videos by the language that the video owner broadcasts in.
+     * @param ?string $period A filter used to filter the list of videos by when they were published. Possible values are: all, day, month, week.
+     * @param ?string $sort The order to sort the returned videos in. Possible values are: time, trending, views.
+     * @param ?string $type A filter used to filter the list of videos by the video's type. Possible values are: all, archive, highlight, upload.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?string $before The cursor used to get the previous page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of published videos.
+     * @throws QueryException If the query fails.
      */
-    public static function createStreamMarker(
-        string $broadcasterId,
-        ?string $description = null,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::MARKERS;
-        $method = 'POST';
-        $data = ['user_id' => $broadcasterId];
-        if ($description !== null) $data['description'] = $description;
-        
+    public function getVideos(
+        ?array $ids = null,
+        ?string $userId = null,
+        ?string $gameId = null,
+        ?string $language = null,
+        ?string $period = 'all',
+        ?string $sort = 'time',
+        ?string $type = 'all',
+        ?int $first = 20,
+        ?string $after = null,
+        ?string $before = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'period' => $period,
+            'sort' => $sort,
+            'type' => $type,
+            'first' => $first,
+        ];
+        if ($ids !== null) foreach ($ids as $id) $queryParams['id'][] = $id;
+        if ($userId !== null) $queryParams['user_id'] = $userId;
+        if ($gameId !== null) $queryParams['game_id'] = $gameId;
+        if ($language !== null) $queryParams['language'] = $language;
+        if ($after !== null) $queryParams['after'] = $after;
+        if ($before !== null) $queryParams['before'] = $before;        
+        $url = self::VIDEOS . '?' . http_build_query($queryParams);
+        $method = 'GET';
         $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
-                ->then(
-                    fn ($response) => $response,
-                    function (\Throwable $error) {
-                        if (isset($error->response->status) && $error->response->status === 400)
-                            throw new \Exception('Bad Request: The request was invalid or cannot be otherwise served.');
-                        throw $error;
-                    }
-                )
-            : self::query($url, $method, $data);
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
         return $promise;
     }
 
     /**
-     * Gets stream markers from the most recent VOD or a specific VOD for a specific broadcaster.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster whose markers you want to get.
-     * @param string|null $videoId (optional) The ID of the specific VOD whose markers you want to get.
-     * @param int|null $first (optional) The number of objects to return. Maximum: 100.
-     * @param string|null $after (optional) The cursor used to fetch the next page of data.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
+     * Deletes one or more videos.
+     *
+     * @param array $ids The list of videos to delete. You can delete a maximum of 5 videos per request.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of IDs of the videos that were deleted.
+     * @throws QueryException If the query fails.
      */
-    public static function getStreamMarkers(
-        string $broadcasterId,
-        ?string $videoId = null,
-        ?int $first = null,
-        ?string $after = null,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $params = ['user_id' => $broadcasterId];
-        if ($videoId !== null) $params['video_id'] = $videoId;
-        if ($first !== null) $params['first'] = $first;
-        if ($after !== null) $params['after'] = $after;
-        $url = self::bindParams(self::MARKERS, $params);
+    public function deleteVideos(
+        array $ids,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [];
+        foreach ($ids as $id) $queryParams['id'][] = $id;
+        $url = self::VIDEOS . '?' . http_build_query($queryParams);
+        $method = 'DELETE';
         $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url)
-                ->then(
-                    fn ($response) => $response,
-                    function (\Throwable $error) {
-                        if (isset($error->response->status) && $error->response->status === 404) throw $error = new \Exception('No VODs found for the specified broadcaster.');
-                        return $error;
-                    }
-                )
-            : self::query($url);
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
         return $promise;
     }
-
+    
     /**
      * Gets videos by their IDs.
      * 
@@ -911,50 +786,6 @@ class Helix //extends Http
     }
 
     /**
-     * Deletes videos by their IDs.
-     * 
-     * @param array $videoIds An array of video IDs to delete.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function deleteVideos(
-        array $videoIds,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::bindParams(self::VIDEOS, ['id' => $videoIds]);
-        $method = 'DELETE';
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url, $method)
-            : self::query($url, $method);
-        return $promise;
-    }
-
-    /**
-     * Gets the broadcaster's streaming schedule.
-     * 
-     * @param string $broadcasterId The ID of the broadcaster whose schedule you want to get.
-     * @param string|null $startTime (optional) The start time to get segments from.
-     * @param string|null $id (optional) The ID of the segment to get.
-     * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
-     */
-    public static function getSchedule(        
-        string $broadcasterId,
-        ?string $startTime = null,
-        ?string $id = null,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $params = ['broadcaster_id' => $broadcasterId];
-        if ($startTime !== null) $params['start_time'] = $startTime;
-        if ($id !== null) $params['id'] = $id;
-        $url = self::bindParams(self::SCHEDULE, $params);
-        $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url)
-            : self::query($url);
-        return $promise;
-    }
-
-    /**
      * Sets the broadcaster's vacation schedule.
      *
      * @param string $broadcasterId The ID of the broadcaster who wants to set their vacation schedule.
@@ -973,7 +804,7 @@ class Helix //extends Http
         ?string $timezone = null,
         ?LoopInterface $loop = null
     ): PromiseInterface {
-        $url = self::UPDATE_SCHEDULE . '?broadcaster_id=' . $broadcasterId;
+        $url = self::SCHEDULE . '?broadcaster_id=' . $broadcasterId;
         $method = 'PATCH';
         $data = ['is_vacation_enabled' => $isVacationEnabled,];
 
@@ -1001,7 +832,7 @@ class Helix //extends Http
         ?loopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId]);
+        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId]);
         $method = 'POST';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
@@ -1024,7 +855,7 @@ class Helix //extends Http
         ?loopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
         $method = 'PATCH';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
@@ -1045,7 +876,7 @@ class Helix //extends Http
         ?loopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
         $method = 'PATCH';
         $data = ['is_canceled' => true];
         $promise = $loop instanceof LoopInterface
@@ -1067,7 +898,7 @@ class Helix //extends Http
         ?loopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
         $method = 'DELETE';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
@@ -2469,6 +2300,1893 @@ class Helix //extends Http
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
             : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets the channel settings for configuration of the Guest Star feature for a particular host.
+     *
+     * @param string $broadcasterId The ID of the broadcaster you want to get guest star settings for.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @return PromiseInterface A promise that resolves to the guest star settings.
+     * @throws QueryException If the query fails.
+     */
+    public function getGuestStarChannelSettings(
+        string $broadcasterId,
+        string $moderatorId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_CHANNEL_SETTINGS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Updates the channel settings for configuration of the Guest Star feature for a particular host.
+     *
+     * @param string $broadcasterId The ID of the broadcaster you want to update Guest Star settings for.
+     * @param array $settings The settings to update for the Guest Star feature.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the settings are updated.
+     * @throws QueryException If the query fails.
+     */
+    public function updateGuestStarChannelSettings(
+        string $broadcasterId,
+        array $settings,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_CHANNEL_SETTINGS . '?broadcaster_id=' . $broadcasterId;
+        $method = 'PUT';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $settings)
+            : self::query($url, $method, $settings);
+        return $promise;
+    }
+
+    /**
+     * Gets information about an ongoing Guest Star session for a particular channel.
+     *
+     * @param string $broadcasterId The ID of the broadcaster hosting the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the session details.
+     * @throws QueryException If the query fails.
+     */
+    public function getGuestStarSession(
+        string $broadcasterId,
+        string $moderatorId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_SESSION . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Programmatically creates a Guest Star session on behalf of the broadcaster.
+     *
+     * @param string $broadcasterId The ID of the broadcaster you want to create a Guest Star session for. Provided broadcaster_id must match the user_id in the auth token.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the session details.
+     * @throws QueryException If the query fails.
+     */
+    public function createGuestStarSession(
+        string $broadcasterId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_SESSION . '?broadcaster_id=' . $broadcasterId;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Programmatically ends a Guest Star session on behalf of the broadcaster.
+     *
+     * @param string $broadcasterId The ID of the broadcaster you want to end a Guest Star session for. Provided broadcaster_id must match the user_id in the auth token.
+     * @param string $sessionId The ID of the session to end on behalf of the broadcaster.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the session details when the session was ended.
+     * @throws QueryException If the query fails.
+     */
+    public function endGuestStarSession(
+        string $broadcasterId,
+        string $sessionId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_SESSION . '?broadcaster_id=' . $broadcasterId . '&session_id=' . $sessionId;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Provides the caller with a list of pending invites to a Guest Star session, including the invitee’s ready status while joining the waiting room.
+     *
+     * @param string $broadcasterId The ID of the broadcaster running the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user_id in the user access token.
+     * @param string $sessionId The session ID to query for invite status.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of pending invites.
+     * @throws QueryException If the query fails.
+     */
+    public function getGuestStarInvites(
+        string $broadcasterId,
+        string $moderatorId,
+        string $sessionId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_INVITES . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&session_id=' . $sessionId;
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Sends an invite to a specified guest on behalf of the broadcaster for a Guest Star session in progress.
+     *
+     * @param string $broadcasterId The ID of the broadcaster running the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user_id in the user access token.
+     * @param string $sessionId The session ID for the invite to be sent on behalf of the broadcaster.
+     * @param string $guestId Twitch User ID for the guest to invite to the Guest Star session.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the invite is sent.
+     * @throws QueryException If the query fails.
+     */
+    public function sendGuestStarInvite(
+        string $broadcasterId,
+        string $moderatorId,
+        string $sessionId,
+        string $guestId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_INVITES . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&session_id=' . $sessionId . '&guest_id=' . $guestId;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Revokes a previously sent invite for a Guest Star session.
+     *
+     * @param string $broadcasterId The ID of the broadcaster running the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user_id in the user access token.
+     * @param string $sessionId The ID of the session for the invite to be revoked on behalf of the broadcaster.
+     * @param string $guestId Twitch User ID for the guest to revoke the Guest Star session invite from.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the invite is revoked.
+     * @throws QueryException If the query fails.
+     */
+    public function deleteGuestStarInvite(
+        string $broadcasterId,
+        string $moderatorId,
+        string $sessionId,
+        string $guestId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_INVITES . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&session_id=' . $sessionId . '&guest_id=' . $guestId;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Allows a previously invited user to be assigned a slot within the active Guest Star session, once that guest has indicated they are ready to join.
+     *
+     * @param string $broadcasterId The ID of the broadcaster running the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user_id in the user access token.
+     * @param string $sessionId The ID of the Guest Star session in which to assign the slot.
+     * @param string $guestId The Twitch User ID corresponding to the guest to assign a slot in the session. This user must already have an invite to this session, and have indicated that they are ready to join.
+     * @param string $slotId The slot assignment to give to the user. Must be a numeric identifier between “1” and “N” where N is the max number of slots for the session.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the guest is assigned to the slot.
+     * @throws QueryException If the query fails.
+     */
+    public function assignGuestStarSlot(
+        string $broadcasterId,
+        string $moderatorId,
+        string $sessionId,
+        string $guestId,
+        string $slotId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_SLOT . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&session_id=' . $sessionId . '&guest_id=' . $guestId . '&slot_id=' . $slotId;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Allows a user to update the assigned slot for a particular user within the active Guest Star session.
+     *
+     * @param string $broadcasterId The ID of the broadcaster running the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user_id in the user access token.
+     * @param string $sessionId The ID of the Guest Star session in which to update slot settings.
+     * @param string $sourceSlotId The slot assignment previously assigned to a user.
+     * @param ?string $destinationSlotId The slot to move this user assignment to. If the destination slot is occupied, the user assigned will be swapped into source_slot_id.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the slot is updated.
+     * @throws QueryException If the query fails.
+     */
+    public function updateGuestStarSlot(
+        string $broadcasterId,
+        string $moderatorId,
+        string $sessionId,
+        string $sourceSlotId,
+        ?string $destinationSlotId = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_SLOT . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&session_id=' . $sessionId . '&source_slot_id=' . $sourceSlotId;
+        if ($destinationSlotId !== null) $url .= '&destination_slot_id=' . $destinationSlotId;
+        $method = 'PATCH';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Allows a caller to remove a slot assignment from a user participating in an active Guest Star session.
+     * This revokes their access to the session immediately and disables their access to publish or subscribe to media within the session.
+     *
+     * @param string $broadcasterId The ID of the broadcaster running the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param string $sessionId The ID of the Guest Star session in which to remove the slot assignment.
+     * @param string $guestId The Twitch User ID corresponding to the guest to remove from the session.
+     * @param string $slotId The slot ID representing the slot assignment to remove from the session.
+     * @param ?string $shouldReinviteGuest Flag signaling that the guest should be reinvited to the session, sending them back to the invite queue.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the slot assignment is removed.
+     * @throws QueryException If the query fails.
+     */
+    public function deleteGuestStarSlot(
+        string $broadcasterId,
+        string $moderatorId,
+        string $sessionId,
+        string $guestId,
+        string $slotId,
+        ?string $shouldReinviteGuest = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_SLOT . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&session_id=' . $sessionId . '&guest_id=' . $guestId . '&slot_id=' . $slotId;
+        if ($shouldReinviteGuest !== null) $url .= '&should_reinvite_guest=' . $shouldReinviteGuest;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Allows a user to update slot settings for a particular guest within a Guest Star session.
+     *
+     * @param string $broadcasterId The ID of the broadcaster running the Guest Star session.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param string $sessionId The ID of the Guest Star session in which to update a slot’s settings.
+     * @param string $slotId The slot assignment that has previously been assigned to a user.
+     * @param array $settings The settings to update for the slot. Possible keys: 'is_audio_enabled', 'is_video_enabled', 'is_live', 'volume'.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the slot settings are updated.
+     * @throws QueryException If the query fails.
+     */
+    public function updateGuestStarSlotSettings(
+        string $broadcasterId,
+        string $moderatorId,
+        string $sessionId,
+        string $slotId,
+        array $settings,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::GUEST_STAR_SLOT_SETTINGS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&session_id=' . $sessionId . '&slot_id=' . $slotId;
+        $method = 'PATCH';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $settings)
+            : self::query($url, $method, $settings);
+        return $promise;
+    }
+
+    /**
+     * Gets information about the broadcaster’s current or most recent Hype Train event.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that’s running the Hype Train. This ID must match the User ID in the user access token.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 1.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of Hype Train events.
+     * @throws QueryException If the query fails.
+     */
+    public function getHypeTrainEvents(
+        string $broadcasterId,
+        ?int $first = 1,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::HYPE_TRAIN_EVENTS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Checks whether AutoMod would flag the specified message for review.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose AutoMod settings and list of blocked terms are used to check the message. This ID must match the user ID in the access token.
+     * @param array $messages The list of messages to check. Each message should be an associative array with 'msg_id' and 'msg_text' keys.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of messages and whether Twitch would approve them for chat.
+     * @throws QueryException If the query fails.
+     */
+    public function checkAutoModStatus(
+        string $broadcasterId,
+        array $messages,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::AUTOMOD_STATUS . '?broadcaster_id=' . $broadcasterId;
+        $method = 'POST';
+        $data = ['data' => $messages];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Allows or denies the message that AutoMod flagged for review.
+     *
+     * @param string $userId The moderator who is approving or denying the held message. This ID must match the user ID in the access token.
+     * @param string $msgId The ID of the message to allow or deny.
+     * @param string $action The action to take for the message. Possible values are: 'ALLOW', 'DENY'.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the message is approved or denied.
+     * @throws QueryException If the query fails.
+     */
+    public function manageHeldAutoModMessages(
+        string $userId,
+        string $msgId,
+        string $action,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::HELD_AUTOMOD_MESSAGES;
+        $method = 'POST';
+        $data = [
+            'user_id' => $userId,
+            'msg_id' => $msgId,
+            'action' => $action,
+        ];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets the broadcaster’s AutoMod settings.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose AutoMod settings you want to get.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the AutoMod settings.
+     * @throws QueryException If the query fails.
+     */
+    public function getAutoModSettings(
+        string $broadcasterId,
+        string $moderatorId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::AUTOMOD_SETTINGS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Updates the broadcaster’s AutoMod settings.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose AutoMod settings you want to update.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param array $settings The AutoMod settings to update. Possible keys: 'aggression', 'bullying', 'disability', 'misogyny', 'overall_level', 'race_ethnicity_or_religion', 'sex_based_terms', 'sexuality_sex_or_gender', 'swearing'.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the updated AutoMod settings.
+     * @throws QueryException If the query fails.
+     */
+    public function updateAutoModSettings(
+        string $broadcasterId,
+        string $moderatorId,
+        array $settings,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::AUTOMOD_SETTINGS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'PUT';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $settings)
+            : self::query($url, $method, $settings);
+        return $promise;
+    }
+
+    /**
+     * Gets all users that the broadcaster banned or put in a timeout.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose list of banned users you want to get. This ID must match the user ID in the access token.
+     * @param ?array $userIds A list of user IDs used to filter the results. To specify more than one ID, include this parameter for each user you want to get. You may specify a maximum of 100 IDs.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?string $before The cursor used to get the previous page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of banned users.
+     * @throws QueryException If the query fails.
+     */
+    public function getBannedUsers(
+        string $broadcasterId,
+        ?array $userIds = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?string $before = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($userIds !== null) foreach ($userIds as $userId) $queryParams['user_id'][] = $userId;
+        if ($after !== null) $queryParams['after'] = $after;
+        if ($before !== null) $queryParams['before'] = $before;
+        $url = self::BANNED_USERS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Bans a user from participating in the specified broadcaster’s chat room or puts them in a timeout.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose chat room the user is being banned from.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param string $userId The ID of the user to ban or put in a timeout.
+     * @param ?int $duration To ban a user indefinitely, don’t include this field. To put a user in a timeout, include this field and specify the timeout period, in seconds.
+     * @param ?string $reason The reason you’re banning the user or putting them in a timeout. The text is user defined and is limited to a maximum of 500 characters.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of banned or timed-out users.
+     * @throws QueryException If the query fails.
+     */
+    public function banUser(
+        string $broadcasterId,
+        string $moderatorId,
+        string $userId,
+        ?int $duration = null,
+        ?string $reason = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::BANS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'POST';
+        $data = [
+            'data' => [
+                'user_id' => $userId,
+                'duration' => $duration,
+                'reason' => $reason,
+            ],
+        ];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Removes the ban or timeout that was placed on the specified user.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose chat room the user is banned from chatting in.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param string $userId The ID of the user to remove the ban or timeout from.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the ban or timeout is removed.
+     * @throws QueryException If the query fails.
+     */
+    public function unbanUser(
+        string $broadcasterId,
+        string $moderatorId,
+        string $userId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::BANS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&user_id=' . $userId;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of unban requests for a broadcaster’s channel.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose channel is receiving unban requests.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s unban requests. This ID must match the user ID in the user access token.
+     * @param string $status Filter by a status. Possible values: 'pending', 'approved', 'denied', 'acknowledged', 'canceled'.
+     * @param ?string $userId The ID used to filter what unban requests are returned.
+     * @param ?string $after Cursor used to get next page of results.
+     * @param ?int $first The maximum number of items to return per page in response.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of unban requests.
+     * @throws QueryException If the query fails.
+     */
+    public function getUnbanRequests(
+        string $broadcasterId,
+        string $moderatorId,
+        string $status,
+        ?string $userId = null,
+        ?string $after = null,
+        ?int $first = 20,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'status' => $status,
+            'first' => $first,
+        ];
+        if ($userId !== null) $queryParams['user_id'] = $userId;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::UNBAN_REQUESTS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Resolves an unban request by approving or denying it.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose channel is approving or denying the unban request.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s unban requests. This ID must match the user ID in the user access token.
+     * @param string $unbanRequestId The ID of the unban request to resolve.
+     * @param string $status Resolution status. Possible values: 'approved', 'denied'.
+     * @param ?string $resolutionText Message supplied by the unban request resolver. The message is limited to a maximum of 500 characters.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the resolved unban request.
+     * @throws QueryException If the query fails.
+     */
+    public function resolveUnbanRequests(
+        string $broadcasterId,
+        string $moderatorId,
+        string $unbanRequestId,
+        string $status,
+        ?string $resolutionText = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::UNBAN_REQUESTS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&unban_request_id=' . $unbanRequestId;
+        $method = 'PATCH';
+        $data = ['status' => $status,];
+        if ($resolutionText !== null) $data['resolution_text'] = $resolutionText;
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets the broadcaster’s list of non-private, blocked words or phrases.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose blocked terms you’re getting.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of blocked terms.
+     * @throws QueryException If the query fails.
+     */
+    public function getBlockedTerms(
+        string $broadcasterId,
+        string $moderatorId,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'first' => $first,
+        ];
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::BLOCKED_TERMS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Adds a word or phrase to the broadcaster’s list of blocked terms.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the list of blocked terms.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param string $text The word or phrase to block from being used in the broadcaster’s chat room. The term must contain a minimum of 2 characters and may contain up to a maximum of 500 characters.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the added blocked term.
+     * @throws QueryException If the query fails.
+     */
+    public function addBlockedTerm(
+        string $broadcasterId,
+        string $moderatorId,
+        string $text,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::BLOCKED_TERMS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'POST';
+        $data = ['text' => $text];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Removes the word or phrase from the broadcaster’s list of blocked terms.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the list of blocked terms.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param string $id The ID of the blocked term to remove from the broadcaster’s list of blocked terms.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the blocked term is removed.
+     * @throws QueryException If the query fails.
+     */
+    public function removeBlockedTerm(
+        string $broadcasterId,
+        string $moderatorId,
+        string $id,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::BLOCKED_TERMS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId . '&id=' . $id;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Removes a single chat message or all chat messages from the broadcaster’s chat room.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the chat room to remove messages from.
+     * @param string $moderatorId The ID of the broadcaster or a user that has permission to moderate the broadcaster’s chat room. This ID must match the user ID in the user access token.
+     * @param ?string $messageId The ID of the message to remove. If not specified, the request removes all messages in the broadcaster’s chat room.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the messages are removed.
+     * @throws QueryException If the query fails.
+     */
+    public function deleteChatMessages(
+        string $broadcasterId,
+        string $moderatorId,
+        ?string $messageId = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+        ];
+        if ($messageId !== null) $queryParams['message_id'] = $messageId;
+        $url = self::CHAT_MESSAGES . '?' . http_build_query($queryParams);
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of channels that the specified user has moderator privileges in.
+     *
+     * @param string $userId A user’s ID. Returns the list of channels that this user has moderator privileges in. This ID must match the user ID in the user OAuth token.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?int $first The maximum number of items to return per page in the response. Minimum page size is 1 item per page and the maximum is 100. The default is 20.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of channels that the user has moderator privileges in.
+     * @throws QueryException If the query fails.
+     */
+    public function getModeratedChannels(
+        string $userId,
+        ?string $after = null,
+        ?int $first = 20,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'user_id' => $userId,
+            'first' => $first,
+        ];
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::MODERATED_CHANNELS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets all users allowed to moderate the broadcaster’s chat room.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose list of moderators you want to get. This ID must match the user ID in the access token.
+     * @param ?array $userIds A list of user IDs used to filter the results. To specify more than one ID, include this parameter for each moderator you want to get. You may specify a maximum of 100 IDs.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of moderators.
+     * @throws QueryException If the query fails.
+     */
+    public function getModerators(
+        string $broadcasterId,
+        ?array $userIds = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($userIds !== null) foreach ($userIds as $userId) $queryParams['user_id'][] = $userId;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::MODERATION_MODERATORS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Adds a moderator to the broadcaster’s chat room.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the chat room. This ID must match the user ID in the access token.
+     * @param string $userId The ID of the user to add as a moderator in the broadcaster’s chat room.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the moderator is added.
+     * @throws QueryException If the query fails.
+     */
+    public function addChannelModerator(
+        string $broadcasterId,
+        string $userId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::MODERATION_MODERATORS . '?broadcaster_id=' . $broadcasterId . '&user_id=' . $userId;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Removes a moderator from the broadcaster’s chat room.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the chat room. This ID must match the user ID in the access token.
+     * @param string $userId The ID of the user to remove as a moderator from the broadcaster’s chat room.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the moderator is removed.
+     * @throws QueryException If the query fails.
+     */
+    public function removeChannelModerator(
+        string $broadcasterId,
+        string $userId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::MODERATION_MODERATORS . '?broadcaster_id=' . $broadcasterId . '&user_id=' . $userId;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of the broadcaster’s VIPs.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose list of VIPs you want to get. This ID must match the user ID in the access token.
+     * @param ?array $userIds Filters the list for specific VIPs. To specify more than one user, include the user_id parameter for each user to get. The maximum number of IDs that you may specify is 100.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of VIPs.
+     * @throws QueryException If the query fails.
+     */
+    public function getVIPs(
+        string $broadcasterId,
+        ?array $userIds = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($userIds !== null) foreach ($userIds as $userId) $queryParams['user_id'][] = $userId;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::CHANNEL_VIPS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Adds the specified user as a VIP in the broadcaster’s channel.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that’s adding the user as a VIP. This ID must match the user ID in the access token.
+     * @param string $userId The ID of the user to give VIP status to.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the VIP is added.
+     * @throws QueryException If the query fails.
+     */
+    public function addChannelVIP(
+        string $broadcasterId,
+        string $userId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::CHANNEL_VIPS . '?broadcaster_id=' . $broadcasterId . '&user_id=' . $userId;
+        $method = 'POST';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Removes the specified user as a VIP in the broadcaster’s channel.
+     *
+     * @param string $broadcasterId The ID of the broadcaster who owns the channel where the user has VIP status.
+     * @param string $userId The ID of the user to remove VIP status from.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the VIP status is removed.
+     * @throws QueryException If the query fails.
+     */
+    public function removeChannelVIP(
+        string $broadcasterId,
+        string $userId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::CHANNEL_VIPS . '?broadcaster_id=' . $broadcasterId . '&user_id=' . $userId;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Updates the broadcaster’s Shield Mode status.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose Shield Mode you want to activate or deactivate.
+     * @param string $moderatorId The ID of the broadcaster or a user that is one of the broadcaster’s moderators. This ID must match the user ID in the access token.
+     * @param bool $isActive A Boolean value that determines whether to activate Shield Mode. Set to true to activate Shield Mode; otherwise, false to deactivate Shield Mode.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the updated Shield Mode status.
+     * @throws QueryException If the query fails.
+     */
+    public function updateShieldModeStatus(
+        string $broadcasterId,
+        string $moderatorId,
+        bool $isActive,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::SHIELD_MODE . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'PUT';
+        $data = ['is_active' => $isActive,];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets the broadcaster’s Shield Mode activation status.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose Shield Mode activation status you want to get.
+     * @param string $moderatorId The ID of the broadcaster or a user that is one of the broadcaster’s moderators. This ID must match the user ID in the access token.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the Shield Mode status.
+     * @throws QueryException If the query fails.
+     */
+    public function getShieldModeStatus(
+        string $broadcasterId,
+        string $moderatorId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+        ];
+        $url = self::SHIELD_MODE . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Warns a user in the specified broadcaster’s chat room, preventing them from chat interaction until the warning is acknowledged.
+     *
+     * @param string $broadcasterId The ID of the channel in which the warning will take effect.
+     * @param string $moderatorId The ID of the twitch user who requested the warning.
+     * @param string $userId The ID of the twitch user to be warned.
+     * @param string $reason A custom reason for the warning. Max 500 chars.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the warning information.
+     * @throws QueryException If the query fails.
+     */
+    public function warnChatUser(
+        string $broadcasterId,
+        string $moderatorId,
+        string $userId,
+        string $reason,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::WARNINGS . '?broadcaster_id=' . $broadcasterId . '&moderator_id=' . $moderatorId;
+        $method = 'POST';
+        $data = [
+            'data' => [
+                'user_id' => $userId,
+                'reason' => $reason,
+            ],
+        ];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of polls that the broadcaster created.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that created the polls. This ID must match the user ID in the user access token.
+     * @param ?array $ids A list of IDs that identify the polls to return. You may specify a maximum of 20 IDs.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 20 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of polls.
+     * @throws QueryException If the query fails.
+     */
+    public function getPolls(
+        string $broadcasterId,
+        ?array $ids = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($ids !== null) foreach ($ids as $id) $queryParams['id'][] = $id;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::POLLS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Creates a poll that viewers in the broadcaster’s channel can vote on.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that’s running the poll. This ID must match the user ID in the user access token.
+     * @param string $title The question that viewers will vote on. The question may contain a maximum of 60 characters.
+     * @param array $choices A list of choices that viewers may choose from. The list must contain a minimum of 2 choices and up to a maximum of 5 choices.
+     * @param int $duration The length of time (in seconds) that the poll will run for. The minimum is 15 seconds and the maximum is 1800 seconds (30 minutes).
+     * @param ?bool $channelPointsVotingEnabled A Boolean value that indicates whether viewers may cast additional votes using Channel Points.
+     * @param ?int $channelPointsPerVote The number of points that the viewer must spend to cast one additional vote.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the created poll.
+     * @throws QueryException If the query fails.
+     */
+    public function createPoll(
+        string $broadcasterId,
+        string $title,
+        array $choices,
+        int $duration,
+        ?bool $channelPointsVotingEnabled = false,
+        ?int $channelPointsPerVote = 0,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::POLLS;
+        $method = 'POST';
+        $data = [
+            'broadcaster_id' => $broadcasterId,
+            'title' => $title,
+            'choices' => $choices,
+            'duration' => $duration,
+            'channel_points_voting_enabled' => $channelPointsVotingEnabled,
+            'channel_points_per_vote' => $channelPointsPerVote,
+        ];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Ends an active poll.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that’s running the poll. This ID must match the user ID in the user access token.
+     * @param string $pollId The ID of the poll to update.
+     * @param string $status The status to set the poll to. Possible values are: TERMINATED, ARCHIVED.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the ended poll.
+     * @throws QueryException If the query fails.
+     */
+    public function endPoll(
+        string $broadcasterId,
+        string $pollId,
+        string $status,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::POLLS;
+        $method = 'PATCH';
+        $data = [
+            'broadcaster_id' => $broadcasterId,
+            'id' => $pollId,
+            'status' => $status,
+        ];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+    
+    /**
+     * Gets a list of Channel Points Predictions that the broadcaster created.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose predictions you want to get. This ID must match the user ID in the user access token.
+     * @param ?array $ids A list of IDs that identify the predictions to return. You may specify a maximum of 25 IDs.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 25 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of predictions.
+     * @throws QueryException If the query fails.
+     */
+    public function getPredictions(
+        string $broadcasterId,
+        ?array $ids = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($ids !== null) foreach ($ids as $id) $queryParams['id'][] = $id;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::PREDICTIONS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Creates a Channel Points Prediction.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that’s running the prediction. This ID must match the user ID in the user access token.
+     * @param string $title The question that the broadcaster is asking. The title is limited to a maximum of 45 characters.
+     * @param array $outcomes The list of possible outcomes that the viewers may choose from. The list must contain a minimum of 2 choices and up to a maximum of 10 choices.
+     * @param int $predictionWindow The length of time (in seconds) that the prediction will run for. The minimum is 30 seconds and the maximum is 1800 seconds (30 minutes).
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the created prediction.
+     * @throws QueryException If the query fails.
+     */
+    public function createPrediction(
+        string $broadcasterId,
+        string $title,
+        array $outcomes,
+        int $predictionWindow,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::PREDICTIONS;
+        $method = 'POST';
+        $data = [
+            'broadcaster_id' => $broadcasterId,
+            'title' => $title,
+            'outcomes' => $outcomes,
+            'prediction_window' => $predictionWindow,
+        ];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Locks, resolves, or cancels a Channel Points Prediction.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that’s running the prediction. This ID must match the user ID in the user access token.
+     * @param string $predictionId The ID of the prediction to update.
+     * @param string $status The status to set the prediction to. Possible values are: RESOLVED, CANCELED, LOCKED.
+     * @param ?string $winningOutcomeId The ID of the winning outcome. Required if status is RESOLVED.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the updated prediction.
+     * @throws QueryException If the query fails.
+     */
+    public function endPrediction(
+        string $broadcasterId,
+        string $predictionId,
+        string $status,
+        ?string $winningOutcomeId = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::PREDICTIONS;
+        $method = 'PATCH';
+        $data = [
+            'broadcaster_id' => $broadcasterId,
+            'id' => $predictionId,
+            'status' => $status,
+        ];
+        if ($status === 'RESOLVED' && $winningOutcomeId !== null) $data['winning_outcome_id'] = $winningOutcomeId;
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets the broadcaster’s streaming schedule.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the streaming schedule you want to get.
+     * @param ?array $ids The IDs of the scheduled segments to return. You may specify a maximum of 100 IDs.
+     * @param ?string $startTime The UTC date and time that identifies when in the broadcaster’s schedule to start returning segments. Specify the date and time in RFC3339 format.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 25 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the broadcaster’s streaming schedule.
+     * @throws QueryException If the query fails.
+     */
+    public function getSchedule(
+        string $broadcasterId,
+        ?array $ids = null,
+        ?string $startTime = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($ids !== null) foreach ($ids as $id) $queryParams['id'][] = $id;
+        if ($startTime !== null) $queryParams['start_time'] = $startTime;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::SCHEDULE . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Adds a single or recurring broadcast to the broadcaster’s streaming schedule.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the schedule to add the broadcast segment to. This ID must match the user ID in the user access token.
+     * @param string $startTime The date and time that the broadcast segment starts. Specify the date and time in RFC3339 format.
+     * @param string $timezone The time zone where the broadcast takes place. Specify the time zone using IANA time zone database format.
+     * @param int $duration The length of time, in minutes, that the broadcast is scheduled to run. The duration must be in the range 30 through 1380 (23 hours).
+     * @param bool $isRecurring A Boolean value that determines whether the broadcast recurs weekly.
+     * @param ?string $categoryId The ID of the category that best represents the broadcast’s content.
+     * @param ?string $title The broadcast’s title. The title may contain a maximum of 140 characters.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the added broadcast segment.
+     * @throws QueryException If the query fails.
+     */
+    public function createScheduleSegment(
+        string $broadcasterId,
+        string $startTime,
+        string $timezone,
+        int $duration,
+        bool $isRecurring,
+        ?string $categoryId = null,
+        ?string $title = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::SCHEDULE_SEGMENT . '?broadcaster_id=' . $broadcasterId;
+        $method = 'POST';
+        $data = [
+            'start_time' => $startTime,
+            'timezone' => $timezone,
+            'duration' => $duration,
+            'is_recurring' => $isRecurring,
+        ];
+        if ($categoryId !== null) $data['category_id'] = $categoryId;
+        if ($title !== null) $data['title'] = $title;
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Updates a scheduled broadcast segment.
+     *
+     * @param string $broadcasterId The ID of the broadcaster who owns the broadcast segment to update. This ID must match the user ID in the user access token.
+     * @param string $segmentId The ID of the broadcast segment to update.
+     * @param ?string $startTime The date and time that the broadcast segment starts. Specify the date and time in RFC3339 format.
+     * @param ?int $duration The length of time, in minutes, that the broadcast is scheduled to run. The duration must be in the range 30 through 1380 (23 hours).
+     * @param ?string $categoryId The ID of the category that best represents the broadcast’s content.
+     * @param ?string $title The broadcast’s title. The title may contain a maximum of 140 characters.
+     * @param ?bool $isCanceled A Boolean value that indicates whether the broadcast is canceled.
+     * @param ?string $timezone The time zone where the broadcast takes place. Specify the time zone using IANA time zone database format.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the updated broadcast segment.
+     * @throws QueryException If the query fails.
+     */
+    public function updateScheduleSegment(
+        string $broadcasterId,
+        string $segmentId,
+        ?string $startTime = null,
+        ?int $duration = null,
+        ?string $categoryId = null,
+        ?string $title = null,
+        ?bool $isCanceled = null,
+        ?string $timezone = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::SCHEDULE_SEGMENT . '?broadcaster_id=' . $broadcasterId . '&id=' . $segmentId;
+        $method = 'PATCH';
+        $data = [];
+        if ($startTime !== null) $data['start_time'] = $startTime;
+        if ($duration !== null) $data['duration'] = $duration;
+        if ($categoryId !== null) $data['category_id'] = $categoryId;
+        if ($title !== null) $data['title'] = $title;
+        if ($isCanceled !== null) $data['is_canceled'] = $isCanceled;
+        if ($timezone !== null) $data['timezone'] = $timezone;
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Removes a broadcast segment from the broadcaster’s streaming schedule.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the streaming schedule. This ID must match the user ID in the user access token.
+     * @param string $segmentId The ID of the broadcast segment to remove.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the broadcast segment is removed.
+     * @throws QueryException If the query fails.
+     */
+    public function deleteScheduleSegment(
+        string $broadcasterId,
+        string $segmentId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::SCHEDULE_SEGMENT . '?broadcaster_id=' . $broadcasterId . '&id=' . $segmentId;
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Updates the broadcaster’s schedule settings, such as scheduling a vacation.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose schedule settings you want to update. The ID must match the user ID in the user access token.
+     * @param ?bool $isVacationEnabled A Boolean value that indicates whether the broadcaster has scheduled a vacation.
+     * @param ?string $vacationStartTime The UTC date and time of when the broadcaster’s vacation starts. Specify the date and time in RFC3339 format.
+     * @param ?string $vacationEndTime The UTC date and time of when the broadcaster’s vacation ends. Specify the date and time in RFC3339 format.
+     * @param ?string $timezone The time zone that the broadcaster broadcasts from. Specify the time zone using IANA time zone database format.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the schedule settings are updated.
+     * @throws QueryException If the query fails.
+     */
+    public function updateScheduleSettings(
+        string $broadcasterId,
+        ?bool $isVacationEnabled = null,
+        ?string $vacationStartTime = null,
+        ?string $vacationEndTime = null,
+        ?string $timezone = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::SCHEDULE_SEGMENT . '?broadcaster_id=' . $broadcasterId;
+        $method = 'PATCH';
+        $data = [];
+        if ($isVacationEnabled !== null) $data['is_vacation_enabled'] = $isVacationEnabled;
+        if ($vacationStartTime !== null) $data['vacation_start_time'] = $vacationStartTime;
+        if ($vacationEndTime !== null) $data['vacation_end_time'] = $vacationEndTime;
+        if ($timezone !== null) $data['timezone'] = $timezone;
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets the games or categories that match the specified query.
+     *
+     * @param string $query The URI-encoded search string.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of games or categories that match the query.
+     * @throws QueryException If the query fails.
+     */
+    public function searchCategories(
+        string $query,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'query' => $query,
+            'first' => $first,
+        ];
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::SEARCH_CATEGORIES . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets the channels that match the specified query and have streamed content within the past 6 months.
+     *
+     * @param string $query The URI-encoded search string.
+     * @param ?bool $liveOnly A Boolean value that determines whether the response includes only channels that are currently streaming live.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of channels that match the query.
+     * @throws QueryException If the query fails.
+     */
+    public function searchChannels(
+        string $query,
+        ?bool $liveOnly = false,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'query' => $query,
+            'live_only' => $liveOnly,
+            'first' => $first,
+        ];
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::SEARCH_CHANNELS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets the channel’s stream key.
+     *
+     * @param string $broadcasterId The ID of the broadcaster that owns the channel. The ID must match the user ID in the access token.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the channel’s stream key.
+     * @throws QueryException If the query fails.
+     */
+    public function getStreamKey(
+        string $broadcasterId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['broadcaster_id' => $broadcasterId,];
+        $url = self::STREAM_KEY . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of all streams.
+     *
+     * @param ?array $userIds A list of user IDs used to filter the list of streams. Returns only the streams of those users that are broadcasting. You may specify a maximum of 100 IDs.
+     * @param ?array $userLogins A list of user login names used to filter the list of streams. Returns only the streams of those users that are broadcasting. You may specify a maximum of 100 login names.
+     * @param ?array $gameIds A list of game (category) IDs used to filter the list of streams. Returns only the streams that are broadcasting the game (category). You may specify a maximum of 100 IDs.
+     * @param ?string $type The type of stream to filter the list of streams by. Possible values are 'all' and 'live'. The default is 'all'.
+     * @param ?array $languages A list of language codes used to filter the list of streams. Returns only streams that broadcast in the specified languages. You may specify a maximum of 100 language codes.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $before The cursor used to get the previous page of results.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of streams.
+     * @throws QueryException If the query fails.
+     */
+    public function getStreams(
+        ?array $userIds = null,
+        ?array $userLogins = null,
+        ?array $gameIds = null,
+        ?string $type = 'all',
+        ?array $languages = null,
+        ?int $first = 20,
+        ?string $before = null,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'type' => $type,
+            'first' => $first,
+        ];
+        if ($userIds !== null) {
+            foreach ($userIds as $userId) {
+                $queryParams['user_id'][] = $userId;
+            }
+        }
+        if ($userLogins !== null) foreach ($userLogins as $userLogin) $queryParams['user_login'][] = $userLogin;
+        if ($gameIds !== null) foreach ($gameIds as $gameId) $queryParams['game_id'][] = $gameId;
+        if ($languages !== null) foreach ($languages as $language) $queryParams['language'][] = $language;
+        if ($before !== null) $queryParams['before'] = $before;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::STREAMS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+    
+    /**
+     * Gets the list of broadcasters that the user follows and that are streaming live.
+     *
+     * @param string $userId The ID of the user whose list of followed streams you want to get. This ID must match the user ID in the access token.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 100.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of live streams of broadcasters that the specified user follows.
+     * @throws QueryException If the query fails.
+     */
+    public function getFollowedStreams(
+        string $userId,
+        ?int $first = 100,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'user_id' => $userId,
+            'first' => $first,
+        ];
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::FOLLOWED_STREAMS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Adds a marker to a live stream.
+     *
+     * @param string $userId The ID of the broadcaster that’s streaming content. This ID must match the user ID in the access token or the user in the access token must be one of the broadcaster’s editors.
+     * @param ?string $description A short description of the marker to help the user remember why they marked the location. The maximum length of the description is 140 characters.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the marker that was added.
+     * @throws QueryException If the query fails.
+     */
+    public function createStreamMarker(
+        string $userId,
+        ?string $description = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::STREAM_MARKERS;
+        $method = 'POST';
+        $data = ['user_id' => $userId,];
+        if ($description !== null) $data['description'] = $description;
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of markers from the user’s most recent stream or from the specified VOD/video.
+     *
+     * @param ?string $userId A user ID. The request returns the markers from this user’s most recent video. This ID must match the user ID in the access token or the user in the access token must be one of the broadcaster’s editors.
+     * @param ?string $videoId A video on demand (VOD)/video ID. The request returns the markers from this VOD/video. The user in the access token must own the video or the user must be one of the broadcaster’s editors.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $before The cursor used to get the previous page of results.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of markers.
+     * @throws QueryException If the query fails.
+     */
+    public function getStreamMarkers(
+        ?string $userId = null,
+        ?string $videoId = null,
+        ?int $first = 20,
+        ?string $before = null,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['first' => $first,];
+        if ($userId !== null) $queryParams['user_id'] = $userId;
+        if ($videoId !== null) $queryParams['video_id'] = $videoId;
+        if ($before !== null) $queryParams['before'] = $before;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::STREAM_MARKERS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of users that subscribe to the specified broadcaster.
+     *
+     * @param string $broadcasterId The broadcaster’s ID. This ID must match the user ID in the access token.
+     * @param ?array $userIds Filters the list to include only the specified subscribers. You may specify a maximum of 100 subscribers.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100 items per page. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?string $before The cursor used to get the previous page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of users that subscribe to the broadcaster.
+     * @throws QueryException If the query fails.
+     */
+    public function getBroadcasterSubscriptions(
+        string $broadcasterId,
+        ?array $userIds = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?string $before = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($userIds !== null) foreach ($userIds as $userId) $queryParams['user_id'][] = $userId;
+        if ($after !== null) $queryParams['after'] = $after;
+        if ($before !== null) $queryParams['before'] = $before;
+        $url = self::BROADCASTER_SUBSCRIPTIONS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Checks whether the user subscribes to the broadcaster’s channel.
+     *
+     * @param string $broadcasterId The ID of a partner or affiliate broadcaster.
+     * @param string $userId The ID of the user that you’re checking to see whether they subscribe to the broadcaster.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the user's subscription status.
+     * @throws QueryException If the query fails.
+     */
+    public function checkUserSubscription(
+        string $broadcasterId,
+        string $userId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'user_id' => $userId,
+        ];
+        $url = self::USER_SUBSCRIPTION . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of all stream tags that Twitch defines.
+     *
+     * @param ?array $tagIds The IDs of the tags to get. Used to filter the list of tags. You may specify a maximum of 100 IDs.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of stream tags.
+     * @throws QueryException If the query fails.
+     */
+    public function getAllStreamTags(
+        ?array $tagIds = null,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['first' => $first];
+        if ($tagIds !== null) foreach ($tagIds as $tagId) $queryParams['tag_id'][] = $tagId;
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::ALL_STREAM_TAGS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets the list of stream tags that the broadcaster or Twitch added to their channel.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose stream tags you want to get.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of stream tags.
+     * @throws QueryException If the query fails.
+     */
+    public function getStreamTags(
+        string $broadcasterId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['broadcaster_id' => $broadcasterId];
+        $url = self::STREAM_TAGS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets the list of Twitch teams that the broadcaster is a member of.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose teams you want to get.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of teams that the broadcaster is a member of.
+     * @throws QueryException If the query fails.
+     */
+    public function getChannelTeams(
+        string $broadcasterId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['broadcaster_id' => $broadcasterId];
+        $url = self::CHANNEL_TEAMS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets information about the specified Twitch team.
+     *
+     * @param ?string $name The name of the team to get. This parameter and the id parameter are mutually exclusive; you must specify the team’s name or ID but not both.
+     * @param ?string $id The ID of the team to get. This parameter and the name parameter are mutually exclusive; you must specify the team’s name or ID but not both.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the team's information.
+     * @throws QueryException If the query fails.
+     */
+    public function getTeam(
+        ?string $name = null,
+        ?string $id = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        if ($name === null && $id === null) throw new QueryException('Either name or id must be specified.');
+        if ($name !== null && $id !== null) throw new QueryException('Specify either name or id, but not both.');
+        $queryParams = [];
+        if ($name !== null) $queryParams['name'] = $name;
+        if ($id !== null) $queryParams['id'] = $id;
+        $url = self::TEAMS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets information about one or more users.
+     *
+     * @param ?array $ids The IDs of the users to get. You may specify a maximum of 100 IDs.
+     * @param ?array $logins The login names of the users to get. You may specify a maximum of 100 login names.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of users.
+     * @throws QueryException If the query fails.
+     */
+    public function getUsers(
+        ?array $ids = null,
+        ?array $logins = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [];
+        if ($ids !== null) foreach ($ids as $id) $queryParams['id'][] = $id;
+        if ($logins !== null) foreach ($logins as $login) $queryParams['login'][] = $login;
+        $url = self::USERS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Updates the specified user’s information.
+     *
+     * @param string $description The string to update the channel’s description to. The description is limited to a maximum of 300 characters.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the updated user information.
+     * @throws QueryException If the query fails.
+     */
+    public function updateUser(
+        string $description = '',
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        if (strlen($description) > 300) return reject(new \Exception('Description is limited to a maximum of 300 characters'));
+        $queryParams = ['description' => $description];
+        $url = self::USERS . '?' . http_build_query($queryParams);
+        $method = 'PUT';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets the list of users that the broadcaster has blocked.
+     *
+     * @param string $broadcasterId The ID of the broadcaster whose list of blocked users you want to get.
+     * @param ?int $first The maximum number of items to return per page in the response. The minimum page size is 1 item per page and the maximum is 100. The default is 20.
+     * @param ?string $after The cursor used to get the next page of results.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of blocked users.
+     * @throws QueryException If the query fails.
+     */
+    public function getUserBlockList(
+        string $broadcasterId,
+        ?int $first = 20,
+        ?string $after = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [
+            'broadcaster_id' => $broadcasterId,
+            'first' => $first,
+        ];
+        if ($after !== null) $queryParams['after'] = $after;
+        $url = self::USER_BLOCKS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+    
+    /**
+     * Blocks the specified user from interacting with or having contact with the broadcaster.
+     *
+     * @param string $targetUserId The ID of the user to block. The API ignores the request if the broadcaster has already blocked the user.
+     * @param ?string $sourceContext The location where the harassment took place that is causing the broadcaster to block the user. Possible values are: chat, whisper.
+     * @param ?string $reason The reason that the broadcaster is blocking the user. Possible values are: harassment, spam, other.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the user is blocked.
+     * @throws QueryException If the query fails.
+     */
+    public function blockUser(
+        string $targetUserId,
+        ?string $sourceContext = null,
+        ?string $reason = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['target_user_id' => $targetUserId,];
+        if ($sourceContext !== null) $queryParams['source_context'] = $sourceContext;
+        if ($reason !== null) $queryParams['reason'] = $reason;
+        $url = self::USER_BLOCKS . '?' . http_build_query($queryParams);
+        $method = 'PUT';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+    
+    /**
+     * Removes the user from the broadcaster’s list of blocked users.
+     *
+     * @param string $targetUserId The ID of the user to remove from the broadcaster’s list of blocked users. The API ignores the request if the broadcaster hasn’t blocked the user.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves when the user is unblocked.
+     * @throws QueryException If the query fails.
+     */
+    public function unblockUser(
+        string $targetUserId,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['target_user_id' => $targetUserId,];
+        $url = self::USER_BLOCKS . '?' . http_build_query($queryParams);
+        $method = 'DELETE';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+
+    /**
+     * Gets a list of all extensions (both active and inactive) that the broadcaster has installed.
+     *
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the list of extensions that the user has installed.
+     * @throws QueryException If the query fails.
+     */
+    public function getUserExtensionsList(
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::USERS_EXTENSIONS_LIST;
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+    
+    /**
+     * Gets the active extensions that the broadcaster has installed for each configuration.
+     *
+     * @param ?string $userId The ID of the broadcaster whose active extensions you want to get.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the active extensions that the broadcaster has installed.
+     * @throws QueryException If the query fails.
+     */
+    public function getUserActiveExtensions(
+        ?string $userId = null,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = [];
+        if ($userId !== null) $queryParams['user_id'] = $userId;
+        $url = self::USERS_EXTENSIONS . '?' . http_build_query($queryParams);
+        $method = 'GET';
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
+        return $promise;
+    }
+    
+    /**
+     * Updates an installed extension’s information.
+     *
+     * @param array $data The extensions to update. The data field is a dictionary of extension types.
+     * @param ?LoopInterface $loop Optional event loop interface.
+     * @return PromiseInterface A promise that resolves to the updated extensions.
+     * @throws QueryException If the query fails.
+     */
+    public function updateUserExtensions(
+        array $data,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::USERS_EXTENSIONS;
+        $method = 'PUT';
+        $data = ['data' => $data];
+        $promise = $loop instanceof LoopInterface
+            ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
+            : self::query($url, $method, $data);
         return $promise;
     }
 }
