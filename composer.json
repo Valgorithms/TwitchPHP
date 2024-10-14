@@ -26,6 +26,7 @@
         "symfony/options-resolver": "^5.1.11 || ^6.0 || ^7.0",
         "team-reflex/discord-php": "dev-master",
         "twitchphp/http": "dev-main",
+        "vzgcoders/helix": "dev-dev",
         "valzargaming/handler": "dev-main",
         "react/dns": "^1.13",
         "react/http": "^1.10"
