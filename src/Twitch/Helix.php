@@ -434,23 +434,6 @@ class Helix //extends Http
         );
     }
 
-    
-   
-    /**
-     * Binds parameters to a URL. Placeholders in the URL should be prefixed with a colon.
-     * 
-     * @param string $url The URL with placeholders.
-     * @param array $params An associative array of parameters to bind to the URL.
-     * @return string The URL with bound parameters.
-     */
-    public static function bindParams(
-        string $url,
-        array $params
-    ): string
-    {
-        return str_replace(array_map(fn($key) => ':' . $key, array_keys($params)), array_values($params), $url);
-    }
-
     /**
      * Retrieves user information based on the provided login name.
      *
