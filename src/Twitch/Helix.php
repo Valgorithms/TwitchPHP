@@ -37,100 +37,96 @@ use function React\Promise\reject;
 class Helix //extends Http
 {
     // Base URLs
-    public const SCHEME                        = 'https://';
-    public const TOKEN                         = 'id.twitch.tv/oauth2/token';
-    public const HELIX                         = 'api.twitch.tv/helix/';
+    public const SCHEME                           = 'https://';
+    public const TOKEN                            = 'id.twitch.tv/oauth2/token';
+    public const HELIX                            = 'api.twitch.tv/helix/';
 
-    // GET
-    public const USER                          = 'api.twitch.tv/helix/users?login=:nick';
     // GET, PUT
-    public const USERS                         = 'api.twitch.tv/helix/users';
-    // POST
-    public const START_RAID                    = 'api.twitch.tv/helix/raids?from_broadcaster_id=:from_id&to_broadcaster_id=:to_id';
-    // DELETE
-    public const CANCEL_RAID                   = 'api.twitch.tv/helix/raids?broadcaster_id=:broadcaster_id';
+    public const USERS                            = 'api.twitch.tv/helix/users';
+    // POST, DELETE
+    public const RAIDS                            = 'api.twitch.tv/helix/raids';
     // GET
-    public const CREATOR_GOALS                 = 'api.twitch.tv/helix/goals?broadcaster_id=:broadcaster_id';
+    public const GOALS                            = 'api.twitch.tv/helix/goals';
     // GET, POST, PATCH
-    public const POLLS                         = 'api.twitch.tv/helix/polls';
+    public const POLLS                            = 'api.twitch.tv/helix/polls';
     // GET, POST, PATCH
-    public const PREDICTIONS                   = 'api.twitch.tv/helix/predictions';
+    public const PREDICTIONS                      = 'api.twitch.tv/helix/predictions';
     // GET, POST
-    public const CLIPS                         = 'api.twitch.tv/helix/clips';
+    public const CLIPS                            = 'api.twitch.tv/helix/clips';
     // GET, POST
-    public const STREAM_MARKERS                = 'api.twitch.tv/helix/streams/markers';
+    public const STREAM_MARKERS                   = 'api.twitch.tv/helix/streams/markers';
     // GET, DELETE
-    public const VIDEOS                        = 'api.twitch.tv/helix/videos';
+    public const VIDEOS                           = 'api.twitch.tv/helix/videos';
     // GET
-    public const SCHEDULE                      = 'api.twitch.tv/helix/schedule';
+    public const SCHEDULE                         = 'api.twitch.tv/helix/schedule';
     // POST, PATCH, DELTE
-    public const SCHEDULE_SEGMENT              = 'api.twitch.tv/helix/schedule/segment';
+    public const SCHEDULE_SEGMENT                 = 'api.twitch.tv/helix/schedule/segment';
     // PATCH
-    public const SCHEDULE_SETTINGS             = 'api.twitch.tv/helix/schedule/settings';
+    public const SCHEDULE_SETTINGS                = 'api.twitch.tv/helix/schedule/settings';
     // POST
-    public const START_COMMERCIAL              = 'api.twitch.tv/helix/channels/commercial';
+    public const START_COMMERCIAL                 = 'api.twitch.tv/helix/channels/commercial';
     // GET
-    public const AD_SCHEDULE                   = 'api.twitch.tv/helix/channels/ads';
+    public const AD_SCHEDULE                      = 'api.twitch.tv/helix/channels/ads';
     // POST
-    public const SNOOZE_NEXT_AD                = 'api.twitch.tv/helix/channels/ads/schedule/snooze';
+    public const SNOOZE_NEXT_AD                   = 'api.twitch.tv/helix/channels/ads/schedule/snooze';
     // GET
-    public const EXTENSION_ANALYTICS           = 'api.twitch.tv/helix/analytics/extensions';
+    public const EXTENSION_ANALYTICS              = 'api.twitch.tv/helix/analytics/extensions';
     // GET
-    public const GAME_ANALYTICS                = 'api.twitch.tv/helix/analytics/games';
+    public const GAME_ANALYTICS                   = 'api.twitch.tv/helix/analytics/games';
     // GET
-    public const BITS_LEADERBOARD              = 'api.twitch.tv/helix/bits/leaderboard';
+    public const BITS_LEADERBOARD                 = 'api.twitch.tv/helix/bits/leaderboard';
     // GET
-    public const CHEERMOTES                    = 'api.twitch.tv/helix/bits/cheermotes';
+    public const CHEERMOTES                       = 'api.twitch.tv/helix/bits/cheermotes';
     // GET
-    public const EXTENSION_TRANSACTIONS        = 'api.twitch.tv/helix/extensions/transactions';
+    public const EXTENSION_TRANSACTIONS           = 'api.twitch.tv/helix/extensions/transactions';
     // GET, PATCH
-    public const CHANNELS                      = 'api.twitch.tv/helix/channels';
+    public const CHANNELS                         = 'api.twitch.tv/helix/channels';
     // GET
-    public const CHANNEL_EDITORS               = 'api.twitch.tv/helix/channels/editors';
+    public const CHANNEL_EDITORS                  = 'api.twitch.tv/helix/channels/editors';
     // GET
-    public const FOLLOWED_CHANNELS             = 'api.twitch.tv/helix/channels/followed';
+    public const FOLLOWED_CHANNELS                = 'api.twitch.tv/helix/channels/followed';
     // GET
-    public const CHANNEL_FOLLOWERS             = 'api.twitch.tv/helix/channels/followers';
+    public const CHANNEL_FOLLOWERS                = 'api.twitch.tv/helix/channels/followers';
     // GET, PATCH, POST, DELETE
-    public const CUSTOM_REWARDS                = 'api.twitch.tv/helix/channel_points/custom_rewards';
+    public const CUSTOM_REWARDS                   = 'api.twitch.tv/helix/channel_points/custom_rewards';
     // GET, PATCH
-    public const CUSTOM_REWARD_REDEMPTIONS     = 'api.twitch.tv/helix/channel_points/custom_rewards/redemptions';
+    public const CUSTOM_REWARD_REDEMPTIONS        = 'api.twitch.tv/helix/channel_points/custom_rewards/redemptions';
     // GET
-    public const CHARITY_CAMPAIGN              = 'api.twitch.tv/helix/charity/campaigns';
+    public const CHARITY_CAMPAIGN                 = 'api.twitch.tv/helix/charity/campaigns';
     // GET
-    public const CHARITY_CAMPAIGN_DONATIONS    = 'api.twitch.tv/helix/charity/donations';
+    public const CHARITY_CAMPAIGN_DONATIONS       = 'api.twitch.tv/helix/charity/donations';
     // GET
-    public const CHATTERS                      = 'api.twitch.tv/helix/chat/chatters';
+    public const CHATTERS                         = 'api.twitch.tv/helix/chat/chatters';
     // GET
-    public const CHANNEL_EMOTES                = 'api.twitch.tv/helix/chat/emotes';
+    public const CHANNEL_EMOTES                   = 'api.twitch.tv/helix/chat/emotes';
     // GET
-    public const GLOBAL_EMOTES                 = 'api.twitch.tv/helix/chat/emotes/global';
+    public const GLOBAL_EMOTES                    = 'api.twitch.tv/helix/chat/emotes/global';
     // GET
-    public const EMOTE_SETS                    = 'api.twitch.tv/helix/chat/emotes/set';
+    public const EMOTE_SETS                       = 'api.twitch.tv/helix/chat/emotes/set';
     // GET
-    public const CHANNEL_CHAT_BADGES           = 'api.twitch.tv/helix/chat/badges';
+    public const CHANNEL_CHAT_BADGES              = 'api.twitch.tv/helix/chat/badges';
     // GET
-    public const GLOBAL_CHAT_BADGES            = 'api.twitch.tv/helix/chat/badges/global';
+    public const GLOBAL_CHAT_BADGES               = 'api.twitch.tv/helix/chat/badges/global';
     // GET, PATCH
-    public const CHAT_SETTINGS                 = 'api.twitch.tv/helix/chat/settings';
+    public const CHAT_SETTINGS                    = 'api.twitch.tv/helix/chat/settings';
     // GET
-    public const SHARED_CHAT_SESSION           = 'api.twitch.tv/helix/shared_chat/session';
+    public const SHARED_CHAT_SESSION              = 'api.twitch.tv/helix/shared_chat/session';
     // GET
-    public const USER_EMOTES                   = 'api.twitch.tv/helix/chat/emotes/user';
+    public const USER_EMOTES                      = 'api.twitch.tv/helix/chat/emotes/user';
     // POST
-    public const CHAT_ANNOUNCEMENTS            = 'api.twitch.tv/helix/chat/announcements';
+    public const CHAT_ANNOUNCEMENTS               = 'api.twitch.tv/helix/chat/announcements';
     // POST
-    public const SHOUTOUTS                     = 'api.twitch.tv/helix/chat/shoutouts';
+    public const SHOUTOUTS                        = 'api.twitch.tv/helix/chat/shoutouts';
     // POST
-    public const SEND_CHAT_MESSAGE             = 'api.twitch.tv/helix/chat/messages';
+    public const SEND_CHAT_MESSAGE                = 'api.twitch.tv/helix/chat/messages';
     // GET, PUT
-    public const USER_CHAT_COLOR               = 'api.twitch.tv/helix/chat/color';
+    public const USER_CHAT_COLOR                  = 'api.twitch.tv/helix/chat/color';
     // GET, POST, PATCH, DELETE
-    public const CONDUITS                      = 'api.twitch.tv/helix/eventsub/conduits';
+    public const CONDUITS                         = 'api.twitch.tv/helix/eventsub/conduits';
     // GET, PATCH
-    public const CONDUIT_SHARDS                = 'api.twitch.tv/helix/eventsub/conduits/shards';
+    public const CONDUIT_SHARDS                   = 'api.twitch.tv/helix/eventsub/conduits/shards';
     // GET
-    public const CONTENT_CLASSIFICATION_LABELS = 'api.twitch.tv/helix/content_classification_labels';
+    public const CONTENT_CLASSIFICATION_LABELS    = 'api.twitch.tv/helix/content_classification_labels';
     // GET, PATH
     public const DROPS_ENTITLEMENTS               = 'api.twitch.tv/helix/entitlements/drops';
     // GET, PUT
@@ -456,20 +452,22 @@ class Helix //extends Http
     }
 
     /**
-     * Retrieves user information from Twitch.
+     * Retrieves user information based on the provided login name.
+     *
+     * @param string $login The login name of the user to retrieve.
+     * @param ?LoopInterface $loop Optional event loop interface for handling asynchronous operations.
      * 
-     * @param string $nick The Twitch username to retrieve information for.
-     * @return PromiseInterface<string> A promise that resolves with the user information or rejects with an error.
+     * @return PromiseInterface A promise that resolves to the user information.
      */
-    public static function getUser(
-        string $nick,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::bindParams(self::USER, ['nick' => $nick]);
+    public function getUser(
+        string $login,
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $url = self::USERS . '?' . http_build_query(['login' => $login]);
+        $method = 'GET';
         $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url)
-            : self::query($url);
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
         return $promise;
     }
 
@@ -487,7 +485,11 @@ class Helix //extends Http
         string $toBroadcasterId,
         ?LoopInterface $loop = null
     ): PromiseInterface {
-        $url = self::START_RAID . '?from_broadcaster_id=' . $fromBroadcasterId . '&to_broadcaster_id=' . $toBroadcasterId;
+        $queryParams = [
+            'from_broadcaster_id' => $fromBroadcasterId,
+            'to_broadcaster_id' => $toBroadcasterId,
+        ];
+        $url = self::RAIDS . '?' . http_build_query($queryParams);
         $method = 'POST';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
@@ -507,7 +509,8 @@ class Helix //extends Http
         string $broadcasterId,
         ?LoopInterface $loop = null
     ): PromiseInterface {
-        $url = self::CANCEL_RAID . '?broadcaster_id=' . $broadcasterId;
+        $queryParams = ['broadcaster_id' => $broadcasterId];
+        $url = self::RAIDS . '?' . http_build_query($queryParams);
         $method = 'DELETE';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
@@ -521,15 +524,16 @@ class Helix //extends Http
      * @param string $broadcasterId The ID of the broadcaster whose goals you want to get.
      * @return PromiseInterface<string> A promise that resolves with the result or rejects with an error.
      */
-    public static function getCreatorGoals(
+    public function getCreatorGoals(
         string $broadcasterId,
-        ?loopInterFace $loop = null
-    ): PromiseInterface
-    {
-        $url = self::bindParams(self::CREATOR_GOALS, ['broadcaster_id' => $broadcasterId]);
+        ?LoopInterface $loop = null
+    ): PromiseInterface {
+        $queryParams = ['broadcaster_id' => $broadcasterId];
+        $url = self::GOALS . '?' . http_build_query($queryParams);
+        $method = 'GET';
         $promise = $loop instanceof LoopInterface
-            ? self::queryWithRateLimitHandling($loop, $url)
-            : self::query($url);
+            ? self::queryWithRateLimitHandling($loop, $url, $method)
+            : self::query($url, $method);
         return $promise;
     }
 
@@ -541,14 +545,14 @@ class Helix //extends Http
      */
     public static function createClip(
         string $broadcasterId,
-        ?loopInterFace $loop = null
+        ?LoopInterface $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::CLIPS, ['broadcaster_id' => $broadcasterId]);
+        $url = self::CLIPS . '?' . http_build_query(['broadcaster_id' => $broadcasterId]);
         $method = 'POST';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
-            : self::query($url);
+            : self::query($url, $method);
         return $promise;
     }
 
@@ -564,7 +568,7 @@ class Helix //extends Http
         string $broadcasterId,
         ?string $startedAt = null,
         ?string $endedAt = null,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
         $params = ['broadcaster_id' => $broadcasterId];
@@ -575,7 +579,7 @@ class Helix //extends Http
                 $params['ended_at'] = $endDate;
             } else $params['ended_at'] = $endedAt;
         }
-        $url = self::bindParams(self::CLIPS, $params);
+        $url = self::CLIPS . '?' . http_build_query($params);
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url)
             : self::query($url);
@@ -594,7 +598,7 @@ class Helix //extends Http
         string $gameId,
         ?string $startedAt = null,
         ?string $endedAt = null,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
         $params = ['game_id' => $gameId];
@@ -605,7 +609,7 @@ class Helix //extends Http
                 $params['ended_at'] = $endDate;
             } else $params['ended_at'] = $endedAt;
         }
-        $url = self::bindParams(self::CLIPS, $params);
+        $url = self::CLIPS . '?' . http_build_query($params);
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url)
             : self::query($url);
@@ -620,7 +624,7 @@ class Helix //extends Http
      */
     public static function getSpecificClips(
         array $clipIds,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
         $url = self::CLIPS . '?id=' . implode('&id=', $clipIds);
@@ -710,10 +714,10 @@ class Helix //extends Http
      */
     public static function getVideosById(
         array $videoIds,
-        ?loopInterFace $loop = null
+        ?LoopInterface $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::VIDEOS, ['id' => $videoIds]);
+        $url = self::VIDEOS . '?' . http_build_query(['id' => $videoIds]);
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url)
             : self::query($url);
@@ -734,14 +738,14 @@ class Helix //extends Http
         ?string $type = null,
         ?int $first = null,
         ?string $after = null,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
         $params = ['user_id' => $broadcasterId];
         if ($type !== null) $params['type'] = $type;
         if ($first !== null) $params['first'] = $first;
         if ($after !== null) $params['after'] = $after;
-        $url = self::bindParams(self::VIDEOS, $params);
+        $url = self::VIDEOS . '?' . http_build_query($params);
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url)
             : self::query($url);
@@ -768,7 +772,7 @@ class Helix //extends Http
         ?string $sort = null,
         ?int $first = null,
         ?string $after = null,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
         $params = ['game_id' => $gameId];
@@ -778,7 +782,7 @@ class Helix //extends Http
         if ($sort !== null) $params['sort'] = $sort;
         if ($first !== null) $params['first'] = $first;
         if ($after !== null) $params['after'] = $after;
-        $url = self::bindParams(self::VIDEOS, $params);
+        $url = self::VIDEOS . '?' . http_build_query($params);
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url)
             : self::query($url);
@@ -829,10 +833,10 @@ class Helix //extends Http
     public static function createSegment(
         string $broadcasterId,
         array $data,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId]);
+        $url = self::SCHEDULE_SEGMENT . '?' . http_build_query(['broadcaster_id' => $broadcasterId]);
         $method = 'POST';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
@@ -852,10 +856,10 @@ class Helix //extends Http
         string $broadcasterId,
         string $segmentId,
         array $data,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $url = self::SCHEDULE_SEGMENT . '?' . http_build_query(['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
         $method = 'PATCH';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method, $data)
@@ -873,10 +877,10 @@ class Helix //extends Http
     public static function cancelSegment(
         string $broadcasterId,
         string $segmentId,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $url = self::SCHEDULE_SEGMENT . '?' . http_build_query(['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
         $method = 'PATCH';
         $data = ['is_canceled' => true];
         $promise = $loop instanceof LoopInterface
@@ -895,10 +899,10 @@ class Helix //extends Http
     public static function deleteSegment(
         string $broadcasterId,
         string $segmentId,
-        ?loopInterFace $loop = null
+        ?LoopInterFace $loop = null
     ): PromiseInterface
     {
-        $url = self::bindParams(self::SCHEDULE_SEGMENT, ['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
+        $url = self::SCHEDULE_SEGMENT . '?' . http_build_query(['broadcaster_id' => $broadcasterId, 'id' => $segmentId]);
         $method = 'DELETE';
         $promise = $loop instanceof LoopInterface
             ? self::queryWithRateLimitHandling($loop, $url, $method)
