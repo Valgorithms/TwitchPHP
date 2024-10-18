@@ -632,10 +632,10 @@ class Twitch
      *
      * @return Factory
      */
-    public function getFactory(): Factory
+    /*public function getFactory(): Factory
     {
         return $this->factory;
-    }
+    }*/
 
     /**
      * Gets the Helix client.
