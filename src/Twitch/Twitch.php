@@ -287,9 +287,7 @@ class Twitch
 
         $this->on('PRIVMSG', fn($data) => $this->privmsg($data));
         $this->on('PING', fn($data) => $this->pingPong());
-        $this->on('ready', function() {
-            if ($channel = $this->channelCache->get('broadcaster_user_login', $this->nick)) $channel->sendMessage('TwitchPHP Online!');
-        });
+        $this->once('ready', fn() => $this->channelCache->get('broadcaster_user_login', $this->nick)?->sendMessage('TwitchPHP Online!'));
     }
     
     /**
