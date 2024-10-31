@@ -35,6 +35,9 @@ use React\Socket\TcpConnector;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Twitch\Factory\Factory;
 use Twitch\Helpers\NullCollection;
+use Twitch\Parts\Channel;
+use Twitch\Parts\Message;
+use Twitch\Parts\User;
 use Twitch\Repository\AbstractRepository;
 
 use function React\Async\await;
@@ -144,13 +147,6 @@ class Twitch
     protected $http;
 
     /**
-     * The part/repository factory.
-     *
-     * @var Factory Part factory.
-     */
-    protected $factory;
-
-    /**
      * The cache configuration.
      *
      * @var CacheConfig[]
@@ -220,11 +216,11 @@ class Twitch
             }
         }
         
-        $this->userCache = new Collection([], 'id', User::class);
         $this->channelCache = new Collection([], 'broadcaster_user_id', Channel::class);
         $this->messageCache = (getenv('twitch_store_messages'))
             ? new Collection([], 'message_id', Message::class)
             : new NullCollection([], 'message_id', Message::class);
+        $this->userCache = new Collection([], 'id', User::class);
         $this->subscriptionCache = new Collection([], 'id', Subscription::class);
         
         
@@ -334,6 +330,32 @@ class Twitch
         return $message;
     }
 
+    private function InitializeBroadcaster(): void
+    {
+        if (is_file('user.json')) {
+            $contents = file_get_contents('user.json');
+            if ($user = json_decode($contents, true)) {
+                if ($this->nick === strtolower($user['display_name'] ?? '')) {
+                    $this->logger->info('User data loaded from file');
+                    $this->userCache->set($user['id'], new User($this, $user));
+                    return;
+                }
+            }
+        }
+        
+        if (false && $user = await(Helix::getUser())) { // Disabled for now
+            if (isset($user['error'])) {
+                $this->logger->error('Failed to get user data for ' . $this->nick);
+                return;
+            }
+            file_put_contents('user.json', json_encode($user));
+            $this->logger->info('User data fetched from API and saved to file');
+            //$this->userCache->set($user['id'], new User($this, $user));
+            return;
+        }
+        $this->logger->warning("No user data cached for {$this->nick}. This is normal.");
+    }
+
     private function getTransport(string $method = 'websocket', ?string $callback = null): array
     {
         return match ($method) {
@@ -419,6 +441,7 @@ class Twitch
         $this->keepaliveTimeout = $message['payload']['session']['keepalive_timeout_seconds'];
         $this->logger->debug('[WEBSOCKET WELCOME] Session ID: ' . $this->websocketSessionId);
         //$promise = $this->subscribeToEvent('channel.chat.message', $this->broadcasterId);
+        $this->events = $events = getenv('twitch_events');
         $events = getenv('twitch_events');
         $events = array_map('trim', explode(',', trim($events, '[]')));
         $events = array_reduce($events, function ($carry, $item) {
@@ -426,26 +449,30 @@ class Twitch
             $carry[trim($key)] = (int) trim($value);
             return $carry;
         }, []);
-        foreach ($events as $event => $version) {
-            $promise = $this->subscribeToEvent($event, $version, $this->broadcasterId);
-            $promise = $promise->then(
-                function (Subscription $subscription) {
-                    if (! $this->ready) {
-                        $this->ready = true;
-                        $this->logger->info('[READY]');
-                        $this->emit('ready');
-                    }
-                },
-                fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
-            );
-        }
-        $promise = $promise->then(function () {
+        
+        $first_event = array_key_first($events);
+        $first_version = array_shift($events);
+        $promise = array_reduce(
+            array_keys($events),
+            function ($promise, $event) use ($events) {
+                $version = $events[$event];
+                return $promise->then(
+                    fn () => $this->subscribeToEvent($event, $version, $this->broadcasterId),
+                    fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
+                );
+            },
+            $this->subscribeToEvent($first_event, $first_version, $this->broadcasterId)
+        );
+        $promise->then(
+            function () {
                 if (! $this->ready) {
                     $this->ready = true;
                     $this->logger->info('[READY]');
                     $this->emit('ready');
+                    $this->initializeBroadcaster();
                 }
-            }, fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
+            },
+            fn (\Exception $error) => $this->logger->error('[SUBSCRIPTION ERROR] ' . $error->getMessage())
         );
         return $promise;
     }
