@@ -22,7 +22,7 @@
         "react/socket": "^1.16",
         "react/stream": "^1.1",
         "symfony/options-resolver": "^5.1.11 || ^6.0 || ^7.0",
-        "team-reflex/discord-php": "dev-master",
+        "team-reflex/discord-php": "^10.0.0 || dev-master"
         "twitchphp/http": "dev-main",
         "valzargaming/handler": "dev-main",
         "react/dns": "^1.13",
