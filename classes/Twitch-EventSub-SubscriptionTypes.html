@@ -1,0 +1,3298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+            <title>TwitchPHP Documentation</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="../">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png"/>
+    <link rel="icon" href="images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png"/>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/base.css">
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/template.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
+                <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
+        <script src="js/template.js"></script>
+        <script src="js/search.js"></script>
+        <script defer src="js/searchIndex.js"></script>
+    </head>
+<body id="top">
+    <header class="phpdocumentor-header phpdocumentor-section">
+    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">TwitchPHP Documentation</a></h1>
+    <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
+    <label class="phpdocumentor-header__menu-icon" for="menu-button">
+        <i class="fas fa-bars"></i>
+    </label>
+    <section data-search-form class="phpdocumentor-search">
+    <label>
+        <span class="visually-hidden">Search for</span>
+        <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2"/>
+            <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3"/>
+        </svg>
+        <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .." disabled />
+    </label>
+</section>
+
+    <nav class="phpdocumentor-topnav">
+    <ul class="phpdocumentor-topnav__menu">
+        </ul>
+</nav>
+</header>
+
+    <main class="phpdocumentor">
+        <div class="phpdocumentor-section">
+            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button" name="sidebar-button" />
+<label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
+    Menu
+</label>
+<aside class="phpdocumentor-column -three phpdocumentor-sidebar">
+                    <section class="phpdocumentor-sidebar__category -namespaces">
+            <h2 class="phpdocumentor-sidebar__category-header">Namespaces</h2>
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="namespaces/twitch.html" class="">Twitch</a>
+</h4>
+    <ul class="phpdocumentor-list">
+                    <li>
+                <a href="namespaces/twitch-chat.html" class="">Chat</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/twitch-eventsub.html" class="">EventSub</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/twitch-factory.html" class="">Factory</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/twitch-parts.html" class="">Parts</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/twitch-repository.html" class="">Repository</a>
+                
+            </li>
+            </ul>
+
+                        </section>
+                <section class="phpdocumentor-sidebar__category -packages">
+            <h2 class="phpdocumentor-sidebar__category-header">Packages</h2>
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="packages/Application.html" class="">Application</a>
+</h4>
+
+                        </section>
+            
+    <section class="phpdocumentor-sidebar__category -reports">
+        <h2 class="phpdocumentor-sidebar__category-header">Reports</h2>
+                <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/deprecated.html">Deprecated</a></h3>
+        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/errors.html">Errors</a></h3>
+        <h3 class="phpdocumentor-sidebar__root-package"><a href="reports/markers.html">Markers</a></h3>
+    </section>
+
+    <section class="phpdocumentor-sidebar__category -indices">
+        <h2 class="phpdocumentor-sidebar__category-header">Indices</h2>
+        <h3 class="phpdocumentor-sidebar__root-package"><a href="indices/files.html">Files</a></h3>
+    </section>
+</aside>
+
+            <div class="phpdocumentor-column -nine phpdocumentor-content">
+                                <section>
+                                        <ul class="phpdocumentor-breadcrumbs">
+            <li class="phpdocumentor-breadcrumb"><a href="namespaces/twitch.html">Twitch</a></li>
+            <li class="phpdocumentor-breadcrumb"><a href="namespaces/twitch-eventsub.html">EventSub</a></li>
+    </ul>
+
+    <article class="phpdocumentor-element -class">
+        <h2 class="phpdocumentor-content__title">
+    SubscriptionTypes
+
+    
+            <div class="phpdocumentor-element__package">
+            in package
+            <ul class="phpdocumentor-breadcrumbs">
+                                    <li class="phpdocumentor-breadcrumb"><a href="packages/Application.html">Application</a></li>
+                            </ul>
+        </div>
+    
+    
+    </h2>
+
+<div class="phpdocumentor-label-line">
+
+    <div class="phpdocumentor-label phpdocumentor-label--success"><span>Final</span><span>Yes</span></div>
+
+
+</div>
+
+        <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">24</span>
+
+    </aside>
+
+            <p class="phpdocumentor-summary">Every EventSub subscription type string, plus the version Twitch currently
+expects for it. {@see EventSub::subscribe()} looks the version up here when
+one is not given, so callers never have to remember that `channel.follow` is
+`2` while everything around it is `1`.</p>
+
+
+
+
+    <h5 class="phpdocumentor-tag-list__heading" id="tags">
+        Tags
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#tags" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h5>
+    <dl class="phpdocumentor-tag-list">
+                    <dt class="phpdocumentor-tag-list__entry">
+                <span class="phpdocumentor-tag__name">link</span>
+            </dt>
+                            <dd class="phpdocumentor-tag-list__definition">
+                                                                                                        <a class="phpdocumentor-tag-link" href="https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/"> https://dev.twitch.tv/docs/eventsub/eventsub-subscription-types/ </a>
+                                    </dd>
+                                <dt class="phpdocumentor-tag-list__entry">
+                <span class="phpdocumentor-tag__name">author</span>
+            </dt>
+                            <dd class="phpdocumentor-tag-list__definition">
+                                                                                                            <section class="phpdocumentor-description"><p>Valithor Obsidion <a href="mailto:valithor@valgorithms.com">valithor@valgorithms.com</a></p>
+</section>
+
+                                    </dd>
+                        </dl>
+
+    
+    
+<h3 id="toc">
+    Table of Contents
+    <a href="classes/Twitch-EventSub-SubscriptionTypes.html#toc" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h3>
+
+
+
+
+
+
+
+<h4 id="toc-constants">
+    Constants
+    <a href="classes/Twitch-EventSub-SubscriptionTypes.html#toc-constants" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h4>
+<dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_MESSAGE_HOLD">AUTOMOD_MESSAGE_HOLD</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;automod.message.hold&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_MESSAGE_UPDATE">AUTOMOD_MESSAGE_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;automod.message.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_SETTINGS_UPDATE">AUTOMOD_SETTINGS_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;automod.settings.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_TERMS_UPDATE">AUTOMOD_TERMS_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;automod.terms.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_AD_BREAK_BEGIN">CHANNEL_AD_BREAK_BEGIN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.ad_break.begin&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_BAN">CHANNEL_BAN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.ban&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_BITS_USE">CHANNEL_BITS_USE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.bits.use&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_CLEAR">CHANNEL_CHAT_CLEAR</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat.clear&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_CLEAR_USER_MESSAGES">CHANNEL_CHAT_CLEAR_USER_MESSAGES</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat.clear_user_messages&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_MESSAGE">CHANNEL_CHAT_MESSAGE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat.message&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_MESSAGE_DELETE">CHANNEL_CHAT_MESSAGE_DELETE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat.message_delete&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_NOTIFICATION">CHANNEL_CHAT_NOTIFICATION</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat.notification&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_SETTINGS_UPDATE">CHANNEL_CHAT_SETTINGS_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat_settings.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_USER_MESSAGE_HOLD">CHANNEL_CHAT_USER_MESSAGE_HOLD</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat.user_message_hold&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_USER_MESSAGE_UPDATE">CHANNEL_CHAT_USER_MESSAGE_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.chat.user_message_update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHEER">CHANNEL_CHEER</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.cheer&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_FOLLOW">CHANNEL_FOLLOW</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.follow&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATE">CHANNEL_MODERATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.moderate&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATOR_ADD">CHANNEL_MODERATOR_ADD</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.moderator.add&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATOR_REMOVE">CHANNEL_MODERATOR_REMOVE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.moderator.remove&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD">CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.channel_points_automatic_reward_redemp...                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_ADD">CHANNEL_POINTS_CUSTOM_REWARD_ADD</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.channel_points_custom_reward.add&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD">CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.channel_points_custom_reward_redemptio...                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE">CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.channel_points_custom_reward_redemptio...                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REMOVE">CHANNEL_POINTS_CUSTOM_REWARD_REMOVE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.channel_points_custom_reward.remove&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_UPDATE">CHANNEL_POINTS_CUSTOM_REWARD_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.channel_points_custom_reward.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_BEGIN">CHANNEL_POLL_BEGIN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.poll.begin&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_END">CHANNEL_POLL_END</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.poll.end&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_PROGRESS">CHANNEL_POLL_PROGRESS</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.poll.progress&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_BEGIN">CHANNEL_PREDICTION_BEGIN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.prediction.begin&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_END">CHANNEL_PREDICTION_END</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.prediction.end&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_LOCK">CHANNEL_PREDICTION_LOCK</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.prediction.lock&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_PROGRESS">CHANNEL_PREDICTION_PROGRESS</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.prediction.progress&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_RAID">CHANNEL_RAID</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.raid&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_BEGIN">CHANNEL_SHARED_CHAT_BEGIN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.shared_chat.begin&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_END">CHANNEL_SHARED_CHAT_END</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.shared_chat.end&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_UPDATE">CHANNEL_SHARED_CHAT_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.shared_chat.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIBE">CHANNEL_SUBSCRIBE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.subscribe&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_END">CHANNEL_SUBSCRIPTION_END</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.subscription.end&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_GIFT">CHANNEL_SUBSCRIPTION_GIFT</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.subscription.gift&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_MESSAGE">CHANNEL_SUBSCRIPTION_MESSAGE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.subscription.message&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUSPICIOUS_USER_MESSAGE">CHANNEL_SUSPICIOUS_USER_MESSAGE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.suspicious_user.message&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUSPICIOUS_USER_UPDATE">CHANNEL_SUSPICIOUS_USER_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.suspicious_user.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN">CHANNEL_UNBAN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.unban&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN_REQUEST_CREATE">CHANNEL_UNBAN_REQUEST_CREATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.unban_request.create&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN_REQUEST_RESOLVE">CHANNEL_UNBAN_REQUEST_RESOLVE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.unban_request.resolve&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UPDATE">CHANNEL_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_VIP_ADD">CHANNEL_VIP_ADD</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.vip.add&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_VIP_REMOVE">CHANNEL_VIP_REMOVE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.vip.remove&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_WARNING_ACKNOWLEDGE">CHANNEL_WARNING_ACKNOWLEDGE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.warning.acknowledge&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_WARNING_SEND">CHANNEL_WARNING_SEND</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.warning.send&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_DONATE">CHARITY_CAMPAIGN_DONATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.charity_campaign.donate&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_PROGRESS">CHARITY_CAMPAIGN_PROGRESS</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.charity_campaign.progress&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_START">CHARITY_CAMPAIGN_START</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.charity_campaign.start&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_STOP">CHARITY_CAMPAIGN_STOP</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.charity_campaign.stop&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CONDUIT_SHARD_DISABLED">CONDUIT_SHARD_DISABLED</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;conduit.shard.disabled&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_DROP_ENTITLEMENT_GRANT">DROP_ENTITLEMENT_GRANT</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;drop.entitlement.grant&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_EXTENSION_BITS_TRANSACTION_CREATE">EXTENSION_BITS_TRANSACTION_CREATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;extension.bits_transaction.create&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_BEGIN">GOAL_BEGIN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.goal.begin&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_END">GOAL_END</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.goal.end&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_PROGRESS">GOAL_PROGRESS</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.goal.progress&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_GUEST_UPDATE">GUEST_STAR_GUEST_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.guest_star_guest.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SESSION_BEGIN">GUEST_STAR_SESSION_BEGIN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.guest_star_session.begin&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SESSION_END">GUEST_STAR_SESSION_END</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.guest_star_session.end&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SETTINGS_UPDATE">GUEST_STAR_SETTINGS_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.guest_star_settings.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_BEGIN">HYPE_TRAIN_BEGIN</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.hype_train.begin&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_END">HYPE_TRAIN_END</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.hype_train.end&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_PROGRESS">HYPE_TRAIN_PROGRESS</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.hype_train.progress&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_SHOUTOUT_CREATE">SHOUTOUT_CREATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.shoutout.create&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_SHOUTOUT_RECEIVE">SHOUTOUT_RECEIVE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;channel.shoutout.receive&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_STREAM_OFFLINE">STREAM_OFFLINE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;stream.offline&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_STREAM_ONLINE">STREAM_ONLINE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;stream.online&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_AUTHORIZATION_GRANT">USER_AUTHORIZATION_GRANT</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;user.authorization.grant&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_AUTHORIZATION_REVOKE">USER_AUTHORIZATION_REVOKE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;user.authorization.revoke&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_UPDATE">USER_UPDATE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;user.update&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_WHISPER_MESSAGE">USER_WHISPER_MESSAGE</a>
+    <span>
+        &nbsp;: mixed&nbsp;= &#039;user.whisper.message&#039;                            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -private">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_VERSIONS">VERSIONS</a>
+    <span>
+        &nbsp;: array&lt;string, string&gt;&nbsp;= [self::CHANNEL_UPDATE =&gt; &#039;2&#039;, self::CHANNEL_FOL...                            </span>
+</dt>
+<dd>Types whose current version is not `1`. Anything absent is `1`.</dd>
+
+    </dl>
+
+
+
+<h4 id="toc-methods">
+    Methods
+    <a href="classes/Twitch-EventSub-SubscriptionTypes.html#toc-methods" class="headerlink"><i class="fas fa-link"></i></a>
+
+</h4>
+<dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#method_all">all()</a>
+    <span>
+                                &nbsp;: array&lt;int, string&gt;    </span>
+</dt>
+<dd>Every declared subscription-type string.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#method_isKnown">isKnown()</a>
+    <span>
+                                &nbsp;: bool    </span>
+</dt>
+<dd>Whether `$type` is a known EventSub subscription type.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#method_version">version()</a>
+    <span>
+                                &nbsp;: string    </span>
+</dt>
+<dd>The version Twitch currently expects for `$type` (`&#039;1&#039;` when unlisted).</dd>
+
+    </dl>
+
+
+
+        
+    <section class="phpdocumentor-constants">
+        <h3 class="phpdocumentor-elements__header" id="constants">
+            Constants
+            <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constants" class="headerlink"><i class="fas fa-link"></i></a>
+
+        </h3>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_AUTOMOD_MESSAGE_HOLD">
+        AUTOMOD_MESSAGE_HOLD
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_MESSAGE_HOLD" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">102</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">AUTOMOD_MESSAGE_HOLD</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;automod.message.hold&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_AUTOMOD_MESSAGE_UPDATE">
+        AUTOMOD_MESSAGE_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_MESSAGE_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">103</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">AUTOMOD_MESSAGE_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;automod.message.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_AUTOMOD_SETTINGS_UPDATE">
+        AUTOMOD_SETTINGS_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_SETTINGS_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">104</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">AUTOMOD_SETTINGS_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;automod.settings.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_AUTOMOD_TERMS_UPDATE">
+        AUTOMOD_TERMS_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_TERMS_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">105</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">AUTOMOD_TERMS_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;automod.terms.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_AD_BREAK_BEGIN">
+        CHANNEL_AD_BREAK_BEGIN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_AD_BREAK_BEGIN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">29</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_AD_BREAK_BEGIN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.ad_break.begin&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_BAN">
+        CHANNEL_BAN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_BAN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">47</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_BAN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.ban&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_BITS_USE">
+        CHANNEL_BITS_USE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_BITS_USE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">56</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_BITS_USE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.bits.use&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_CLEAR">
+        CHANNEL_CHAT_CLEAR
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_CLEAR" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">30</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_CLEAR</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat.clear&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_CLEAR_USER_MESSAGES">
+        CHANNEL_CHAT_CLEAR_USER_MESSAGES
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_CLEAR_USER_MESSAGES" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">31</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_CLEAR_USER_MESSAGES</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat.clear_user_messages&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_MESSAGE">
+        CHANNEL_CHAT_MESSAGE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_MESSAGE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">32</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_MESSAGE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat.message&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_MESSAGE_DELETE">
+        CHANNEL_CHAT_MESSAGE_DELETE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_MESSAGE_DELETE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">33</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_MESSAGE_DELETE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat.message_delete&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_NOTIFICATION">
+        CHANNEL_CHAT_NOTIFICATION
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_NOTIFICATION" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">34</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_NOTIFICATION</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat.notification&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_SETTINGS_UPDATE">
+        CHANNEL_CHAT_SETTINGS_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_SETTINGS_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">35</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_SETTINGS_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat_settings.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_USER_MESSAGE_HOLD">
+        CHANNEL_CHAT_USER_MESSAGE_HOLD
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_USER_MESSAGE_HOLD" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">36</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_USER_MESSAGE_HOLD</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat.user_message_hold&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHAT_USER_MESSAGE_UPDATE">
+        CHANNEL_CHAT_USER_MESSAGE_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_USER_MESSAGE_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">37</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHAT_USER_MESSAGE_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.chat.user_message_update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_CHEER">
+        CHANNEL_CHEER
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHEER" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">45</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_CHEER</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.cheer&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_FOLLOW">
+        CHANNEL_FOLLOW
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_FOLLOW" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">28</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_FOLLOW</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.follow&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_MODERATE">
+        CHANNEL_MODERATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">51</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_MODERATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.moderate&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_MODERATOR_ADD">
+        CHANNEL_MODERATOR_ADD
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATOR_ADD" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">52</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_MODERATOR_ADD</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.moderator.add&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_MODERATOR_REMOVE">
+        CHANNEL_MODERATOR_REMOVE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATOR_REMOVE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">53</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_MODERATOR_REMOVE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.moderator.remove&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD">
+        CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">63</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.channel_points_automatic_reward_redemption.add&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POINTS_CUSTOM_REWARD_ADD">
+        CHANNEL_POINTS_CUSTOM_REWARD_ADD
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_ADD" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">64</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POINTS_CUSTOM_REWARD_ADD</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.channel_points_custom_reward.add&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD">
+        CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">67</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.channel_points_custom_reward_redemption.add&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE">
+        CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">68</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.channel_points_custom_reward_redemption.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POINTS_CUSTOM_REWARD_REMOVE">
+        CHANNEL_POINTS_CUSTOM_REWARD_REMOVE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REMOVE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">66</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POINTS_CUSTOM_REWARD_REMOVE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.channel_points_custom_reward.remove&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POINTS_CUSTOM_REWARD_UPDATE">
+        CHANNEL_POINTS_CUSTOM_REWARD_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">65</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POINTS_CUSTOM_REWARD_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.channel_points_custom_reward.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POLL_BEGIN">
+        CHANNEL_POLL_BEGIN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_BEGIN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">71</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POLL_BEGIN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.poll.begin&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POLL_END">
+        CHANNEL_POLL_END
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_END" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">73</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POLL_END</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.poll.end&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_POLL_PROGRESS">
+        CHANNEL_POLL_PROGRESS
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_PROGRESS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">72</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_POLL_PROGRESS</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.poll.progress&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_PREDICTION_BEGIN">
+        CHANNEL_PREDICTION_BEGIN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_BEGIN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">74</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_PREDICTION_BEGIN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.prediction.begin&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_PREDICTION_END">
+        CHANNEL_PREDICTION_END
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_END" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">77</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_PREDICTION_END</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.prediction.end&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_PREDICTION_LOCK">
+        CHANNEL_PREDICTION_LOCK
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_LOCK" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">76</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_PREDICTION_LOCK</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.prediction.lock&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_PREDICTION_PROGRESS">
+        CHANNEL_PREDICTION_PROGRESS
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_PROGRESS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">75</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_PREDICTION_PROGRESS</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.prediction.progress&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_RAID">
+        CHANNEL_RAID
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_RAID" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">46</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_RAID</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.raid&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SHARED_CHAT_BEGIN">
+        CHANNEL_SHARED_CHAT_BEGIN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_BEGIN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">38</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SHARED_CHAT_BEGIN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.shared_chat.begin&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SHARED_CHAT_END">
+        CHANNEL_SHARED_CHAT_END
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_END" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">40</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SHARED_CHAT_END</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.shared_chat.end&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SHARED_CHAT_UPDATE">
+        CHANNEL_SHARED_CHAT_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">39</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SHARED_CHAT_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.shared_chat.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SUBSCRIBE">
+        CHANNEL_SUBSCRIBE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIBE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">41</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SUBSCRIBE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.subscribe&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SUBSCRIPTION_END">
+        CHANNEL_SUBSCRIPTION_END
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_END" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">42</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SUBSCRIPTION_END</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.subscription.end&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SUBSCRIPTION_GIFT">
+        CHANNEL_SUBSCRIPTION_GIFT
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_GIFT" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">43</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SUBSCRIPTION_GIFT</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.subscription.gift&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SUBSCRIPTION_MESSAGE">
+        CHANNEL_SUBSCRIPTION_MESSAGE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_MESSAGE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">44</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SUBSCRIPTION_MESSAGE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.subscription.message&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SUSPICIOUS_USER_MESSAGE">
+        CHANNEL_SUSPICIOUS_USER_MESSAGE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUSPICIOUS_USER_MESSAGE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">59</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SUSPICIOUS_USER_MESSAGE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.suspicious_user.message&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_SUSPICIOUS_USER_UPDATE">
+        CHANNEL_SUSPICIOUS_USER_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUSPICIOUS_USER_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">60</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_SUSPICIOUS_USER_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.suspicious_user.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_UNBAN">
+        CHANNEL_UNBAN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">48</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_UNBAN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.unban&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_UNBAN_REQUEST_CREATE">
+        CHANNEL_UNBAN_REQUEST_CREATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN_REQUEST_CREATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">49</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_UNBAN_REQUEST_CREATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.unban_request.create&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_UNBAN_REQUEST_RESOLVE">
+        CHANNEL_UNBAN_REQUEST_RESOLVE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN_REQUEST_RESOLVE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">50</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_UNBAN_REQUEST_RESOLVE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.unban_request.resolve&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_UPDATE">
+        CHANNEL_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">27</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_VIP_ADD">
+        CHANNEL_VIP_ADD
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_VIP_ADD" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">54</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_VIP_ADD</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.vip.add&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_VIP_REMOVE">
+        CHANNEL_VIP_REMOVE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_VIP_REMOVE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">55</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_VIP_REMOVE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.vip.remove&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_WARNING_ACKNOWLEDGE">
+        CHANNEL_WARNING_ACKNOWLEDGE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_WARNING_ACKNOWLEDGE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">57</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_WARNING_ACKNOWLEDGE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.warning.acknowledge&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHANNEL_WARNING_SEND">
+        CHANNEL_WARNING_SEND
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_WARNING_SEND" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">58</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHANNEL_WARNING_SEND</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.warning.send&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHARITY_CAMPAIGN_DONATE">
+        CHARITY_CAMPAIGN_DONATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_DONATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">80</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHARITY_CAMPAIGN_DONATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.charity_campaign.donate&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHARITY_CAMPAIGN_PROGRESS">
+        CHARITY_CAMPAIGN_PROGRESS
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_PROGRESS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">82</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHARITY_CAMPAIGN_PROGRESS</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.charity_campaign.progress&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHARITY_CAMPAIGN_START">
+        CHARITY_CAMPAIGN_START
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_START" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">81</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHARITY_CAMPAIGN_START</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.charity_campaign.start&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CHARITY_CAMPAIGN_STOP">
+        CHARITY_CAMPAIGN_STOP
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_STOP" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">83</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CHARITY_CAMPAIGN_STOP</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.charity_campaign.stop&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_CONDUIT_SHARD_DISABLED">
+        CONDUIT_SHARD_DISABLED
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CONDUIT_SHARD_DISABLED" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">116</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">CONDUIT_SHARD_DISABLED</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;conduit.shard.disabled&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_DROP_ENTITLEMENT_GRANT">
+        DROP_ENTITLEMENT_GRANT
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_DROP_ENTITLEMENT_GRANT" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">114</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">DROP_ENTITLEMENT_GRANT</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;drop.entitlement.grant&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_EXTENSION_BITS_TRANSACTION_CREATE">
+        EXTENSION_BITS_TRANSACTION_CREATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_EXTENSION_BITS_TRANSACTION_CREATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">115</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">EXTENSION_BITS_TRANSACTION_CREATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;extension.bits_transaction.create&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_GOAL_BEGIN">
+        GOAL_BEGIN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_BEGIN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">84</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">GOAL_BEGIN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.goal.begin&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_GOAL_END">
+        GOAL_END
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_END" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">86</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">GOAL_END</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.goal.end&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_GOAL_PROGRESS">
+        GOAL_PROGRESS
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_PROGRESS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">85</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">GOAL_PROGRESS</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.goal.progress&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_GUEST_STAR_GUEST_UPDATE">
+        GUEST_STAR_GUEST_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_GUEST_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">98</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">GUEST_STAR_GUEST_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.guest_star_guest.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_GUEST_STAR_SESSION_BEGIN">
+        GUEST_STAR_SESSION_BEGIN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SESSION_BEGIN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">96</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">GUEST_STAR_SESSION_BEGIN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.guest_star_session.begin&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_GUEST_STAR_SESSION_END">
+        GUEST_STAR_SESSION_END
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SESSION_END" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">97</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">GUEST_STAR_SESSION_END</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.guest_star_session.end&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_GUEST_STAR_SETTINGS_UPDATE">
+        GUEST_STAR_SETTINGS_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SETTINGS_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">99</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">GUEST_STAR_SETTINGS_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.guest_star_settings.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_HYPE_TRAIN_BEGIN">
+        HYPE_TRAIN_BEGIN
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_BEGIN" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">87</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">HYPE_TRAIN_BEGIN</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.hype_train.begin&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_HYPE_TRAIN_END">
+        HYPE_TRAIN_END
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_END" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">89</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">HYPE_TRAIN_END</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.hype_train.end&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_HYPE_TRAIN_PROGRESS">
+        HYPE_TRAIN_PROGRESS
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_PROGRESS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">88</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">HYPE_TRAIN_PROGRESS</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.hype_train.progress&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_SHOUTOUT_CREATE">
+        SHOUTOUT_CREATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_SHOUTOUT_CREATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">92</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">SHOUTOUT_CREATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.shoutout.create&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_SHOUTOUT_RECEIVE">
+        SHOUTOUT_RECEIVE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_SHOUTOUT_RECEIVE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">93</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">SHOUTOUT_RECEIVE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;channel.shoutout.receive&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_STREAM_OFFLINE">
+        STREAM_OFFLINE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_STREAM_OFFLINE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">109</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">STREAM_OFFLINE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;stream.offline&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_STREAM_ONLINE">
+        STREAM_ONLINE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_STREAM_ONLINE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">108</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">STREAM_ONLINE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;stream.online&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_USER_AUTHORIZATION_GRANT">
+        USER_AUTHORIZATION_GRANT
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_AUTHORIZATION_GRANT" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">112</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">USER_AUTHORIZATION_GRANT</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;user.authorization.grant&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_USER_AUTHORIZATION_REVOKE">
+        USER_AUTHORIZATION_REVOKE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_AUTHORIZATION_REVOKE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">113</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">USER_AUTHORIZATION_REVOKE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;user.authorization.revoke&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_USER_UPDATE">
+        USER_UPDATE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_UPDATE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">110</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">USER_UPDATE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;user.update&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_USER_WHISPER_MESSAGE">
+        USER_WHISPER_MESSAGE
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_WHISPER_MESSAGE" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">111</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">USER_WHISPER_MESSAGE</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;user.whisper.message&#039;</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -private ">
+    <h4 class="phpdocumentor-element__name" id="constant_VERSIONS">
+        VERSIONS
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_VERSIONS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">123</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Types whose current version is not `1`. Anything absent is `1`.</p>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type">array&lt;string, string&gt;</span>
+    <span class="phpdocumentor-signature__name">VERSIONS</span>
+    = <span class="phpdocumentor-signature__default-value">[self::CHANNEL_UPDATE =&gt; &#039;2&#039;, self::CHANNEL_FOLLOW =&gt; &#039;2&#039;, self::CHANNEL_MODERATE =&gt; &#039;2&#039;, self::CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD =&gt; &#039;2&#039;, self::CHANNEL_BITS_USE =&gt; &#039;1&#039;, self::CHANNEL_VIP_ADD =&gt; &#039;1&#039;, self::CHANNEL_VIP_REMOVE =&gt; &#039;1&#039;, self::GUEST_STAR_SESSION_BEGIN =&gt; &#039;beta&#039;, self::GUEST_STAR_SESSION_END =&gt; &#039;beta&#039;, self::GUEST_STAR_GUEST_UPDATE =&gt; &#039;beta&#039;, self::GUEST_STAR_SETTINGS_UPDATE =&gt; &#039;beta&#039;]</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+            </section>
+
+        
+
+            <section class="phpdocumentor-methods">
+        <h3 class="phpdocumentor-elements__header" id="methods">
+            Methods
+            <a href="classes/Twitch-EventSub-SubscriptionTypes.html#methods" class="headerlink"><i class="fas fa-link"></i></a>
+
+        </h3>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_all">
+        all()
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#method_all" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">154</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Every declared subscription-type string.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">all</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;int, string&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;int, string&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_isKnown">
+        isKnown()
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#method_isKnown" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">144</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Whether `$type` is a known EventSub subscription type.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">isKnown</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$type</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$type</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">bool</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_version">
+        version()
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#method_version" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">138</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The version Twitch currently expects for `$type` (`&#039;1&#039;` when unlisted).</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">version</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$type</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$type</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">string</span>
+            </section>
+
+</article>
+            </section>
+
+        
+    </article>
+                                </section>
+                <section class="phpdocumentor-on-this-page__sidebar">
+                                
+    <section class="phpdocumentor-on-this-page__content">
+        <strong class="phpdocumentor-on-this-page__title">On this page</strong>
+
+        <ul class="phpdocumentor-list -clean">
+            <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
+            <li>
+                <ul class="phpdocumentor-list -clean">
+                                        <li><a href="classes/Twitch-EventSub-SubscriptionTypes.html#toc-constants">Constants</a></li>
+                                                                                <li><a href="classes/Twitch-EventSub-SubscriptionTypes.html#toc-methods">Methods</a></li>
+                                    </ul>
+            </li>
+                            <li class="phpdocumentor-on-this-page-section__title">Constants</li>
+                <li>
+                    <ul class="phpdocumentor-list -clean">
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_MESSAGE_HOLD">AUTOMOD_MESSAGE_HOLD</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_MESSAGE_UPDATE">AUTOMOD_MESSAGE_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_SETTINGS_UPDATE">AUTOMOD_SETTINGS_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_AUTOMOD_TERMS_UPDATE">AUTOMOD_TERMS_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_AD_BREAK_BEGIN">CHANNEL_AD_BREAK_BEGIN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_BAN">CHANNEL_BAN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_BITS_USE">CHANNEL_BITS_USE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_CLEAR">CHANNEL_CHAT_CLEAR</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_CLEAR_USER_MESSAGES">CHANNEL_CHAT_CLEAR_USER_MESSAGES</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_MESSAGE">CHANNEL_CHAT_MESSAGE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_MESSAGE_DELETE">CHANNEL_CHAT_MESSAGE_DELETE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_NOTIFICATION">CHANNEL_CHAT_NOTIFICATION</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_SETTINGS_UPDATE">CHANNEL_CHAT_SETTINGS_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_USER_MESSAGE_HOLD">CHANNEL_CHAT_USER_MESSAGE_HOLD</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHAT_USER_MESSAGE_UPDATE">CHANNEL_CHAT_USER_MESSAGE_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CHEER">CHANNEL_CHEER</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_FOLLOW">CHANNEL_FOLLOW</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATE">CHANNEL_MODERATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATOR_ADD">CHANNEL_MODERATOR_ADD</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_MODERATOR_REMOVE">CHANNEL_MODERATOR_REMOVE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD">CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_ADD">CHANNEL_POINTS_CUSTOM_REWARD_ADD</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD">CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE">CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_REMOVE">CHANNEL_POINTS_CUSTOM_REWARD_REMOVE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POINTS_CUSTOM_REWARD_UPDATE">CHANNEL_POINTS_CUSTOM_REWARD_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_BEGIN">CHANNEL_POLL_BEGIN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_END">CHANNEL_POLL_END</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_POLL_PROGRESS">CHANNEL_POLL_PROGRESS</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_BEGIN">CHANNEL_PREDICTION_BEGIN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_END">CHANNEL_PREDICTION_END</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_LOCK">CHANNEL_PREDICTION_LOCK</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_PREDICTION_PROGRESS">CHANNEL_PREDICTION_PROGRESS</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_RAID">CHANNEL_RAID</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_BEGIN">CHANNEL_SHARED_CHAT_BEGIN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_END">CHANNEL_SHARED_CHAT_END</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHARED_CHAT_UPDATE">CHANNEL_SHARED_CHAT_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIBE">CHANNEL_SUBSCRIBE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_END">CHANNEL_SUBSCRIPTION_END</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_GIFT">CHANNEL_SUBSCRIPTION_GIFT</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUBSCRIPTION_MESSAGE">CHANNEL_SUBSCRIPTION_MESSAGE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUSPICIOUS_USER_MESSAGE">CHANNEL_SUSPICIOUS_USER_MESSAGE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUSPICIOUS_USER_UPDATE">CHANNEL_SUSPICIOUS_USER_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN">CHANNEL_UNBAN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN_REQUEST_CREATE">CHANNEL_UNBAN_REQUEST_CREATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UNBAN_REQUEST_RESOLVE">CHANNEL_UNBAN_REQUEST_RESOLVE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_UPDATE">CHANNEL_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_VIP_ADD">CHANNEL_VIP_ADD</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_VIP_REMOVE">CHANNEL_VIP_REMOVE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_WARNING_ACKNOWLEDGE">CHANNEL_WARNING_ACKNOWLEDGE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_WARNING_SEND">CHANNEL_WARNING_SEND</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_DONATE">CHARITY_CAMPAIGN_DONATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_PROGRESS">CHARITY_CAMPAIGN_PROGRESS</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_START">CHARITY_CAMPAIGN_START</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHARITY_CAMPAIGN_STOP">CHARITY_CAMPAIGN_STOP</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_CONDUIT_SHARD_DISABLED">CONDUIT_SHARD_DISABLED</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_DROP_ENTITLEMENT_GRANT">DROP_ENTITLEMENT_GRANT</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_EXTENSION_BITS_TRANSACTION_CREATE">EXTENSION_BITS_TRANSACTION_CREATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_BEGIN">GOAL_BEGIN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_END">GOAL_END</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GOAL_PROGRESS">GOAL_PROGRESS</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_GUEST_UPDATE">GUEST_STAR_GUEST_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SESSION_BEGIN">GUEST_STAR_SESSION_BEGIN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SESSION_END">GUEST_STAR_SESSION_END</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_GUEST_STAR_SETTINGS_UPDATE">GUEST_STAR_SETTINGS_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_BEGIN">HYPE_TRAIN_BEGIN</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_END">HYPE_TRAIN_END</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_HYPE_TRAIN_PROGRESS">HYPE_TRAIN_PROGRESS</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_SHOUTOUT_CREATE">SHOUTOUT_CREATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_SHOUTOUT_RECEIVE">SHOUTOUT_RECEIVE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_STREAM_OFFLINE">STREAM_OFFLINE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_STREAM_ONLINE">STREAM_ONLINE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_AUTHORIZATION_GRANT">USER_AUTHORIZATION_GRANT</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_AUTHORIZATION_REVOKE">USER_AUTHORIZATION_REVOKE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_UPDATE">USER_UPDATE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_USER_WHISPER_MESSAGE">USER_WHISPER_MESSAGE</a></li>
+                                                    <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_VERSIONS">VERSIONS</a></li>
+                                            </ul>
+                </li>
+            
+            
+                        <li class="phpdocumentor-on-this-page-section__title">Methods</li>
+            <li>
+                <ul class="phpdocumentor-list -clean">
+                                            <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#method_all">all()</a></li>
+                                            <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#method_isKnown">isKnown()</a></li>
+                                            <li class=""><a href="classes/Twitch-EventSub-SubscriptionTypes.html#method_version">version()</a></li>
+                                    </ul>
+            </li>
+                    </ul>
+    </section>
+
+                </section>
+                            </div>
+            <section data-search-results class="phpdocumentor-search-results phpdocumentor-search-results--hidden">
+    <section class="phpdocumentor-search-results__dialog">
+        <header class="phpdocumentor-search-results__header">
+            <h2 class="phpdocumentor-search-results__title">Search results</h2>
+            <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
+        </header>
+        <section class="phpdocumentor-search-results__body">
+            <ul class="phpdocumentor-search-results__entries"></ul>
+        </section>
+    </section>
+</section>
+        </div>
+        <a href="classes/Twitch-EventSub-SubscriptionTypes.html#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+
+    </main>
+
+    <script>
+        cssVars({});
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
+</body>
+</html>
