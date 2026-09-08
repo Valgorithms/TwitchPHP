@@ -53,7 +53,12 @@ final class EventSub implements EventEmitterInterface
 
     private bool $closing = false;
 
-    /** Pending `{type, condition, version}` subscriptions to (re)create on welcome. */
+    /**
+     * The subscription set to (re)create on every `session_welcome`, keyed by
+     * `type|condition` so repeat calls and reconnects do not pile up duplicates.
+     *
+     * @var array<string, array{type: string, condition: array<string, mixed>, version: string}>
+     */
     private array $desired = [];
 
     public function __construct(private readonly Twitch $twitch)
@@ -84,6 +89,7 @@ final class EventSub implements EventEmitterInterface
         $this->closing = true;
         $this->conn?->close();
         $this->conn = null;
+        $this->desired = [];
     }
 
     public function getSessionId(): ?string
@@ -92,17 +98,46 @@ final class EventSub implements EventEmitterInterface
     }
 
     /**
+     * The subscriptions this client will (re)create on the next welcome, as
+     * `type => condition`. Useful for asserting what a bot has asked for.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function desiredSubscriptions(): array
+    {
+        $out = [];
+        foreach ($this->desired as $sub) {
+            $out[$sub['type']] = $sub['condition'];
+        }
+
+        return $out;
+    }
+
+    /** Forgets a queued/desired subscription so a reconnect will not recreate it. */
+    public function forget(string $type, array $condition): void
+    {
+        unset($this->desired[$type . '|' . json_encode($condition)]);
+    }
+
+    /**
      * Creates an EventSub subscription bound to this WebSocket session.
+     *
+     * `$version` defaults to the current version for `$type`
+     * ({@see SubscriptionTypes::version()}), so `channel.follow` gets `2`,
+     * Guest Star types get `beta`, and everything else `1` — without the caller
+     * tracking it.
      *
      * @param array<string, mixed> $condition
      *
      * @return PromiseInterface<array<string, mixed>>
      */
-    public function subscribe(string $type, array $condition, string $version = '1'): PromiseInterface
+    public function subscribe(string $type, array $condition, ?string $version = null): PromiseInterface
     {
-        if ($this->sessionId === null) {
-            $this->desired[] = compact('type', 'condition', 'version');
+        $version ??= SubscriptionTypes::version($type);
+        $key = $type . '|' . json_encode($condition);
+        $this->desired[$key] = compact('type', 'condition', 'version');
 
+        if ($this->sessionId === null) {
             return reject(new \RuntimeException('EventSub session not ready yet — subscription queued for the next welcome'));
         }
 
@@ -111,11 +146,110 @@ final class EventSub implements EventEmitterInterface
             'version' => $version,
             'condition' => $condition,
             'transport' => ['method' => 'websocket', 'session_id' => $this->sessionId],
-        ])->then(function (?array $body) use ($type, $condition, $version) {
-            $this->desired[] = compact('type', 'condition', 'version');
+        ])->then(static fn (?array $body) => $body['data'][0] ?? []);
+    }
 
-            return $body['data'][0] ?? [];
-        });
+    /**
+     * Subscribes to many `[type, condition]` (or `[type, condition, version]`)
+     * pairs at once. Resolves once every request has settled, with a list of
+     * the created subscription rows (failed ones resolve to `null`).
+     *
+     * @param list<array{0: string, 1: array<string, mixed>, 2?: string}> $specs
+     *
+     * @return PromiseInterface<list<array<string, mixed>|null>>
+     */
+    public function subscribeMany(array $specs): PromiseInterface
+    {
+        return \React\Promise\all(array_map(
+            fn (array $s) => $this->subscribe($s[0], $s[1], $s[2] ?? null)->then(null, static fn () => null),
+            $specs,
+        ));
+    }
+
+    // ── Typed helpers for the common bot subscriptions ─────────────────
+
+    /** `channel.chat.message` — needs `user:read:chat`. `$asUserId` is the reading user (usually the bot). */
+    public function onChatMessage(string $broadcasterId, string $asUserId): PromiseInterface
+    {
+        return $this->subscribe(SubscriptionTypes::CHANNEL_CHAT_MESSAGE, [
+            'broadcaster_user_id' => $broadcasterId,
+            'user_id' => $asUserId,
+        ]);
+    }
+
+    /** `channel.follow` v2 — needs `moderator:read:followers`. */
+    public function onFollow(string $broadcasterId, string $moderatorId): PromiseInterface
+    {
+        return $this->subscribe(SubscriptionTypes::CHANNEL_FOLLOW, [
+            'broadcaster_user_id' => $broadcasterId,
+            'moderator_user_id' => $moderatorId,
+        ]);
+    }
+
+    /** `channel.subscribe`, `.subscription.gift`, `.subscription.message` in one call. */
+    public function onSubscriptions(string $broadcasterId): PromiseInterface
+    {
+        return $this->subscribeMany([
+            [SubscriptionTypes::CHANNEL_SUBSCRIBE, ['broadcaster_user_id' => $broadcasterId]],
+            [SubscriptionTypes::CHANNEL_SUBSCRIPTION_GIFT, ['broadcaster_user_id' => $broadcasterId]],
+            [SubscriptionTypes::CHANNEL_SUBSCRIPTION_MESSAGE, ['broadcaster_user_id' => $broadcasterId]],
+        ]);
+    }
+
+    /** `channel.cheer` — needs `bits:read`. */
+    public function onCheer(string $broadcasterId): PromiseInterface
+    {
+        return $this->subscribe(SubscriptionTypes::CHANNEL_CHEER, ['broadcaster_user_id' => $broadcasterId]);
+    }
+
+    /** `channel.raid` to this channel. */
+    public function onRaid(string $broadcasterId): PromiseInterface
+    {
+        return $this->subscribe(SubscriptionTypes::CHANNEL_RAID, ['to_broadcaster_user_id' => $broadcasterId]);
+    }
+
+    /** `stream.online` + `stream.offline`. */
+    public function onStreamChange(string $broadcasterId): PromiseInterface
+    {
+        return $this->subscribeMany([
+            [SubscriptionTypes::STREAM_ONLINE, ['broadcaster_user_id' => $broadcasterId]],
+            [SubscriptionTypes::STREAM_OFFLINE, ['broadcaster_user_id' => $broadcasterId]],
+        ]);
+    }
+
+    /** `channel.update` v2 — category / title / content-label changes. */
+    public function onChannelUpdate(string $broadcasterId): PromiseInterface
+    {
+        return $this->subscribe(SubscriptionTypes::CHANNEL_UPDATE, ['broadcaster_user_id' => $broadcasterId]);
+    }
+
+    /** `channel.ad_break.begin` — needs `channel:read:ads`. */
+    public function onAdBreakBegin(string $broadcasterId): PromiseInterface
+    {
+        return $this->subscribe(SubscriptionTypes::CHANNEL_AD_BREAK_BEGIN, ['broadcaster_user_id' => $broadcasterId]);
+    }
+
+    /**
+     * `channel.channel_points_custom_reward_redemption.add` — needs
+     * `channel:read:redemptions`. Pass `$rewardId` to scope to one reward.
+     */
+    public function onPointsRedemption(string $broadcasterId, ?string $rewardId = null): PromiseInterface
+    {
+        $condition = ['broadcaster_user_id' => $broadcasterId];
+        if ($rewardId !== null) {
+            $condition['reward_id'] = $rewardId;
+        }
+
+        return $this->subscribe(SubscriptionTypes::CHANNEL_POINTS_CUSTOM_REWARD_REDEMPTION_ADD, $condition);
+    }
+
+    /** `channel.ban` + `channel.unban` — needs `channel:moderate`. */
+    public function onBans(string $broadcasterId): PromiseInterface
+    {
+        return $this->subscribeMany([
+            [SubscriptionTypes::CHANNEL_BAN, ['broadcaster_user_id' => $broadcasterId]],
+            [SubscriptionTypes::CHANNEL_UNBAN, ['broadcaster_user_id' => $broadcasterId]],
+        ]);
     }
 
     /** @return PromiseInterface<null> */
@@ -183,9 +317,7 @@ final class EventSub implements EventEmitterInterface
 
     private function replaySubscriptions(): void
     {
-        $pending = $this->desired;
-        $this->desired = [];
-        foreach ($pending as $sub) {
+        foreach ($this->desired as $sub) {
             $this->subscribe($sub['type'], $sub['condition'], $sub['version']);
         }
     }

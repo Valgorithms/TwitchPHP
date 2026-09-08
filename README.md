@@ -114,15 +114,22 @@ $twitch = new Twitch([
     'eventsub'      => true,
 ]);
 
-$twitch->on('ready', function (Twitch $twitch) {
+use Twitch\EventSub\SubscriptionTypes;
+
+$twitch->on('ready', function (Twitch $twitch) use ($broadcasterId) {
     $es = $twitch->getEventSub();
 
-    $es->subscribe('channel.chat.message', [
-        'broadcaster_user_id' => $broadcasterId,
-        'user_id'             => $twitch->getUserId(),
-    ]);
+    // Typed helpers for the common ones — right condition, right version.
+    $es->onChatMessage($broadcasterId, $twitch->getUserId());
+    $es->onFollow($broadcasterId, $twitch->getUserId());  // channel.follow v2
+    $es->onStreamChange($broadcasterId);                   // online + offline
 
-    $es->subscribe('stream.online', ['broadcaster_user_id' => $broadcasterId]);
+    // Generic form — version is looked up from SubscriptionTypes unless given.
+    $es->subscribe(SubscriptionTypes::CHANNEL_CHEER, ['broadcaster_user_id' => $broadcasterId]);
+    $es->subscribeMany([
+        [SubscriptionTypes::CHANNEL_RAID, ['to_broadcaster_user_id' => $broadcasterId]],
+        [SubscriptionTypes::CHANNEL_AD_BREAK_BEGIN, ['broadcaster_user_id' => $broadcasterId]],
+    ]);
 });
 
 // Every notification fires twice: a generic event and a per-type event.
@@ -134,8 +141,10 @@ $twitch->on('eventsub.stream.online', function (array $event) {
 });
 ```
 
-Session reconnects (`session_reconnect`), keepalives and `revocation` are handled for you, and
-subscriptions are replayed automatically onto a fresh session after a drop.
+`SubscriptionTypes` has a constant for every EventSub type and knows the version
+Twitch currently wants for it. Session reconnects (`session_reconnect`),
+keepalives and `revocation` are handled for you, and the desired subscription set
+(deduplicated) is replayed automatically onto a fresh session after a drop.
 
 ## Chat (IRC)
 

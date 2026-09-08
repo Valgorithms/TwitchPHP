@@ -27,10 +27,13 @@ $twitch->on('ready', function (Twitch $twitch) use ($broadcasterId): void {
     $es = $twitch->getEventSub();
     $self = $twitch->getUserId();
 
-    $es->subscribe('channel.chat.message', ['broadcaster_user_id' => $broadcasterId, 'user_id' => $self]);
-    $es->subscribe('channel.follow', ['broadcaster_user_id' => $broadcasterId, 'moderator_user_id' => $self], '2');
-    $es->subscribe('stream.online', ['broadcaster_user_id' => $broadcasterId]);
-    $es->subscribe('stream.offline', ['broadcaster_user_id' => $broadcasterId]);
+    // Typed helpers pick the right condition shape and subscription version.
+    $es->onChatMessage($broadcasterId, $self);
+    $es->onFollow($broadcasterId, $self);   // channel.follow v2
+    $es->onStreamChange($broadcasterId);    // stream.online + stream.offline
+
+    // Or the generic form for anything without a helper:
+    // $es->subscribe(\Twitch\EventSub\SubscriptionTypes::CHANNEL_CHEER, ['broadcaster_user_id' => $broadcasterId]);
 
     echo "listening…\n";
 });

@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- `Twitch\EventSub\SubscriptionTypes` — a constant for every EventSub
+  subscription type plus the version Twitch currently expects for it.
+  `EventSub::subscribe()` now resolves the version from it when one is not
+  passed (so `channel.follow` → `2`, Guest Star → `beta`, the rest → `1`).
+- Typed `EventSub` helpers: `onChatMessage()`, `onFollow()`, `onSubscriptions()`,
+  `onCheer()`, `onRaid()`, `onStreamChange()`, `onChannelUpdate()`,
+  `onAdBreakBegin()`, `onPointsRedemption()`, `onBans()`, plus `subscribeMany()`
+  for batches.
+- `EventSub::desiredSubscriptions()` / `forget()`; the desired set is now keyed
+  by type + condition so repeat calls and reconnects no longer accumulate
+  duplicate subscriptions.
+
 ## [3.0.0] - 2026-09-08
 
 Ground-up rewrite. TwitchPHP is now a DiscordPHP-style async framework rather than a
