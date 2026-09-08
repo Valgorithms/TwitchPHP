@@ -64,6 +64,7 @@ use Twitch\Repository\AbstractRepository;
  * @property-read \Twitch\Repository\SearchRepository               $search
  * @property-read \Twitch\Repository\WhisperRepository              $whispers
  * @property-read \Twitch\Repository\AdsRepository                  $ads
+ * @property-read \Twitch\Repository\ContentClassificationRepository $contentLabels
  *
  * @author Valithor Obsidion <valithor@valgorithms.com>
  */
@@ -98,6 +99,7 @@ class Twitch implements EventEmitterInterface
         'search'             => Repository\SearchRepository::class,
         'whispers'           => Repository\WhisperRepository::class,
         'ads'                => Repository\AdsRepository::class,
+        'contentLabels'      => Repository\ContentClassificationRepository::class,
     ];
 
     /** @var array<string, mixed> */

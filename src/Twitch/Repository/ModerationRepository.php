@@ -252,6 +252,58 @@ class ModerationRepository extends AbstractRepository
         )->then(fn (?array $body) => $this->rows($body)[0] ?? []);
     }
 
+    // ── Unban requests ─────────────────────────────────────────────────
+
+    /**
+     * Pending or resolved unban requests for a channel
+     * (`moderator:read:unban_requests`). `$status` is `pending`, `approved` or
+     * `denied`.
+     *
+     * @return PromiseInterface<list<array<string, mixed>>>
+     */
+    public function unbanRequests(string $broadcasterId, string $moderatorId, string $status = 'pending', int $first = 100, ?string $after = null): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::UNBAN_REQUESTS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'status' => $status,
+            'first' => $first,
+            'after' => $after,
+        ]))->then(fn (?array $body) => $this->rows($body));
+    }
+
+    /**
+     * Approves or denies an unban request
+     * (`moderator:manage:unban_requests`). `$status` is `approved` or `denied`.
+     *
+     * @return PromiseInterface<array<string, mixed>>
+     */
+    public function resolveUnbanRequest(string $broadcasterId, string $moderatorId, string $requestId, string $status, ?string $resolutionText = null): PromiseInterface
+    {
+        return $this->twitch->request('PATCH', (new Endpoint(Endpoint::UNBAN_REQUESTS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'unban_request_id' => $requestId,
+            'status' => $status,
+            'resolution_text' => $resolutionText,
+        ]))->then(fn (?array $body) => $this->rows($body)[0] ?? []);
+    }
+
+    /**
+     * The channels where `$userId` has moderator privileges
+     * (`user:read:moderated_channels`).
+     *
+     * @return PromiseInterface<list<array<string, mixed>>>
+     */
+    public function moderatedChannels(string $userId, int $first = 100, ?string $after = null): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::MODERATED_CHANNELS))->withQuery([
+            'user_id' => $userId,
+            'first' => $first,
+            'after' => $after,
+        ]))->then(fn (?array $body) => $this->rows($body));
+    }
+
     // ── Internals ──────────────────────────────────────────────────────
 
     /**
