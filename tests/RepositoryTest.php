@@ -173,4 +173,36 @@ final class RepositoryTest extends TestCase
         self::assertSame('A_Seagull', $hits->first()->display_name);
         self::assertNull($hits->first()->started_at);
     }
+
+    public function testConduitCreatePostsShardCountAndHydrates(): void
+    {
+        $this->http->script[] = ['data' => [['id' => 'cond-1', 'shard_count' => 5]]];
+
+        $conduit = await($this->twitch->conduits->create(5));
+
+        self::assertSame(['POST', 'eventsub/conduits'], $this->http->calls[0]);
+        self::assertSame(5, $conduit->shard_count);
+        self::assertSame('cond-1', $conduit->id);
+    }
+
+    public function testEntitlementUpdateStatusPatchesIdsAndStatus(): void
+    {
+        $this->http->script[] = ['data' => [['status' => 'SUCCESS', 'ids' => ['e1', 'e2']]]];
+
+        $report = await($this->twitch->entitlements->updateStatus(['e1', 'e2'], 'FULFILLED'));
+
+        self::assertSame(['PATCH', 'entitlements/drops'], $this->http->calls[0]);
+        self::assertSame('SUCCESS', $report['data'][0]['status']);
+    }
+
+    public function testAnalyticsGamesForwardsFilters(): void
+    {
+        $this->http->script[] = ['data' => [['game_id' => '9', 'URL' => 'https://x/report.csv']]];
+
+        await($this->twitch->analytics->games(['game_id' => '9', 'type' => 'overview_v2']));
+
+        self::assertSame('GET', $this->http->calls[0][0]);
+        self::assertStringContainsString('analytics/games?', $this->http->calls[0][1]);
+        self::assertStringContainsString('game_id=9', $this->http->calls[0][1]);
+    }
 }

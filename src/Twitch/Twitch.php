@@ -65,6 +65,11 @@ use Twitch\Repository\AbstractRepository;
  * @property-read \Twitch\Repository\WhisperRepository              $whispers
  * @property-read \Twitch\Repository\AdsRepository                  $ads
  * @property-read \Twitch\Repository\ContentClassificationRepository $contentLabels
+ * @property-read \Twitch\Repository\ConduitRepository              $conduits
+ * @property-read \Twitch\Repository\EntitlementRepository          $entitlements
+ * @property-read \Twitch\Repository\AnalyticsRepository            $analytics
+ * @property-read \Twitch\Repository\GuestStarRepository            $guestStar
+ * @property-read \Twitch\Repository\ExtensionRepository            $extensions
  *
  * @author Valithor Obsidion <valithor@valgorithms.com>
  */
@@ -72,7 +77,7 @@ class Twitch implements EventEmitterInterface
 {
     use EventEmitterTrait;
 
-    public const VERSION = '3.0.0';
+    public const VERSION = '3.1.0';
 
     /** Repository accessors: property name → class. */
     private const REPOSITORIES = [
@@ -100,6 +105,11 @@ class Twitch implements EventEmitterInterface
         'whispers'           => Repository\WhisperRepository::class,
         'ads'                => Repository\AdsRepository::class,
         'contentLabels'      => Repository\ContentClassificationRepository::class,
+        'conduits'           => Repository\ConduitRepository::class,
+        'entitlements'       => Repository\EntitlementRepository::class,
+        'analytics'          => Repository\AnalyticsRepository::class,
+        'guestStar'          => Repository\GuestStarRepository::class,
+        'extensions'         => Repository\ExtensionRepository::class,
     ];
 
     /** @var array<string, mixed> */

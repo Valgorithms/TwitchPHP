@@ -2,10 +2,14 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
+## [3.1.0] - 2026-09-08
 
 ### Added
 
+- Five more Helix repositories — `conduits` (EventSub conduits + shards),
+  `entitlements` (Drops), `analytics` (extension / game report URLs),
+  `guestStar` (beta), `extensions` (installed / active / live-channels /
+  transactions). 29 repositories in total.
 - `Twitch\EventSub\SubscriptionTypes` — a constant for every EventSub
   subscription type plus the version Twitch currently expects for it.
   `EventSub::subscribe()` now resolves the version from it when one is not

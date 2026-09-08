@@ -58,15 +58,19 @@ and `revoke()` for building the authorization-code / device-code flows in your o
 
 ## The Helix client
 
-Resources hang off the client as repositories, mirroring DiscordPHP:
+Resources hang off the client as repositories, mirroring DiscordPHP. 29 of them:
 
 ```php
-$twitch->users;       // UserRepository
-$twitch->channels;    // ChannelRepository
-$twitch->streams;     // StreamRepository
-$twitch->games;       // GameRepository
-$twitch->chat;        // ChatRepository
-$twitch->moderation;  // ModerationRepository
+$twitch->users;         $twitch->channels;      $twitch->streams;
+$twitch->games;         $twitch->chat;          $twitch->moderation;
+$twitch->clips;         $twitch->videos;        $twitch->polls;
+$twitch->predictions;   $twitch->channelPoints; $twitch->subscriptions;
+$twitch->eventSubscriptions;  $twitch->teams;   $twitch->schedule;
+$twitch->charity;       $twitch->goals;         $twitch->raids;
+$twitch->bits;          $twitch->hypeTrain;     $twitch->search;
+$twitch->whispers;      $twitch->ads;           $twitch->contentLabels;
+$twitch->conduits;      $twitch->entitlements;  $twitch->analytics;
+$twitch->guestStar;     $twitch->extensions;
 ```
 
 Every call returns a `React\Promise\PromiseInterface`. Collections are
