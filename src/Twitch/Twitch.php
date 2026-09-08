@@ -41,12 +41,29 @@ use Twitch\Repository\AbstractRepository;
  * when configured, the {@see EventSub} WebSocket and the {@see Irc} chat client.
  * Emits `init` / `ready` once authenticated and set up.
  *
- * @property-read \Twitch\Repository\UserRepository       $users
- * @property-read \Twitch\Repository\ChannelRepository    $channels
- * @property-read \Twitch\Repository\StreamRepository     $streams
- * @property-read \Twitch\Repository\GameRepository       $games
- * @property-read \Twitch\Repository\ChatRepository       $chat
- * @property-read \Twitch\Repository\ModerationRepository $moderation
+ * @property-read \Twitch\Repository\UserRepository                 $users
+ * @property-read \Twitch\Repository\ChannelRepository              $channels
+ * @property-read \Twitch\Repository\StreamRepository               $streams
+ * @property-read \Twitch\Repository\GameRepository                 $games
+ * @property-read \Twitch\Repository\ChatRepository                 $chat
+ * @property-read \Twitch\Repository\ModerationRepository           $moderation
+ * @property-read \Twitch\Repository\ClipRepository                 $clips
+ * @property-read \Twitch\Repository\VideoRepository                $videos
+ * @property-read \Twitch\Repository\PollRepository                 $polls
+ * @property-read \Twitch\Repository\PredictionRepository           $predictions
+ * @property-read \Twitch\Repository\ChannelPointsRepository        $channelPoints
+ * @property-read \Twitch\Repository\SubscriptionRepository         $subscriptions
+ * @property-read \Twitch\Repository\EventSubSubscriptionRepository $eventSubscriptions
+ * @property-read \Twitch\Repository\TeamRepository                 $teams
+ * @property-read \Twitch\Repository\ScheduleRepository             $schedule
+ * @property-read \Twitch\Repository\CharityRepository              $charity
+ * @property-read \Twitch\Repository\GoalRepository                 $goals
+ * @property-read \Twitch\Repository\RaidRepository                 $raids
+ * @property-read \Twitch\Repository\BitsRepository                 $bits
+ * @property-read \Twitch\Repository\HypeTrainRepository            $hypeTrain
+ * @property-read \Twitch\Repository\SearchRepository               $search
+ * @property-read \Twitch\Repository\WhisperRepository              $whispers
+ * @property-read \Twitch\Repository\AdsRepository                  $ads
  *
  * @author Valithor Obsidion <valithor@valgorithms.com>
  */
@@ -58,12 +75,29 @@ class Twitch implements EventEmitterInterface
 
     /** Repository accessors: property name → class. */
     private const REPOSITORIES = [
-        'users'      => Repository\UserRepository::class,
-        'channels'   => Repository\ChannelRepository::class,
-        'streams'    => Repository\StreamRepository::class,
-        'games'      => Repository\GameRepository::class,
-        'chat'       => Repository\ChatRepository::class,
-        'moderation' => Repository\ModerationRepository::class,
+        'users'              => Repository\UserRepository::class,
+        'channels'           => Repository\ChannelRepository::class,
+        'streams'            => Repository\StreamRepository::class,
+        'games'              => Repository\GameRepository::class,
+        'chat'               => Repository\ChatRepository::class,
+        'moderation'         => Repository\ModerationRepository::class,
+        'clips'              => Repository\ClipRepository::class,
+        'videos'             => Repository\VideoRepository::class,
+        'polls'              => Repository\PollRepository::class,
+        'predictions'        => Repository\PredictionRepository::class,
+        'channelPoints'      => Repository\ChannelPointsRepository::class,
+        'subscriptions'      => Repository\SubscriptionRepository::class,
+        'eventSubscriptions' => Repository\EventSubSubscriptionRepository::class,
+        'teams'              => Repository\TeamRepository::class,
+        'schedule'           => Repository\ScheduleRepository::class,
+        'charity'            => Repository\CharityRepository::class,
+        'goals'              => Repository\GoalRepository::class,
+        'raids'              => Repository\RaidRepository::class,
+        'bits'               => Repository\BitsRepository::class,
+        'hypeTrain'          => Repository\HypeTrainRepository::class,
+        'search'             => Repository\SearchRepository::class,
+        'whispers'           => Repository\WhisperRepository::class,
+        'ads'                => Repository\AdsRepository::class,
     ];
 
     /** @var array<string, mixed> */

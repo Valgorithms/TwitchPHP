@@ -106,6 +106,23 @@ abstract class Part implements \ArrayAccess, \JsonSerializable
         return $this->attributes[$key] ?? null;
     }
 
+    /**
+     * Writes straight to the attribute bag, skipping the `set{Key}Attribute`
+     * hook and date casting. For use *inside* a mutator, which would otherwise
+     * have no way to store its shaped value (and would recurse through
+     * {@see setAttribute()}).
+     */
+    protected function setRawAttribute(string $key, mixed $value): void
+    {
+        $this->attributes[$key] = $value;
+    }
+
+    /** Reads straight from the attribute bag, skipping the `get{Key}Attribute` hook. */
+    protected function getRawAttribute(string $key): mixed
+    {
+        return $this->attributes[$key] ?? null;
+    }
+
     public function attributeExists(string $key): bool
     {
         return array_key_exists($key, $this->attributes) || method_exists($this, 'get' . self::studly($key) . 'Attribute');

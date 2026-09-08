@@ -262,6 +262,34 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
     }
 
     /**
+     * Hydrate the rows of `$body` into Parts and return them as a fresh
+     * {@see Collection}. Rows of the repository's own {@see $part} are also
+     * merged into the live local collection; a different `$partClass` (a nested
+     * or sibling model) is only returned, not cached.
+     *
+     * @param array<string, mixed>|null $body
+     * @param class-string<Part>|null   $partClass
+     *
+     * @return Collection<Part>
+     */
+    protected function collectRows(?array $body, ?string $partClass = null, ?string $discrim = null): Collection
+    {
+        $partClass ??= $this->part;
+        $own = $partClass === $this->part;
+        $collection = new Collection([], $discrim ?? ($own ? $this->discrim : 'id'), $partClass);
+
+        foreach ($this->rows($body) as $row) {
+            $part = $this->factory->part($partClass, $row, true);
+            if ($own) {
+                $this->items->pushItem($part);
+            }
+            $collection->pushItem($part);
+        }
+
+        return $collection;
+    }
+
+    /**
      * Twitch wraps list results in `{ "data": [...] }`; a few endpoints return
      * a bare object. Normalise to a list of rows.
      *

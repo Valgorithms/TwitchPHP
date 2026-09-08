@@ -28,9 +28,19 @@ final class ScriptedHttp implements HttpInterface
     /** @var list<array<string, mixed>|null> */
     public array $script = [];
 
+    /** When set, the next request rejects with this instead of resolving. */
+    public ?\Throwable $throw = null;
+
     public function request(string $method, Endpoint|string $endpoint, ?array $content = null, array $headers = []): PromiseInterface
     {
         $this->calls[] = [$method, (string) $endpoint];
+
+        if ($this->throw !== null) {
+            $e = $this->throw;
+            $this->throw = null;
+
+            return \React\Promise\reject($e);
+        }
 
         return resolve($this->script === [] ? ['data' => []] : array_shift($this->script));
     }
@@ -151,5 +161,87 @@ final class RepositoryTest extends TestCase
 
         self::assertSame('PATCH', $this->http->calls[0][0]);
         self::assertSame('channels?broadcaster_id=42', $this->http->calls[0][1]);
+    }
+
+    public function testClipsForBroadcasterBuildsQueryAndHydrates(): void
+    {
+        $this->http->script[] = ['data' => [['id' => 'AwkwardHelplessSalamander', 'title' => 'clip', 'view_count' => 10]]];
+
+        $clips = await($this->twitch->clips->forBroadcaster('44445592'));
+
+        self::assertSame('GET', $this->http->calls[0][0]);
+        self::assertStringStartsWith('clips?', $this->http->calls[0][1]);
+        self::assertStringContainsString('broadcaster_id=44445592', $this->http->calls[0][1]);
+        self::assertSame('clip', $clips->first()->title);
+    }
+
+    public function testPollOpenPostsChoicesAsObjects(): void
+    {
+        $this->http->script[] = ['data' => [['id' => 'p1', 'title' => 'Best?', 'status' => 'ACTIVE']]];
+
+        $poll = await($this->twitch->polls->open('1', 'Best?', ['A', 'B'], ['duration' => 120]));
+
+        self::assertSame(['POST', 'polls'], $this->http->calls[0]);
+        self::assertSame('ACTIVE', $poll->status);
+    }
+
+    public function testPredictionResolvePatchesWithWinningOutcome(): void
+    {
+        $this->http->script[] = ['data' => [['id' => 'pr1', 'status' => 'RESOLVED']]];
+
+        $prediction = await($this->twitch->predictions->resolve('1', 'pr1', 'o2'));
+
+        self::assertSame(['PATCH', 'predictions'], $this->http->calls[0]);
+        self::assertSame('RESOLVED', $prediction->status);
+    }
+
+    public function testChannelPointsRedemptionsFilterByStatus(): void
+    {
+        $this->http->script[] = ['data' => [['id' => 'r1', 'status' => 'UNFULFILLED', 'user_id' => '9']]];
+
+        $redemptions = await($this->twitch->channelPoints->redemptions('1', 'reward-1', 'UNFULFILLED'));
+
+        self::assertSame('GET', $this->http->calls[0][0]);
+        self::assertStringContainsString('channel_points/custom_rewards/redemptions?', $this->http->calls[0][1]);
+        self::assertStringContainsString('reward_id=reward-1', $this->http->calls[0][1]);
+        self::assertStringContainsString('status=UNFULFILLED', $this->http->calls[0][1]);
+        self::assertSame('9', $redemptions->first()->user_id);
+    }
+
+    public function testSubscriptionCheckReturnsNullOnNotFound(): void
+    {
+        $this->http->throw = new \Twitch\Http\Exceptions\NotFoundException('no sub');
+
+        $result = await($this->twitch->subscriptions->check('1', '2'));
+
+        self::assertNull($result);
+    }
+
+    public function testRaidStartPostsFromAndToViaQuery(): void
+    {
+        $this->http->script[] = ['data' => [['created_at' => '2024-01-01T00:00:00Z', 'is_mature' => false]]];
+
+        $raid = await($this->twitch->raids->start('1', '2'));
+
+        self::assertSame('POST', $this->http->calls[0][0]);
+        self::assertStringContainsString('raids?', $this->http->calls[0][1]);
+        self::assertStringContainsString('from_broadcaster_id=1', $this->http->calls[0][1]);
+        self::assertStringContainsString('to_broadcaster_id=2', $this->http->calls[0][1]);
+        self::assertFalse($raid['is_mature']);
+    }
+
+    public function testSearchChannelsHydratesChannelSearchResults(): void
+    {
+        $this->http->script[] = ['data' => [[
+            'id' => '1', 'broadcaster_login' => 'a_seagull', 'display_name' => 'A_Seagull', 'is_live' => true, 'started_at' => '',
+        ]]];
+
+        $hits = await($this->twitch->search->channels('seagull', true));
+
+        self::assertSame('GET', $this->http->calls[0][0]);
+        self::assertStringContainsString('search/channels?', $this->http->calls[0][1]);
+        self::assertStringContainsString('live_only=true', $this->http->calls[0][1]);
+        self::assertSame('A_Seagull', $hits->first()->display_name);
+        self::assertNull($hits->first()->started_at);
     }
 }

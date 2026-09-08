@@ -2,6 +2,25 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- 17 more Helix resource repositories on the client: `clips`, `videos`, `polls`,
+  `predictions`, `channelPoints` (custom rewards + redemptions), `subscriptions`,
+  `eventSubscriptions` (the EventSub REST list), `teams`, `schedule`, `charity`,
+  `goals`, `raids`, `bits` (leaderboard + Cheermotes), `hypeTrain`, `search`
+  (categories + channels), `whispers`, `ads` (start commercial / schedule /
+  snooze).
+- Parts for the above: `Clip`, `Video`, `Poll`, `Prediction`, `CustomReward`,
+  `RewardRedemption`, `Subscription`, `EventSubSubscription`, `Team`, `Schedule`,
+  `ScheduleSegment`, `CharityCampaign`, `CharityDonation`, `Goal`, `Cheermote`,
+  `BitsLeaderboardEntry`, `HypeTrainEvent`, `ChannelSearchResult`.
+- `AbstractRepository::collectRows()` — shared hydrate-and-collect helper for
+  repositories returning a sibling/nested Part.
+- `Part::setRawAttribute()` / `getRawAttribute()` so a `set{Key}Attribute` mutator
+  can store its shaped value without recursing.
+
 ## [2.0.0] - 2026-09-08
 
 Ground-up rewrite. TwitchPHP is now a DiscordPHP-style async framework rather than a
