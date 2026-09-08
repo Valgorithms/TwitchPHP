@@ -17,6 +17,10 @@ All notable changes to this project are documented here.
 - `EventSub::desiredSubscriptions()` / `forget()`; the desired set is now keyed
   by type + condition so repeat calls and reconnects no longer accumulate
   duplicate subscriptions.
+- `Twitch\Chat\CommandClient` + `Command` — a `MessageCommandClient`-style layer
+  over the IRC `command` event with aliases, per-user cooldowns (moderators and
+  the broadcaster bypass), permission levels (`everyone` / `subscriber` / `vip` /
+  `moderator` / `broadcaster`, or a predicate), and an auto-generated `!help`.
 
 ## [3.0.0] - 2026-09-08
 

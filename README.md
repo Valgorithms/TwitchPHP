@@ -165,16 +165,35 @@ $twitch->on('ready', function (Twitch $twitch) {
     $irc = $twitch->getIrc();
 
     $irc->on('chat', function ($message) {
-        if (str_contains(strtolower($message->text), 'hello')) {
+        if (str_contains(strtolower($message->content), 'hello')) {
             $message->reply('hey!');
         }
     });
 
-    $irc->registerCommand('ping', function ($message) {
-        $message->say('pong');
-    });
+    $irc->registerCommand('ping', fn ($message) => $message->say('pong'));
 });
 ```
+
+### Richer commands
+
+`Twitch\Chat\CommandClient` layers aliases, per-user cooldowns, permission
+levels and an auto `!help` on top of the plain `command` event:
+
+```php
+use Twitch\Chat\Command;
+use Twitch\Chat\CommandClient;
+
+$cc = new CommandClient($twitch);
+
+$cc->command('dice', fn ($m) => $m->reply('🎲 ' . random_int(1, 6)), cooldown: 10, description: 'Roll a die');
+
+$cc->command('so', function ($m, $args) use ($twitch) {
+    $twitch->chat->shoutout($m->tags['room-id'], $args[0], $twitch->getUserId());
+}, aliases: ['shoutout'], permission: Command::MODERATOR, cooldown: 30, description: 'Shout a channel out');
+```
+
+Moderators and the broadcaster bypass cooldowns; `permission` also accepts a
+`fn (ChatMessage $m): bool` predicate.
 
 ## Events
 
