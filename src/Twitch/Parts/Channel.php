@@ -3,49 +3,43 @@
 /*
  * This file is a part of the TwitchPHP project.
  *
- * Copyright (c) 2021-Present Valithor Obsidion <valithor@valgorithms.com>
+ * Copyright (c) 2025-present Valithor Obsidion <valithor@valgorithms.com>
+ *
+ * This file is subject to the MIT license that is bundled
+ * with this source code in the LICENSE file.
  */
 
 namespace Twitch\Parts;
 
-use React\Promise\PromiseInterface;
-
 /**
- * @since 3.0.0
+ * A channel's broadcast information (`GET /helix/channels`).
  *
- * @property string|null $discrim                   The discriminator used for the collection.
- * @property string|null $cache                     The partial name of the cache for studlyCase lookup.
- * @property string      $broadcaster_user_id       The ID of the broadcaster user.
- * @property string      $broadcaster_user_login    The login name of the broadcaster user.
- * @property string      $broadcaster_user_name     The display name of the broadcaster user.
+ * @link https://dev.twitch.tv/docs/api/reference/#get-channel-information
  *
- * @method void sendMessage(string $data) Sends a message to the Twitch channel.
- * @method string __toString() Returns the broadcaster user name as a string.
+ * @property string        $broadcaster_id
+ * @property string        $broadcaster_login
+ * @property string        $broadcaster_name
+ * @property string        $broadcaster_language
+ * @property string        $game_id
+ * @property string        $game_name
+ * @property string        $title
+ * @property int           $delay
+ * @property list<string>  $tags
+ * @property list<array<string, mixed>> $content_classification_labels
+ * @property bool          $is_branded_content
  */
-class Channel extends NeoPart
+final class Channel extends Part
 {
-    public ?string $discrim = 'broadcaster_user_id';
-    public ?string $cache = 'channel';
+    protected array $fillable = [
+        'broadcaster_id', 'broadcaster_login', 'broadcaster_name', 'broadcaster_language',
+        'game_id', 'game_name', 'title', 'delay', 'tags',
+        'content_classification_labels', 'is_branded_content',
+    ];
 
-    public string $broadcaster_user_id;
-    public string $broadcaster_user_login;
-    public string $broadcaster_user_name;
+    protected array $fillableAfterSave = [
+        'game_id', 'title', 'broadcaster_language', 'delay', 'tags',
+        'content_classification_labels', 'is_branded_content',
+    ];
 
-    /**
-     * Sends a message to the Twitch channel.
-     *
-     * @param string $data The message to be sent.
-     *
-     * @return void
-     */
-    public function sendMessage(string $data): PromiseInterface
-    {
-        $this->twitch->logger->info("[REPLY] #$this - $data");
-        return $this->twitch->write("PRIVMSG #$this :$data\n");
-    }
-    
-    public function __toString(): string
-    {
-        return $this->broadcaster_user_name ?? '';
-    }
+    protected string $discrim = 'broadcaster_id';
 }

@@ -1,6 +1,7 @@
 {
     "name": "vzgcoders/twitchphp",
-    "description": "An unofficial API to interact with the IRC chat service used by Twitch.",
+    "description": "An async ReactPHP framework for the Twitch Helix API, EventSub, and chat — built like DiscordPHP.",
+    "keywords": ["twitch", "helix", "eventsub", "irc", "chat", "bot", "reactphp", "async", "api-client"],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -9,39 +10,50 @@
             "email": "valithor@valgorithms.com"
         }
     ],
+    "support": {
+        "issues": "https://github.com/Valgorithms/TwitchPHP/issues",
+        "source": "https://github.com/Valgorithms/TwitchPHP"
+    },
     "require": {
-        "php": "^8.0",
-        "vzgcoders/helix": "dev-main",
-        "evenement/evenement": "^3.0 || ^2.0",
-        "monolog/monolog": "^3.2",
-        "phpunit/phpunit": "^9.5",
-        "ratchet/pawl": "^0.4.1",
-        "react/cache": "^0.5 || ^0.6 || ^1.0",
-        "react/datagram": "^1.8",
-        "react/event-loop": "^1.2",
-        "react/socket": "^1.16",
-        "react/stream": "^1.1",
-        "symfony/options-resolver": "^5.1.11 || ^6.0 || ^7.0",
-        "team-reflex/discord-php": "^10.0.0 || dev-master",
+        "php": "^8.4",
         "twitchphp/http": "dev-main",
-        "valzargaming/handler": "dev-main",
-        "react/dns": "^1.13",
-        "react/http": "^1.10"
+        "discord-php-helpers/collection": "dev-main",
+        "evenement/evenement": "^3.0",
+        "nesbot/carbon": "^3.8 || ^2.72",
+        "psr/log": "^1.1 || ^2.0 || ^3.0",
+        "ratchet/pawl": "^0.4.1",
+        "react/event-loop": "^1.5",
+        "react/promise": "^3.2 || ^2.11",
+        "react/socket": "^1.16",
+        "symfony/options-resolver": "^6.4 || ^7.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64",
+        "monolog/monolog": "^3.0",
+        "phpunit/phpunit": "^11.0 || ^10.5",
+        "react/async": "^4.3 || ^3.2"
+    },
+    "suggest": {
+        "monolog/monolog": "A PSR-3 logger for the client's debug output",
+        "ext-uv": "A faster ReactPHP event loop"
     },
     "autoload": {
         "psr-4": {
             "Twitch\\": "src/Twitch"
         }
     },
-    "suggest": {
-        "team-reflex/discord-php": "Required to relay chat to Discord",
-        "ext-uv": "For a faster, and more performant loop. PHP >=7 only. Preferred.",
-        "ext-libev": "For a faster, and more performant loop",
-        "ext-event": "For a faster, and more performant loop",
-        "ext-mbstring": "For accurate calculations of string length when handling non-english characters."
+    "autoload-dev": {
+        "psr-4": {
+            "Twitch\\Tests\\": "tests"
+        }
     },
     "scripts": {
-        "cs": ["./vendor/bin/php-cs-fixer fix"],
-        "unit": ["./vendor/bin/phpunit"]
+        "cs": "php-cs-fixer fix",
+        "test": "phpunit"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "sort-packages": true
     }
 }

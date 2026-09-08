@@ -3,66 +3,38 @@
 /*
  * This file is a part of the TwitchPHP project.
  *
- * Copyright (c) 2021 Valithor Obsidion <valithor@valgorithms.com>
+ * Copyright (c) 2025-present Valithor Obsidion <valithor@valgorithms.com>
+ *
+ * This file is subject to the MIT license that is bundled
+ * with this source code in the LICENSE file.
  */
 
 namespace Twitch\Parts;
 
-use Carbon\Carbon;
-use PHPUnit\Framework\MockObject\MockObject;
-use Twitch\Builders\MessageBuilder;
-use Twitch\Parts\NeoPart;
-use Twitch\Parts\Channel\Message;
-use Twitch\Twitch;
-use React\Promise\ExtendedPromiseInterface;
-
 /**
- * @since 3.0.0
+ * A Twitch user (`GET /helix/users`).
  *
- * @property string       $id                     An ID that identifies the user.
- * @property string       $login                  The user’s login name.
- * @property string       $display_name           The user’s display name.
- * @property string       $type                   The type of user. Possible values are: admin, global_mod, staff, "" (Normal user).
- * @property string       $broadcaster_type       The type of broadcaster. Possible values are: affiliate, partner, "" (Normal broadcaster).
- * @property string       $description            The user’s description of their channel.
- * @property string       $profile_image_url      A URL to the user’s profile image.
- * @property string       $offline_image_url      A URL to the user’s offline image.
- * @property int|null     $view_count             The number of times the user’s channel has been viewed. (Deprecated)
- * @property string|null  $email                  The user’s verified email address.
- * @property string       $created_at             The UTC date and time that the user’s account was created. The timestamp is in RFC3339 format.
+ * @link https://dev.twitch.tv/docs/api/reference/#get-users
  *
- * @method ExtendedPromiseInterface<Message> sendMessage(MessageBuilder $builder)
- * @method string __toString() Returns the user's display name as a string.
+ * @property string             $id
+ * @property string             $login
+ * @property string             $display_name
+ * @property string             $type              '' | 'admin' | 'global_mod' | 'staff'
+ * @property string             $broadcaster_type  '' | 'affiliate' | 'partner'
+ * @property string             $description
+ * @property string             $profile_image_url
+ * @property string             $offline_image_url
+ * @property string|null        $email             Only with the `user:read:email` scope.
+ * @property \Carbon\CarbonImmutable $created_at
  */
-class User extends NeoPart
+final class User extends Part
 {
-    public ?string $discrim = 'id';
-    public ?string $cache = 'user';
+    protected array $fillable = [
+        'id', 'login', 'display_name', 'type', 'broadcaster_type', 'description',
+        'profile_image_url', 'offline_image_url', 'view_count', 'email', 'created_at',
+    ];
 
-    public ?string $id;
-    public ?string $display_name;
-    public ?string $type;
-    public ?string $broadcaster_type;
-    public ?string $description;
-    public ?string $profile_image_url;
-    public ?string $offline_image_url;
-    public ?int    $view_count;
-    public ?string $email;
-    public ?Carbon $created_at;
+    protected array $fillableAfterSave = ['description'];
 
-    public function __construct(
-        public null|Twitch|MockObject &$twitch,
-        private null|string|array $json_data
-    ) {
-        $json_data = &$this->json_data;
-        if (is_string($json_data)) $json_data = json_decode($json_data, true);
-        if (! is_array($json_data)) $json_data = ['id' => 1];
-        if (! isset($json_data['id'])) $json_data['id'] = 1; // Default to 1
-        parent::__construct($twitch, $json_data);
-    }
-    
-    public function __toString(): string
-    {
-        return $this->display_name ?? $this->id ?? '';
-    }
+    protected array $dates = ['created_at'];
 }
