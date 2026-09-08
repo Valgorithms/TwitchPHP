@@ -2,42 +2,28 @@
 
 All notable changes to this project are documented here.
 
-## [Unreleased]
-
-### Added
-
-- 17 more Helix resource repositories on the client: `clips`, `videos`, `polls`,
-  `predictions`, `channelPoints` (custom rewards + redemptions), `subscriptions`,
-  `eventSubscriptions` (the EventSub REST list), `teams`, `schedule`, `charity`,
-  `goals`, `raids`, `bits` (leaderboard + Cheermotes), `hypeTrain`, `search`
-  (categories + channels), `whispers`, `ads` (start commercial / schedule /
-  snooze).
-- Parts for the above: `Clip`, `Video`, `Poll`, `Prediction`, `CustomReward`,
-  `RewardRedemption`, `Subscription`, `EventSubSubscription`, `Team`, `Schedule`,
-  `ScheduleSegment`, `CharityCampaign`, `CharityDonation`, `Goal`, `Cheermote`,
-  `BitsLeaderboardEntry`, `HypeTrainEvent`, `ChannelSearchResult`.
-- `AbstractRepository::collectRows()` — shared hydrate-and-collect helper for
-  repositories returning a sibling/nested Part.
-- `Part::setRawAttribute()` / `getRawAttribute()` so a `set{Key}Attribute` mutator
-  can store its shaped value without recursing.
-
-## [2.0.0] - 2026-09-08
+## [3.0.0] - 2026-09-08
 
 Ground-up rewrite. TwitchPHP is now a DiscordPHP-style async framework rather than a
-single-purpose chat self-bot.
+single-purpose chat self-bot. Nothing from the `2.0.x` line carries over — the
+client, models and entry points are all new.
 
 ### Added
 
 - **`Twitch\Twitch` client** — owns the OAuth token lifecycle (app token, user token,
   transparent refresh on `401`), the HTTP transport, the part factory, and the resource
   repositories. Emits `init` / `ready`.
-- **Helix repositories** — `users`, `channels`, `streams`, `games`, `chat`, `moderation`,
-  each a `Twitch\Repository\AbstractRepository` with `freshen()` / `all()` (auto-paginates
-  `pagination.cursor`) / `fetch()` / `save()` / `delete()` and collection access.
-- **Parts** — hydrated `Twitch\Parts\*` models (`User`, `Channel`, `Stream`, `Game`,
-  `Chatter`, `ChatSettings`, `Emote`, `ChatBadge`, `BannedUser`, `Moderator`, `BlockedTerm`,
-  `ChatMessage`) with `$fillable` allow-lists, `set*/get*Attribute` hooks and `Carbon` date
-  casting.
+- **24 Helix repositories** on the client — `users`, `channels`, `streams`, `games`,
+  `chat`, `moderation`, `clips`, `videos`, `polls`, `predictions`, `channelPoints`
+  (rewards + redemption queue), `subscriptions`, `eventSubscriptions`, `teams`,
+  `schedule`, `charity`, `goals`, `raids`, `bits` (leaderboard + Cheermotes),
+  `hypeTrain`, `search`, `whispers`, `ads`, `contentLabels` — each a
+  `Twitch\Repository\AbstractRepository` with `freshen()` / `all()` (auto-paginates
+  `pagination.cursor`) / `fetch()` / `save()` / `delete()`, `collectRows()` for
+  sibling Parts, and typed convenience methods.
+- **30 Parts** — hydrated `Twitch\Parts\*` models with `$fillable` allow-lists,
+  `set*/get*Attribute` hooks (`setRawAttribute()` / `getRawAttribute()` for
+  non-recursing mutators) and `Carbon` date casting.
 - **EventSub over WebSocket** (`Twitch\EventSub\EventSub`) — `session_welcome` /
   `session_keepalive` / `session_reconnect` / `revocation` / `notification` handling,
   automatic reconnect and subscription replay. Fires `eventsub` and `eventsub.<type>`.

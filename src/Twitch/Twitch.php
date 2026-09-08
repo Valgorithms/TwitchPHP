@@ -72,7 +72,7 @@ class Twitch implements EventEmitterInterface
 {
     use EventEmitterTrait;
 
-    public const VERSION = '2.0.0-dev';
+    public const VERSION = '3.0.0';
 
     /** Repository accessors: property name → class. */
     private const REPOSITORIES = [
