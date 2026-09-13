@@ -125,6 +125,11 @@ final class SubscriptionTypes
         self::CHANNEL_FOLLOW => '2',
         self::CHANNEL_MODERATE => '2',
         self::CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD => '2',
+        // v1 of the Hype Train types was withdrawn alongside the
+        // `hypetrain/events` endpoint; subscribing to v1 now fails.
+        self::HYPE_TRAIN_BEGIN => '2',
+        self::HYPE_TRAIN_PROGRESS => '2',
+        self::HYPE_TRAIN_END => '2',
         self::CHANNEL_BITS_USE => '1',
         self::CHANNEL_VIP_ADD => '1',
         self::CHANNEL_VIP_REMOVE => '1',
