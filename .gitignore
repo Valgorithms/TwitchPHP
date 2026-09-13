@@ -10,3 +10,4 @@
 /tools/
 /phive.xml
 /.phive/
+.env.bak
