@@ -5,3 +5,9 @@
 /.phpunit.result.cache
 /.env
 /.vscode
+/build/
+/.phpdoc/
+/tools/
+/phive.xml
+/.phive/
+.env.bak

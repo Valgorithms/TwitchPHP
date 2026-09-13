@@ -17,17 +17,22 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
+use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 
 use function React\Promise\reject;
 use function React\Promise\resolve;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Twitch\Auth\DeviceCodeReauthorizer;
+use Twitch\Auth\ReauthorizerInterface;
+use Twitch\Auth\TokenStoreInterface;
 use Twitch\Chat\Irc;
 use Twitch\EventSub\EventSub;
 use Twitch\Factory\Factory;
 use Twitch\Http\Endpoint;
 use Twitch\Http\Exceptions\InvalidTokenException;
+use Twitch\Http\Exceptions\MissingScopeException;
 use Twitch\Http\Http;
 use Twitch\Http\HttpInterface;
 use Twitch\Http\OAuth;
@@ -40,6 +45,16 @@ use Twitch\Repository\AbstractRepository;
  * the resource repositories (`$twitch->users`, `$twitch->streams`, …), and,
  * when configured, the {@see EventSub} WebSocket and the {@see Irc} chat client.
  * Emits `init` / `ready` once authenticated and set up.
+ *
+ * Tokens look after themselves when the two auth options are supplied. A
+ * `token_store` ({@see \Twitch\Auth\TokenStoreInterface}) is read at startup
+ * and written through on every change, which matters because Twitch
+ * invalidates the previous refresh token each time it issues a new one. A
+ * `reauthorize` strategy ({@see \Twitch\Auth\ReauthorizerInterface}) is the
+ * last resort when refreshing can no longer recover a grant. Between them a
+ * 401 on any call is recovered from and the request retried once — except a
+ * missing scope, which surfaces immediately as no new token can widen a grant.
+ * Emits `token_refreshed` and `reauthorized` as those happen.
  *
  * @property-read \Twitch\Repository\UserRepository                 $users
  * @property-read \Twitch\Repository\ChannelRepository              $channels
@@ -138,7 +153,15 @@ class Twitch implements EventEmitterInterface
 
     private bool $ready = false;
 
-    private bool $refreshing = false;
+    /** The in-flight refresh, shared by every caller that arrives during it. */
+    private ?PromiseInterface $refreshing = null;
+
+    /** The in-flight re-authorization, shared the same way. */
+    private ?PromiseInterface $reauthorizing = null;
+
+    private ReauthorizerInterface $reauthorizer;
+
+    private ?TokenStoreInterface $tokenStore;
 
     /** @var array<string, AbstractRepository> */
     private array $repositories = [];
@@ -156,8 +179,19 @@ class Twitch implements EventEmitterInterface
 
         $this->loop = $this->options['loop'];
         $this->logger = $this->options['logger'];
+        $this->tokenStore = $this->options['token_store'];
+        $this->reauthorizer = $this->options['reauthorize'] ?? DeviceCodeReauthorizer::disabled();
+
         $this->token = (string) ($this->options['token'] ?? '');
         $this->refreshToken = $this->options['refresh_token'];
+
+        // Fall back to whatever was persisted last run, so a rotated pair
+        // survives a restart without the caller plumbing it through by hand.
+        if ($this->tokenStore !== null) {
+            $stored = $this->tokenStore->load();
+            $this->token = $this->token !== '' ? $this->token : ($stored['access_token'] ?? '');
+            $this->refreshToken ??= $stored['refresh_token'] ?? null;
+        }
 
         $this->oauth = new OAuth(
             $this->options['client_id'],
@@ -225,14 +259,15 @@ class Twitch implements EventEmitterInterface
             return $this->oauth->validate($this->token)->then(
                 fn (array $info) => $this->applyValidation($info),
                 function (\Throwable $e): PromiseInterface {
-                    if ($e instanceof InvalidTokenException && $this->refreshToken !== null) {
-                        $this->logger->info('access token invalid — refreshing');
-
-                        return $this->refreshAccessToken()->then(fn () => $this->oauth->validate($this->token))
-                            ->then(fn (array $info) => $this->applyValidation($info));
+                    if (! $e instanceof InvalidTokenException) {
+                        throw $e;
                     }
 
-                    throw $e;
+                    $this->logger->info('access token invalid — recovering');
+
+                    return $this->recoverToken()
+                        ->then(fn () => $this->oauth->validate($this->token))
+                        ->then(fn (array $info) => $this->applyValidation($info));
                 },
             );
         }
@@ -257,6 +292,109 @@ class Twitch implements EventEmitterInterface
     }
 
     /**
+     * Gets back to a usable token: refresh if we can, re-authorize if we
+     * must. Rejects when neither route is available, so the caller can let
+     * the original failure surface.
+     *
+     * @return PromiseInterface<string>
+     */
+    private function recoverToken(): PromiseInterface
+    {
+        if ($this->refreshToken === null) {
+            return $this->reauthorize();
+        }
+
+        return $this->refreshAccessToken()->catch(function (\Throwable $e): PromiseInterface {
+            $this->logger->info('refresh failed (' . $e->getMessage() . ') — re-authorizing');
+
+            return $this->reauthorize();
+        });
+    }
+
+    /**
+     * Runs the configured {@see ReauthorizerInterface} to obtain a brand-new
+     * grant. Concurrent callers share one attempt, so a burst of 401s cannot
+     * prompt the user several times over. Emits `reauthorized`.
+     *
+     * @return PromiseInterface<string> The new access token.
+     */
+    public function reauthorize(): PromiseInterface
+    {
+        if ($this->reauthorizing !== null) {
+            return $this->reauthorizing;
+        }
+
+        $this->logger->info('re-authorizing');
+
+        $deferred = new Deferred();
+        $promise = $deferred->promise();
+        $this->reauthorizing = $promise;
+
+        $this->reauthorizer->reauthorize()->then(
+            function (array $token) use ($deferred): void {
+                $this->reauthorizing = null;
+                $this->applyToken($token);
+                $this->logger->info('re-authorized', ['scopes' => count($this->scopes)]);
+                $this->emit('reauthorized', [$this->token, $this]);
+                $deferred->resolve($this->token);
+            },
+            function (\Throwable $e) use ($deferred): void {
+                $this->reauthorizing = null;
+                $this->logger->error('re-authorization failed: ' . $e->getMessage());
+                $deferred->reject($e);
+            },
+        );
+
+        return $promise;
+    }
+
+    /**
+     * Adopts a token payload from any grant: updates the transport, refreshes
+     * the cached scope list, and writes through to the token store.
+     *
+     * @param array<string, mixed> $token
+     */
+    private function applyToken(array $token): void
+    {
+        $this->token = (string) $token['access_token'];
+
+        if (! empty($token['refresh_token'])) {
+            $this->refreshToken = (string) $token['refresh_token'];
+        }
+        if (isset($token['scope']) && is_array($token['scope'])) {
+            $this->scopes = array_values($token['scope']);
+        }
+        if (isset($this->http)) {
+            $this->http->setToken($this->token);
+        }
+
+        $this->persist($token);
+    }
+
+    /**
+     * Twitch invalidates the previous refresh token on every rotation, so a
+     * client that does not write the new pair somewhere durable locks itself
+     * out the moment the process restarts.
+     *
+     * A store that cannot be written is logged and swallowed: losing
+     * persistence should not take down a request that otherwise succeeded.
+     *
+     * @param array<string, mixed> $token
+     */
+    private function persist(array $token): void
+    {
+        if ($this->tokenStore === null) {
+            return;
+        }
+
+        try {
+            $this->tokenStore->save($token + ['refresh_token' => $this->refreshToken]);
+        } catch (\Throwable $e) {
+            $this->logger->error('could not persist token: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Trades the refresh token for a fresh access token and updates the
      * transport. Emits `token_refreshed`.
      *
@@ -267,48 +405,66 @@ class Twitch implements EventEmitterInterface
         if ($this->refreshToken === null) {
             return reject(new \RuntimeException('No refresh_token available'));
         }
-        if ($this->refreshing) {
-            return reject(new \RuntimeException('A token refresh is already in progress'));
+
+        // Concurrent callers join the attempt already running rather than
+        // failing outright — and, more importantly, rather than each burning
+        // a rotation of their own against the same refresh token.
+        if ($this->refreshing !== null) {
+            return $this->refreshing;
         }
 
-        $this->refreshing = true;
+        $deferred = new Deferred();
+        $promise = $deferred->promise();
+        $this->refreshing = $promise;
 
-        return $this->oauth->refreshToken($this->refreshToken)->then(
-            function (array $token): string {
-                $this->refreshing = false;
-                $this->token = $token['access_token'];
-                $this->refreshToken = $token['refresh_token'] ?? $this->refreshToken;
-                if (isset($this->http)) {
-                    $this->http->setToken($this->token);
-                }
+        $this->oauth->refreshToken($this->refreshToken)->then(
+            function (array $token) use ($deferred): void {
+                $this->refreshing = null;
+                $this->applyToken($token);
                 $this->emit('token_refreshed', [$this->token, $this]);
-
-                return $this->token;
+                $deferred->resolve($this->token);
             },
-            function (\Throwable $e) {
-                $this->refreshing = false;
-
-                throw $e;
+            function (\Throwable $e) use ($deferred): void {
+                $this->refreshing = null;
+                $deferred->reject($e);
             },
         );
+
+        return $promise;
     }
 
     /**
-     * A Helix request that transparently refreshes the token once on a 401.
+     * A Helix request that recovers from a dead token once, then retries.
      * Repositories go through here.
      *
+     * Recovery is refresh-then-re-authorize (see {@see recoverToken()}). If
+     * neither works the original 401 is what surfaces, not the recovery
+     * error — the caller asked about the endpoint, not about our plumbing.
+     *
+     * A {@see MissingScopeException} is never retried: it sits deliberately
+     * outside {@see InvalidTokenException} because no amount of re-issuing
+     * widens a grant that was never asked for.
+     *
      * @param array<string, mixed>|null $content
+     * @param bool                      $retry Internal: false on the retry itself, so recovery is attempted at most once.
      */
-    public function request(string $method, Endpoint|string $endpoint, ?array $content = null): PromiseInterface
+    public function request(string $method, Endpoint|string $endpoint, ?array $content = null, bool $retry = true): PromiseInterface
     {
-        return $this->http->request($method, $endpoint, $content)->catch(function (\Throwable $e) use ($method, $endpoint, $content) {
-            if ($e instanceof InvalidTokenException && $this->refreshToken !== null && ! $this->refreshing) {
-                $this->logger->info('401 on ' . $endpoint . ' — refreshing token and retrying');
-
-                return $this->refreshAccessToken()->then(fn () => $this->http->request($method, $endpoint, $content));
+        return $this->http->request($method, $endpoint, $content)->catch(function (\Throwable $e) use ($method, $endpoint, $content, $retry) {
+            if (! $retry || ! $e instanceof InvalidTokenException) {
+                throw $e;
             }
 
-            throw $e;
+            $this->logger->info('401 on ' . $endpoint . ' — recovering token and retrying');
+
+            return $this->recoverToken()->then(
+                fn (): PromiseInterface => $this->request($method, $endpoint, $content, false),
+                function (\Throwable $recoveryFailure) use ($e): never {
+                    $this->logger->error('token recovery failed: ' . $recoveryFailure->getMessage());
+
+                    throw $e;
+                },
+            );
         });
     }
 
@@ -433,6 +589,8 @@ class Twitch implements EventEmitterInterface
                 'channels'       => [],
                 'command_prefix' => '!',
                 'eventsub'       => false,
+                'reauthorize'    => null,
+                'token_store'    => null,
             ])
             ->setAllowedTypes('client_id', 'string')
             ->setAllowedTypes('client_secret', 'string')
@@ -444,6 +602,8 @@ class Twitch implements EventEmitterInterface
             ->setAllowedTypes('channels', 'string[]')
             ->setAllowedTypes('command_prefix', 'string')
             ->setAllowedTypes('eventsub', 'bool')
+            ->setAllowedTypes('reauthorize', ['null', ReauthorizerInterface::class])
+            ->setAllowedTypes('token_store', ['null', TokenStoreInterface::class])
             ->setNormalizer('loop', static fn ($o, $v) => $v ?? Loop::get())
             ->setNormalizer('logger', static fn ($o, $v) => $v ?? new NullLogger())
             ->setNormalizer('channels', static fn ($o, $v) => array_map(

@@ -9,3 +9,4 @@
 /phpunit.xml         export-ignore
 /CHANGELOG.md        export-ignore
 /example.env         export-ignore
+/phpdoc.dist.xml     export-ignore

@@ -2,6 +2,47 @@
 
 All notable changes to this project are documented here.
 
+## [Unreleased]
+
+### Added
+
+- `Twitch\Auth\TokenStoreInterface` + `EnvFileTokenStore` — somewhere durable to
+  keep the token pair, passed as the new `token_store` option. Twitch rotates
+  the refresh token on every refresh and invalidates the old one, so a client
+  that refreshed without persisting the result locked itself out of its own
+  account the moment the process restarted. The store is read at startup (so
+  `token` / `refresh_token` need not be passed at all) and written through on
+  every token change.
+- `Twitch\Auth\ReauthorizerInterface` + `DeviceCodeReauthorizer` — a strategy
+  for obtaining a brand-new grant when refreshing can no longer recover one,
+  passed as the new `reauthorize` option. The device-code flow needs no
+  redirect URI and no local HTTP listener; its prompt is injected, so the same
+  flow works from a CLI, a bot DM, or anywhere else. Defaults to disabled, so a
+  headless client surfaces the 401 rather than hanging on a prompt nobody sees.
+- `Twitch::reauthorize()` and the `reauthorized` event.
+- `examples/reauthorize.php` (one-shot re-authorization) and
+  `examples/self-healing-auth.php` (the full lifecycle wired up).
+
+### Changed
+
+- A 401 is now recovered from by refreshing *and*, failing that, by
+  re-authorizing; the request is then retried once and continues. If neither
+  route works the original 401 surfaces rather than the recovery error.
+- Concurrent callers now join an in-flight token refresh instead of being
+  rejected with "A token refresh is already in progress" — and, more
+  importantly, instead of each burning a rotation of their own.
+
+### Fixed
+
+- A missing *scope* no longer triggers a token refresh. Every 401 was being
+  mapped to `InvalidTokenException`, so each scope failure spent a full
+  refresh round trip (~550ms against ~90ms) and a refresh-token rotation on a
+  retry that could never succeed. Scope failures now raise
+  `MissingScopeException`, which names the scopes that would satisfy the call.
+- A 401 from an endpoint that requires a *different kind* of token (conduits,
+  which accept app access tokens only) no longer triggers recovery either — it
+  previously refreshed on every call and would have re-authorized in a loop.
+
 ## [3.1.0] - 2026-09-08
 
 ### Added
