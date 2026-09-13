@@ -51,10 +51,33 @@ Twitch has several OAuth flows; TwitchPHP supports the ones a bot or service nee
 | You have… | Pass | Behaviour |
 | --- | --- | --- |
 | A client id + secret only | `client_id`, `client_secret` | Requests an **app access token** (client-credentials). Good for public data and EventSub. |
-| A user access token | `token` (+ optional `refresh_token`) | Validated on startup. With a `refresh_token`, an invalid/expired token is refreshed transparently, and any Helix `401` triggers one refresh-and-retry. |
+| A user access token | `token` (+ optional `refresh_token`) | Validated on startup. With a `refresh_token`, an invalid/expired token is refreshed transparently, and any Helix `401` triggers one recover-and-retry. |
 
 `Twitch\Http\OAuth` also exposes `authorizationUrl()`, `exchangeCode()`, `deviceCode()`, `validate()`
 and `revoke()` for building the authorization-code / device-code flows in your own app.
+
+### Keeping a token alive
+
+Twitch invalidates the previous refresh token every time it issues a new one, so
+a long-running client that refreshes without saving the result locks itself out
+of its own account as soon as the process restarts. Pass a `token_store` and the
+rotation is persisted for you; pass a `reauthorize` strategy and a grant that
+can no longer be refreshed is rebuilt from scratch:
+
+```php
+$twitch = new Twitch([
+    'client_id'     => getenv('TWITCH_CLIENT_ID'),
+    'client_secret' => getenv('TWITCH_CLIENT_SECRET'),
+    'token_store'   => new Twitch\Auth\EnvFileTokenStore(__DIR__ . '/.env'),
+    'reauthorize'   => new Twitch\Auth\DeviceCodeReauthorizer($oauth, $scopes, $prompt),
+]);
+```
+
+A `401` is then refreshed, or re-authorized, and the request retried once. The
+exception is a missing **scope**: `MissingScopeException` surfaces immediately,
+naming the scopes that would have satisfied the call, because no amount of
+re-issuing widens a grant that was never asked for. See
+`examples/self-healing-auth.php`.
 
 ## The Helix client
 
@@ -228,6 +251,8 @@ Moderators and the broadcaster bypass cooldowns; `permission` also accepts a
 | `channels` | `[]` | Normalised to `#lowercase`. |
 | `command_prefix` | `'!'` | |
 | `eventsub` | `false` | Set to connect the EventSub client. |
+| `token_store` | `null` | A `Twitch\Auth\TokenStoreInterface`. Read at startup, written through on every token change. |
+| `reauthorize` | `null` | A `Twitch\Auth\ReauthorizerInterface`, used when refreshing can no longer recover a grant. |
 
 ## Development
 
