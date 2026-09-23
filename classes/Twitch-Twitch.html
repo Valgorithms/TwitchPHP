@@ -64,6 +64,10 @@
 </h4>
     <ul class="phpdocumentor-list">
                     <li>
+                <a href="namespaces/twitch-auth.html" class="">Auth</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/twitch-chat.html" class="">Chat</a>
                 
             </li>
@@ -142,7 +146,7 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">76</span>
+    <span class="phpdocumentor-element-found-in__line">91</span>
 
     </aside>
 
@@ -153,6 +157,15 @@
 the resource repositories (<code class="prettyprint">$twitch-&gt;users</code>, <code class="prettyprint">$twitch-&gt;streams</code>, …), and,
 when configured, the <a href="classes/Twitch-EventSub-EventSub.html"><abbr title="\Twitch\EventSub\EventSub">EventSub</abbr></a> WebSocket and the <a href="classes/Twitch-Chat-Irc.html"><abbr title="\Twitch\Chat\Irc">Irc</abbr></a> chat client.
 Emits <code class="prettyprint">init</code> / <code class="prettyprint">ready</code> once authenticated and set up.</p>
+<p>Tokens look after themselves when the two auth options are supplied. A
+<code class="prettyprint">token_store</code> (<a href="classes/Twitch-Auth-TokenStoreInterface.html"><abbr title="\Twitch\Auth\TokenStoreInterface">TokenStoreInterface</abbr></a>) is read at startup
+and written through on every change, which matters because Twitch
+invalidates the previous refresh token each time it issues a new one. A
+<code class="prettyprint">reauthorize</code> strategy (<a href="classes/Twitch-Auth-ReauthorizerInterface.html"><abbr title="\Twitch\Auth\ReauthorizerInterface">ReauthorizerInterface</abbr></a>) is the
+last resort when refreshing can no longer recover a grant. Between them a
+401 on any call is recovered from and the request retried once — except a
+missing scope, which surfaces immediately as no new token can widen a grant.
+Emits <code class="prettyprint">token_refreshed</code> and <code class="prettyprint">reauthorized</code> as those happen.</p>
 </section>
 
 
@@ -456,10 +469,24 @@ Emits <code class="prettyprint">init</code> / <code class="prettyprint">ready</c
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Twitch.html#property_reauthorizer">$reauthorizer</a>
+    <span>
+                        &nbsp;: <a href="classes/Twitch-Auth-ReauthorizerInterface.html"><abbr title="\Twitch\Auth\ReauthorizerInterface">ReauthorizerInterface</abbr></a>            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Twitch.html#property_reauthorizing">$reauthorizing</a>
+    <span>
+                        &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>|null            </span>
+</dt>
+<dd>The in-flight re-authorization, shared the same way.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Twitch-Twitch.html#property_refreshing">$refreshing</a>
     <span>
-                        &nbsp;: bool            </span>
+                        &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>|null            </span>
 </dt>
+<dd>The in-flight refresh, shared by every caller that arrives during it.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Twitch-Twitch.html#property_refreshToken">$refreshToken</a>
@@ -483,6 +510,12 @@ Emits <code class="prettyprint">init</code> / <code class="prettyprint">ready</c
     <a class="" href="classes/Twitch-Twitch.html#property_token">$token</a>
     <span>
                         &nbsp;: string            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Twitch.html#property_tokenStore">$tokenStore</a>
+    <span>
+                        &nbsp;: <a href="classes/Twitch-Auth-TokenStoreInterface.html"><abbr title="\Twitch\Auth\TokenStoreInterface">TokenStoreInterface</abbr></a>|null            </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
@@ -604,6 +637,15 @@ Emits <code class="prettyprint">init</code> / <code class="prettyprint">ready</c
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Twitch.html#method_reauthorize">reauthorize()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;    </span>
+</dt>
+<dd>Runs the configured {@see ReauthorizerInterface} to obtain a brand-new
+grant. Concurrent callers share one attempt, so a burst of 401s cannot
+prompt the user several times over. Emits `reauthorized`.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Twitch.html#method_refreshAccessToken">refreshAccessToken()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;    </span>
@@ -616,7 +658,7 @@ transport. Emits `token_refreshed`.</dd>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>    </span>
 </dt>
-<dd>A Helix request that transparently refreshes the token once on a 401.</dd>
+<dd>A Helix request that recovers from a dead token once, then retries.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Twitch.html#method_run">run()</a>
@@ -630,6 +672,14 @@ transport. Emits `token_refreshed`.</dd>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Twitch.html#method_applyToken">applyToken()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Adopts a token payload from any grant: updates the transport, refreshes
+the cached scope list, and writes through to the token store.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Twitch-Twitch.html#method_applyValidation">applyValidation()</a>
@@ -648,6 +698,24 @@ transport. Emits `token_refreshed`.</dd>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Twitch.html#method_persist">persist()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Twitch invalidates the previous refresh token on every rotation, so a
+client that does not write the new pair somewhere durable locks itself
+out the moment the process restarts.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Twitch.html#method_recoverToken">recoverToken()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;    </span>
+</dt>
+<dd>Gets back to a usable token: refresh if we can, re-authorize if we
+must. Rejects when neither route is available, so the caller can let
+the original failure surface.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Twitch-Twitch.html#method_resolveOptions">resolveOptions()</a>
@@ -676,7 +744,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">80</span>
+    <span class="phpdocumentor-element-found-in__line">95</span>
 
     </aside>
 
@@ -706,7 +774,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">83</span>
+    <span class="phpdocumentor-element-found-in__line">98</span>
 
     </aside>
 
@@ -1826,7 +1894,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">146</span>
+    <span class="phpdocumentor-element-found-in__line">169</span>
 
     </aside>
 
@@ -1863,7 +1931,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">126</span>
+    <span class="phpdocumentor-element-found-in__line">141</span>
 
     </aside>
 
@@ -1900,7 +1968,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">124</span>
+    <span class="phpdocumentor-element-found-in__line">139</span>
 
     </aside>
 
@@ -1937,7 +2005,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">148</span>
+    <span class="phpdocumentor-element-found-in__line">171</span>
 
     </aside>
 
@@ -1974,7 +2042,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">120</span>
+    <span class="phpdocumentor-element-found-in__line">135</span>
 
     </aside>
 
@@ -2011,7 +2079,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">134</span>
+    <span class="phpdocumentor-element-found-in__line">149</span>
 
     </aside>
 
@@ -2048,7 +2116,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">118</span>
+    <span class="phpdocumentor-element-found-in__line">133</span>
 
     </aside>
 
@@ -2085,7 +2153,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">122</span>
+    <span class="phpdocumentor-element-found-in__line">137</span>
 
     </aside>
 
@@ -2122,7 +2190,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">116</span>
+    <span class="phpdocumentor-element-found-in__line">131</span>
 
     </aside>
 
@@ -2159,7 +2227,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">139</span>
+    <span class="phpdocumentor-element-found-in__line">154</span>
 
     </aside>
 
@@ -2186,6 +2254,81 @@ transport. Emits `token_refreshed`.</dd>
             -private
                                                                     "
 >
+    <h4 class="phpdocumentor-element__name" id="property_reauthorizer">
+        $reauthorizer
+        <a href="classes/Twitch-Twitch.html#property_reauthorizer" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">162</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type"><a href="classes/Twitch-Auth-ReauthorizerInterface.html"><abbr title="\Twitch\Auth\ReauthorizerInterface">ReauthorizerInterface</abbr></a></span>
+    <span class="phpdocumentor-signature__name">$reauthorizer</span>
+    </code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_reauthorizing">
+        $reauthorizing
+        <a href="classes/Twitch-Twitch.html#property_reauthorizing" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">160</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The in-flight re-authorization, shared the same way.</p>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>|null</span>
+    <span class="phpdocumentor-signature__name">$reauthorizing</span>
+     = <span class="phpdocumentor-signature__default-value">null</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
     <h4 class="phpdocumentor-element__name" id="property_refreshing">
         $refreshing
         <a href="classes/Twitch-Twitch.html#property_refreshing" class="headerlink"><i class="fas fa-link"></i></a>
@@ -2196,17 +2339,18 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">141</span>
+    <span class="phpdocumentor-element-found-in__line">157</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">The in-flight refresh, shared by every caller that arrives during it.</p>
+
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type">bool</span>
+            <span class="phpdocumentor-signature__type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>|null</span>
     <span class="phpdocumentor-signature__name">$refreshing</span>
-     = <span class="phpdocumentor-signature__default-value">false</span></code>
+     = <span class="phpdocumentor-signature__default-value">null</span></code>
 
     
     
@@ -2233,7 +2377,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">130</span>
+    <span class="phpdocumentor-element-found-in__line">145</span>
 
     </aside>
 
@@ -2270,7 +2414,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">144</span>
+    <span class="phpdocumentor-element-found-in__line">167</span>
 
     </aside>
 
@@ -2307,7 +2451,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">137</span>
+    <span class="phpdocumentor-element-found-in__line">152</span>
 
     </aside>
 
@@ -2344,7 +2488,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">128</span>
+    <span class="phpdocumentor-element-found-in__line">143</span>
 
     </aside>
 
@@ -2371,6 +2515,43 @@ transport. Emits `token_refreshed`.</dd>
             -private
                                                                     "
 >
+    <h4 class="phpdocumentor-element__name" id="property_tokenStore">
+        $tokenStore
+        <a href="classes/Twitch-Twitch.html#property_tokenStore" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">164</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type"><a href="classes/Twitch-Auth-TokenStoreInterface.html"><abbr title="\Twitch\Auth\TokenStoreInterface">TokenStoreInterface</abbr></a>|null</span>
+    <span class="phpdocumentor-signature__name">$tokenStore</span>
+    </code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
     <h4 class="phpdocumentor-element__name" id="property_userId">
         $userId
         <a href="classes/Twitch-Twitch.html#property_userId" class="headerlink"><i class="fas fa-link"></i></a>
@@ -2381,7 +2562,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">132</span>
+    <span class="phpdocumentor-element-found-in__line">147</span>
 
     </aside>
 
@@ -2423,7 +2604,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">153</span>
+    <span class="phpdocumentor-element-found-in__line">176</span>
 
     </aside>
 
@@ -2467,7 +2648,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">405</span>
+    <span class="phpdocumentor-element-found-in__line">561</span>
 
     </aside>
 
@@ -2515,7 +2696,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">193</span>
+    <span class="phpdocumentor-element-found-in__line">227</span>
 
     </aside>
 
@@ -2554,7 +2735,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">212</span>
+    <span class="phpdocumentor-element-found-in__line">246</span>
 
     </aside>
 
@@ -2589,7 +2770,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">364</span>
+    <span class="phpdocumentor-element-found-in__line">520</span>
 
     </aside>
 
@@ -2627,7 +2808,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">395</span>
+    <span class="phpdocumentor-element-found-in__line">551</span>
 
     </aside>
 
@@ -2665,7 +2846,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">349</span>
+    <span class="phpdocumentor-element-found-in__line">505</span>
 
     </aside>
 
@@ -2703,7 +2884,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">339</span>
+    <span class="phpdocumentor-element-found-in__line">495</span>
 
     </aside>
 
@@ -2741,7 +2922,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">400</span>
+    <span class="phpdocumentor-element-found-in__line">556</span>
 
     </aside>
 
@@ -2779,7 +2960,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">359</span>
+    <span class="phpdocumentor-element-found-in__line">515</span>
 
     </aside>
 
@@ -2817,7 +2998,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">379</span>
+    <span class="phpdocumentor-element-found-in__line">535</span>
 
     </aside>
 
@@ -2855,7 +3036,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">354</span>
+    <span class="phpdocumentor-element-found-in__line">510</span>
 
     </aside>
 
@@ -2893,7 +3074,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">344</span>
+    <span class="phpdocumentor-element-found-in__line">500</span>
 
     </aside>
 
@@ -2931,7 +3112,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">385</span>
+    <span class="phpdocumentor-element-found-in__line">541</span>
 
     </aside>
 
@@ -2969,7 +3150,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">369</span>
+    <span class="phpdocumentor-element-found-in__line">525</span>
 
     </aside>
 
@@ -3007,7 +3188,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">374</span>
+    <span class="phpdocumentor-element-found-in__line">530</span>
 
     </aside>
 
@@ -3045,7 +3226,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">390</span>
+    <span class="phpdocumentor-element-found-in__line">546</span>
 
     </aside>
 
@@ -3075,6 +3256,51 @@ transport. Emits `token_refreshed`.</dd>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_reauthorize">
+        reauthorize()
+        <a href="classes/Twitch-Twitch.html#method_reauthorize" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">321</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Runs the configured {@see ReauthorizerInterface} to obtain a brand-new
+grant. Concurrent callers share one attempt, so a burst of 401s cannot
+prompt the user several times over. Emits `reauthorized`.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">reauthorize</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>The new access token.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_refreshAccessToken">
         refreshAccessToken()
         <a href="classes/Twitch-Twitch.html#method_refreshAccessToken" class="headerlink"><i class="fas fa-link"></i></a>
@@ -3083,7 +3309,7 @@ transport. Emits `token_refreshed`.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">265</span>
+    <span class="phpdocumentor-element-found-in__line">403</span>
 
     </aside>
 
@@ -3127,20 +3353,26 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">302</span>
+    <span class="phpdocumentor-element-found-in__line">451</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">A Helix request that transparently refreshes the token once on a 401.</p>
+        <p class="phpdocumentor-summary">A Helix request that recovers from a dead token once, then retries.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">request</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$method</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><abbr title="\Twitch\Http\Endpoint">Endpoint</abbr>|string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$endpoint</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;string, mixed&gt;|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$content</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr></span></code>
+                    <span class="phpdocumentor-signature__name">request</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$method</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type"><abbr title="\Twitch\Http\Endpoint">Endpoint</abbr>|string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$endpoint</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;string, mixed&gt;|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$content</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">bool&nbsp;</span><span class="phpdocumentor-signature__argument__name">$retry</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">true</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr></span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
     
         <section class="phpdocumentor-description"><p>Repositories go through here.</p>
+<p>Recovery is refresh-then-re-authorize (see <abbr title="\Twitch\recoverToken()">recoverToken()</abbr>). If
+neither works the original 401 is what surfaces, not the recovery
+error — the caller asked about the endpoint, not about our plumbing.</p>
+<p>A <abbr title="\Twitch\Http\Exceptions\MissingScopeException">MissingScopeException</abbr> is never retried: it sits deliberately
+outside <abbr title="\Twitch\Http\Exceptions\InvalidTokenException">InvalidTokenException</abbr> because no amount of re-issuing
+widens a grant that was never asked for.</p>
 </section>
 
         <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
@@ -3165,6 +3397,15 @@ transport. Emits `token_refreshed`.</p>
                  = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$retry</span>
+                : <span class="phpdocumentor-argument-list__argument__type">bool</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">true</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Internal: false on the retry itself, so recovery is attempted at most once.</p>
+</section>
+
             </dd>
             </dl>
 
@@ -3192,7 +3433,7 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">174</span>
+    <span class="phpdocumentor-element-found-in__line">208</span>
 
     </aside>
 
@@ -3227,7 +3468,7 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">222</span>
+    <span class="phpdocumentor-element-found-in__line">256</span>
 
     </aside>
 
@@ -3257,6 +3498,52 @@ transport. Emits `token_refreshed`.</p>
             -private
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_applyToken">
+        applyToken()
+        <a href="classes/Twitch-Twitch.html#method_applyToken" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">357</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Adopts a token payload from any grant: updates the transport, refreshes
+the cached scope list, and writes through to the token store.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">applyToken</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">array&lt;string, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$token</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$token</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;string, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_applyValidation">
         applyValidation()
         <a href="classes/Twitch-Twitch.html#method_applyValidation" class="headerlink"><i class="fas fa-link"></i></a>
@@ -3265,7 +3552,7 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">252</span>
+    <span class="phpdocumentor-element-found-in__line">287</span>
 
     </aside>
 
@@ -3309,7 +3596,7 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">317</span>
+    <span class="phpdocumentor-element-found-in__line">473</span>
 
     </aside>
 
@@ -3347,7 +3634,7 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">324</span>
+    <span class="phpdocumentor-element-found-in__line">480</span>
 
     </aside>
 
@@ -3377,6 +3664,97 @@ transport. Emits `token_refreshed`.</p>
             -private
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_persist">
+        persist()
+        <a href="classes/Twitch-Twitch.html#method_persist" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">384</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Twitch invalidates the previous refresh token on every rotation, so a
+client that does not write the new pair somewhere durable locks itself
+out the moment the process restarts.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">persist</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">array&lt;string, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$token</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>A store that cannot be written is logged and swallowed: losing
+persistence should not take down a request that otherwise succeeded.</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$token</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;string, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_recoverToken">
+        recoverToken()
+        <a href="classes/Twitch-Twitch.html#method_recoverToken" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">301</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Gets back to a usable token: refresh if we can, re-authorize if we
+must. Rejects when neither route is available, so the caller can let
+the original failure surface.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">recoverToken</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_resolveOptions">
         resolveOptions()
         <a href="classes/Twitch-Twitch.html#method_resolveOptions" class="headerlink"><i class="fas fa-link"></i></a>
@@ -3385,7 +3763,7 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">419</span>
+    <span class="phpdocumentor-element-found-in__line">575</span>
 
     </aside>
 
@@ -3488,11 +3866,14 @@ transport. Emits `token_refreshed`.</p>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_oauth">$oauth</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_options">$options</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_ready">$ready</a></li>
+                                                    <li class=""><a href="classes/Twitch-Twitch.html#property_reauthorizer">$reauthorizer</a></li>
+                                                    <li class=""><a href="classes/Twitch-Twitch.html#property_reauthorizing">$reauthorizing</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_refreshing">$refreshing</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_refreshToken">$refreshToken</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_repositories">$repositories</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_scopes">$scopes</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_token">$token</a></li>
+                                                    <li class=""><a href="classes/Twitch-Twitch.html#property_tokenStore">$tokenStore</a></li>
                                                     <li class=""><a href="classes/Twitch-Twitch.html#property_userId">$userId</a></li>
                                             </ul>
                 </li>
@@ -3517,13 +3898,17 @@ transport. Emits `token_refreshed`.</p>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_getToken">getToken()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_getUserId">getUserId()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_isReady">isReady()</a></li>
+                                            <li class=""><a href="classes/Twitch-Twitch.html#method_reauthorize">reauthorize()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_refreshAccessToken">refreshAccessToken()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_request">request()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_run">run()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_acquireToken">acquireToken()</a></li>
+                                            <li class=""><a href="classes/Twitch-Twitch.html#method_applyToken">applyToken()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_applyValidation">applyValidation()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_connectEventSub">connectEventSub()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_connectIrc">connectIrc()</a></li>
+                                            <li class=""><a href="classes/Twitch-Twitch.html#method_persist">persist()</a></li>
+                                            <li class=""><a href="classes/Twitch-Twitch.html#method_recoverToken">recoverToken()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_resolveOptions">resolveOptions()</a></li>
                                     </ul>
             </li>

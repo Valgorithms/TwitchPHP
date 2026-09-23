@@ -64,6 +64,10 @@
 </h4>
     <ul class="phpdocumentor-list">
                     <li>
+                <a href="namespaces/twitch-auth.html" class="">Auth</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/twitch-chat.html" class="">Chat</a>
                 
             </li>
@@ -157,8 +161,9 @@ extensions and their active slots, an extension developer&#039;s own version
 metadata, live channels running an extension, and Bits transactions.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-GameRepository.html"><abbr title="\Twitch\Repository\GameRepository">GameRepository</abbr></a></dt><dd>The `games` resource — lookup by id / name / IGDB id, and the top-games chart.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-GoalRepository.html"><abbr title="\Twitch\Repository\GoalRepository">GoalRepository</abbr></a></dt><dd>The `goals` resource (`channel:read:goals`) — a broadcaster&#039;s active creator
 goals (follower / subscriber / …). Read-only via the API.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-GuestStarRepository.html"><abbr title="\Twitch\Repository\GuestStarRepository">GuestStarRepository</abbr></a></dt><dd>The `guest_star/*` resource (**beta**) — channel settings, the live session,
 invites and slots. Scopes are `channel:read:guest_star` /
-`channel:manage:guest_star` (or the `moderator:` equivalents).</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-HypeTrainRepository.html"><abbr title="\Twitch\Repository\HypeTrainRepository">HypeTrainRepository</abbr></a></dt><dd>The `hypetrain/events` resource (`channel:read:hype_train`) — the recent Hype
-Train history for a broadcaster. Read-only.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-ModerationRepository.html"><abbr title="\Twitch\Repository\ModerationRepository">ModerationRepository</abbr></a></dt><dd>The Helix `moderation/*` and related resources — bans and timeouts,
+`channel:manage:guest_star` (or the `moderator:` equivalents).</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-HypeTrainRepository.html"><abbr title="\Twitch\Repository\HypeTrainRepository">HypeTrainRepository</abbr></a></dt><dd>The `hypetrain/status` resource (`channel:read:hype_train`) — whether a Hype
+Train is running on a channel right now, and the records it is measured
+against. Read-only.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-ModerationRepository.html"><abbr title="\Twitch\Repository\ModerationRepository">ModerationRepository</abbr></a></dt><dd>The Helix `moderation/*` and related resources — bans and timeouts,
 moderators, VIPs, blocked terms, message deletion, Shield Mode, warnings.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-PollRepository.html"><abbr title="\Twitch\Repository\PollRepository">PollRepository</abbr></a></dt><dd>The `polls` resource (`channel:read:polls` / `channel:manage:polls`) — list,
 open and end a channel poll.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-PredictionRepository.html"><abbr title="\Twitch\Repository\PredictionRepository">PredictionRepository</abbr></a></dt><dd>The `predictions` resource (`channel:read:predictions` /
 `channel:manage:predictions`) — list, open, lock and resolve a channel-points

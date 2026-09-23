@@ -64,6 +64,10 @@
 </h4>
     <ul class="phpdocumentor-list">
                     <li>
+                <a href="namespaces/twitch-auth.html" class="">Auth</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/twitch-chat.html" class="">Chat</a>
                 
             </li>
@@ -124,6 +128,14 @@
 
 
 
+    <h4 id="toc-interfaces">
+        Interfaces
+        <a href="packages/Application.html#toc-interfaces" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <dl class="phpdocumentor-table-of-contents">
+                    <dt class="phpdocumentor-table-of-contents__entry -interface"><a href="classes/Twitch-Auth-ReauthorizerInterface.html"><abbr title="\Twitch\Auth\ReauthorizerInterface">ReauthorizerInterface</abbr></a></dt><dd>A strategy for obtaining a brand-new token when the existing grant can no
+longer be recovered by refreshing.</dd>            <dt class="phpdocumentor-table-of-contents__entry -interface"><a href="classes/Twitch-Auth-TokenStoreInterface.html"><abbr title="\Twitch\Auth\TokenStoreInterface">TokenStoreInterface</abbr></a></dt><dd>Somewhere durable to keep the OAuth token pair.</dd>    </dl>
 
     <h4 id="toc-classes">
         Classes
@@ -131,7 +143,7 @@
 
     </h4>
     <dl class="phpdocumentor-table-of-contents">
-                    <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Chat-Command.html"><abbr title="\Twitch\Chat\Command">Command</abbr></a></dt><dd>One registered chat command for the {@see CommandClient}: a name, its handler,
+                    <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Auth-DeviceCodeReauthorizer.html"><abbr title="\Twitch\Auth\DeviceCodeReauthorizer">DeviceCodeReauthorizer</abbr></a></dt><dd>Re-authorizes through the OAuth device-code flow.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Auth-EnvFileTokenStore.html"><abbr title="\Twitch\Auth\EnvFileTokenStore">EnvFileTokenStore</abbr></a></dt><dd>A {@see TokenStoreInterface} backed by a `.env` file.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Chat-Command.html"><abbr title="\Twitch\Chat\Command">Command</abbr></a></dt><dd>One registered chat command for the {@see CommandClient}: a name, its handler,
 and the gates around it (aliases, a per-user cooldown, a permission level).</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Chat-CommandClient.html"><abbr title="\Twitch\Chat\CommandClient">CommandClient</abbr></a></dt><dd>A richer command layer over {@see Irc} — the equivalent of DiscordPHP&#039;s
 `MessageCommandClient`. It listens to the client&#039;s `command` event (which
 {@see Irc} already emits for `&lt;prefix&gt;&lt;name&gt; …`) and adds aliases, per-user
@@ -176,8 +188,9 @@ extensions and their active slots, an extension developer&#039;s own version
 metadata, live channels running an extension, and Bits transactions.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-GameRepository.html"><abbr title="\Twitch\Repository\GameRepository">GameRepository</abbr></a></dt><dd>The `games` resource — lookup by id / name / IGDB id, and the top-games chart.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-GoalRepository.html"><abbr title="\Twitch\Repository\GoalRepository">GoalRepository</abbr></a></dt><dd>The `goals` resource (`channel:read:goals`) — a broadcaster&#039;s active creator
 goals (follower / subscriber / …). Read-only via the API.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-GuestStarRepository.html"><abbr title="\Twitch\Repository\GuestStarRepository">GuestStarRepository</abbr></a></dt><dd>The `guest_star/*` resource (**beta**) — channel settings, the live session,
 invites and slots. Scopes are `channel:read:guest_star` /
-`channel:manage:guest_star` (or the `moderator:` equivalents).</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-HypeTrainRepository.html"><abbr title="\Twitch\Repository\HypeTrainRepository">HypeTrainRepository</abbr></a></dt><dd>The `hypetrain/events` resource (`channel:read:hype_train`) — the recent Hype
-Train history for a broadcaster. Read-only.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-ModerationRepository.html"><abbr title="\Twitch\Repository\ModerationRepository">ModerationRepository</abbr></a></dt><dd>The Helix `moderation/*` and related resources — bans and timeouts,
+`channel:manage:guest_star` (or the `moderator:` equivalents).</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-HypeTrainRepository.html"><abbr title="\Twitch\Repository\HypeTrainRepository">HypeTrainRepository</abbr></a></dt><dd>The `hypetrain/status` resource (`channel:read:hype_train`) — whether a Hype
+Train is running on a channel right now, and the records it is measured
+against. Read-only.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-ModerationRepository.html"><abbr title="\Twitch\Repository\ModerationRepository">ModerationRepository</abbr></a></dt><dd>The Helix `moderation/*` and related resources — bans and timeouts,
 moderators, VIPs, blocked terms, message deletion, Shield Mode, warnings.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-PollRepository.html"><abbr title="\Twitch\Repository\PollRepository">PollRepository</abbr></a></dt><dd>The `polls` resource (`channel:read:polls` / `channel:manage:polls`) — list,
 open and end a channel poll.</dd>            <dt class="phpdocumentor-table-of-contents__entry -class"><a href="classes/Twitch-Repository-PredictionRepository.html"><abbr title="\Twitch\Repository\PredictionRepository">PredictionRepository</abbr></a></dt><dd>The `predictions` resource (`channel:read:predictions` /
 `channel:manage:predictions`) — list, open, lock and resolve a channel-points
@@ -220,7 +233,8 @@ not have whispers blocked.</dd>            <dt class="phpdocumentor-table-of-con
             <li class="phpdocumentor-on-this-page-section__title">Table Of Contents</li>
             <li>
                 <ul class="phpdocumentor-list -clean">
-                                                                                                        <li><a href="packages/Application.html#toc-classes">Classes</a></li>
+                                                                                    <li><a href="packages/Application.html#toc-interfaces">Interfaces</a></li>
+                                                                <li><a href="packages/Application.html#toc-classes">Classes</a></li>
                                                                                                                     </ul>
             </li>
 

@@ -64,6 +64,10 @@
 </h4>
     <ul class="phpdocumentor-list">
                     <li>
+                <a href="namespaces/twitch-auth.html" class="">Auth</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/twitch-chat.html" class="">Chat</a>
                 
             </li>
@@ -140,14 +144,19 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/HypeTrainRepository.php"><a href="files/src-twitch-repository-hypetrainrepository.html"><abbr title="src/Twitch/Repository/HypeTrainRepository.php">HypeTrainRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">27</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
-            <p class="phpdocumentor-summary">The `hypetrain/events` resource (`channel:read:hype_train`) — the recent Hype
-Train history for a broadcaster. Read-only.</p>
+            <p class="phpdocumentor-summary">The `hypetrain/status` resource (`channel:read:hype_train`) — whether a Hype
+Train is running on a channel right now, and the records it is measured
+against. Read-only.</p>
 
 
+    <section class="phpdocumentor-description"><p>Twitch withdrew the older <code class="prettyprint">hypetrain/events</code> history endpoint; it answers
+<code class="prettyprint">410 Gone</code>. <abbr title="\Twitch\Repository\forBroadcaster()">forBroadcaster()</abbr> and <abbr title="\Twitch\Repository\latest()">latest()</abbr> remain only so
+existing callers get a useful error instead of a bare HTTP failure.</p>
+</section>
 
 
     <h5 class="phpdocumentor-tag-list__heading" id="tags">
@@ -160,7 +169,7 @@ Train history for a broadcaster. Read-only.</p>
                 <span class="phpdocumentor-tag__name">link</span>
             </dt>
                             <dd class="phpdocumentor-tag-list__definition">
-                                                                                                        <a class="phpdocumentor-tag-link" href="https://dev.twitch.tv/docs/api/reference/#get-hype-train-events"> https://dev.twitch.tv/docs/api/reference/#get-hype-train-events </a>
+                                                                                                        <a class="phpdocumentor-tag-link" href="https://dev.twitch.tv/docs/api/reference/#get-hype-train-status"> https://dev.twitch.tv/docs/api/reference/#get-hype-train-status </a>
                                     </dd>
                                 <dt class="phpdocumentor-tag-list__entry">
                 <span class="phpdocumentor-tag__name">extends</span>
@@ -306,11 +315,10 @@ the list endpoint filtered by {@see $idParam}.</dd>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Twitch-Repository-HypeTrainRepository.html#method_forBroadcaster">forBroadcaster()</a>
+    <a class="-deprecated" href="classes/Twitch-Repository-HypeTrainRepository.html#method_forBroadcaster">forBroadcaster()</a>
     <span>
-                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <a href="classes/Twitch-Parts-HypeTrainEvent.html"><abbr title="\Twitch\Parts\HypeTrainEvent">HypeTrainEvent</abbr></a>&gt;&gt;    </span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, never&gt;    </span>
 </dt>
-<dd>Recent Hype Train events for a broadcaster (newest first).</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_freshen">freshen()</a>
@@ -332,12 +340,17 @@ the list endpoint filtered by {@see $idParam}.</dd>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
-    <a class="" href="classes/Twitch-Repository-HypeTrainRepository.html#method_latest">latest()</a>
+    <a class="" href="classes/Twitch-Repository-HypeTrainRepository.html#method_isActive">isActive()</a>
     <span>
-                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <a href="classes/Twitch-Parts-HypeTrainEvent.html"><abbr title="\Twitch\Parts\HypeTrainEvent">HypeTrainEvent</abbr></a>|null&gt;    </span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, bool&gt;    </span>
 </dt>
-<dd>The most recent Hype Train event, or `null` when the channel has never
-had one.</dd>
+<dd>Whether a Hype Train is running on the channel right now.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="-deprecated" href="classes/Twitch-Repository-HypeTrainRepository.html#method_latest">latest()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, never&gt;    </span>
+</dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_save">save()</a>
@@ -345,6 +358,14 @@ had one.</dd>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Twitch\Repository\TPart">TPart</abbr>&gt;    </span>
 </dt>
 <dd>POSTs a new row (`$part-&gt;created === false`) or PATCHes an existing one.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-HypeTrainRepository.html#method_status">status()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array{current: array<string,mixed>|null, all_time_high: array<string,mixed>|null, shared_all_time_high: array<string,mixed>|null}|null&gt;    </span>
+</dt>
+<dd>The current Hype Train status for a broadcaster, or `null` when the
+channel has no Hype Train data at all.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -protected">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_collectRows">collectRows()</a>
@@ -438,7 +459,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/HypeTrainRepository.php"><a href="files/src-twitch-repository-hypetrainrepository.html"><abbr title="src/Twitch/Repository/HypeTrainRepository.php">HypeTrainRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">32</span>
+    <span class="phpdocumentor-element-found-in__line">36</span>
 
     </aside>
 
@@ -450,7 +471,7 @@ a bare object. Normalise to a list of rows.</dd>
         <span class="phpdocumentor-signature__visibility">protected</span>
             <span class="phpdocumentor-signature__type">array&lt;string, string&gt;</span>
     <span class="phpdocumentor-signature__name">$endpoints</span>
-     = <span class="phpdocumentor-signature__default-value">[&#039;all&#039; =&gt; \Twitch\Http\Endpoint::HYPE_TRAIN_EVENTS]</span></code>
+     = <span class="phpdocumentor-signature__default-value">[&#039;all&#039; =&gt; \Twitch\Http\Endpoint::HYPE_TRAIN_STATUS]</span></code>
 
     
     
@@ -589,7 +610,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/HypeTrainRepository.php"><a href="files/src-twitch-repository-hypetrainrepository.html"><abbr title="src/Twitch/Repository/HypeTrainRepository.php">HypeTrainRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">29</span>
+    <span class="phpdocumentor-element-found-in__line">33</span>
 
     </aside>
 
@@ -1075,7 +1096,7 @@ the list endpoint filtered by {@see $idParam}.</p>
         class="phpdocumentor-element
             -method
             -public
-                                                        "
+            -deprecated                                            "
 >
     <h4 class="phpdocumentor-element__name" id="method_forBroadcaster">
         forBroadcaster()
@@ -1085,17 +1106,23 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/HypeTrainRepository.php"><a href="files/src-twitch-repository-hypetrainrepository.html"><abbr title="src/Twitch/Repository/HypeTrainRepository.php">HypeTrainRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">39</span>
+    <span class="phpdocumentor-element-found-in__line">73</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Recent Hype Train events for a broadcaster (newest first).</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
+    
+    <code class="phpdocumentor-code phpdocumentor-signature -deprecated">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">forBroadcaster</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$first</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">1</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$after</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <a href="classes/Twitch-Parts-HypeTrainEvent.html"><abbr title="\Twitch\Parts\HypeTrainEvent">HypeTrainEvent</abbr></a>&gt;&gt;</span></code>
+                    <span class="phpdocumentor-signature__name">forBroadcaster</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$first</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">1</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$after</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, never&gt;</span></code>
 
     <div class="phpdocumentor-label-line">
+        </div>
+                <div class="phpdocumentor-admonition">
+        <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <article>
+                <p>Twitch withdrew <code class="prettyprint">hypetrain/events</code>; it answers 410. Use <abbr title="\Twitch\Repository\status()">status()</abbr>.</p>
+
+            </article>
         </div>
     
     
@@ -1130,7 +1157,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <a href="classes/Twitch-Parts-HypeTrainEvent.html"><abbr title="\Twitch\Parts\HypeTrainEvent">HypeTrainEvent</abbr></a>&gt;&gt;</span>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, never&gt;</span>
             </section>
 
 </article>
@@ -1282,24 +1309,23 @@ the list endpoint filtered by {@see $idParam}.</p>
             -public
                                                         "
 >
-    <h4 class="phpdocumentor-element__name" id="method_latest">
-        latest()
-        <a href="classes/Twitch-Repository-HypeTrainRepository.html#method_latest" class="headerlink"><i class="fas fa-link"></i></a>
+    <h4 class="phpdocumentor-element__name" id="method_isActive">
+        isActive()
+        <a href="classes/Twitch-Repository-HypeTrainRepository.html#method_isActive" class="headerlink"><i class="fas fa-link"></i></a>
 
     </h4>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/HypeTrainRepository.php"><a href="files/src-twitch-repository-hypetrainrepository.html"><abbr title="src/Twitch/Repository/HypeTrainRepository.php">HypeTrainRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">52</span>
+    <span class="phpdocumentor-element-found-in__line">63</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">The most recent Hype Train event, or `null` when the channel has never
-had one.</p>
+        <p class="phpdocumentor-summary">Whether a Hype Train is running on the channel right now.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">latest</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <a href="classes/Twitch-Parts-HypeTrainEvent.html"><abbr title="\Twitch\Parts\HypeTrainEvent">HypeTrainEvent</abbr></a>|null&gt;</span></code>
+                    <span class="phpdocumentor-signature__name">isActive</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, bool&gt;</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1322,7 +1348,62 @@ had one.</p>
     
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <a href="classes/Twitch-Parts-HypeTrainEvent.html"><abbr title="\Twitch\Parts\HypeTrainEvent">HypeTrainEvent</abbr></a>|null&gt;</span>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, bool&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+            -deprecated                                            "
+>
+    <h4 class="phpdocumentor-element__name" id="method_latest">
+        latest()
+        <a href="classes/Twitch-Repository-HypeTrainRepository.html#method_latest" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/HypeTrainRepository.php"><a href="files/src-twitch-repository-hypetrainrepository.html"><abbr title="src/Twitch/Repository/HypeTrainRepository.php">HypeTrainRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">85</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature -deprecated">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">latest</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, never&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+                <div class="phpdocumentor-admonition">
+        <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <article>
+                <p>Twitch withdrew <code class="prettyprint">hypetrain/events</code>; it answers 410. Use <abbr title="\Twitch\Repository\status()">status()</abbr>.</p>
+
+            </article>
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, never&gt;</span>
             </section>
 
 </article>
@@ -1372,6 +1453,62 @@ had one.</p>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Twitch\Repository\TPart">TPart</abbr>&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_status">
+        status()
+        <a href="classes/Twitch-Repository-HypeTrainRepository.html#method_status" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/HypeTrainRepository.php"><a href="files/src-twitch-repository-hypetrainrepository.html"><abbr title="src/Twitch/Repository/HypeTrainRepository.php">HypeTrainRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">51</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The current Hype Train status for a broadcaster, or `null` when the
+channel has no Hype Train data at all.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">status</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array{current: array<string,mixed>|null, all_time_high: array<string,mixed>|null, shared_all_time_high: array<string,mixed>|null}|null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>Returns the decoded row rather than a Part: the payload is a nested
+<code class="prettyprint">{current, all_time_high, shared_all_time_high}</code> record whose shape has
+nothing in common with the retired <a href="classes/Twitch-Parts-HypeTrainEvent.html"><abbr title="\Twitch\Parts\HypeTrainEvent">HypeTrainEvent</abbr></a>.</p>
+<p><code class="prettyprint">current</code> is <code class="prettyprint">null</code> whenever no train is running, which is the normal
+case — check it rather than the outer result to ask &quot;is one live?&quot;.</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array{current: array<string,mixed>|null, all_time_high: array<string,mixed>|null, shared_all_time_high: array<string,mixed>|null}|null&gt;</span>
             </section>
 
 </article>
@@ -1583,12 +1720,14 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_fetch">fetch()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_filter">filter()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_first">first()</a></li>
-                                            <li class=""><a href="classes/Twitch-Repository-HypeTrainRepository.html#method_forBroadcaster">forBroadcaster()</a></li>
+                                            <li class="-deprecated"><a href="classes/Twitch-Repository-HypeTrainRepository.html#method_forBroadcaster">forBroadcaster()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_freshen">freshen()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_get">get()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_getIterator">getIterator()</a></li>
-                                            <li class=""><a href="classes/Twitch-Repository-HypeTrainRepository.html#method_latest">latest()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-HypeTrainRepository.html#method_isActive">isActive()</a></li>
+                                            <li class="-deprecated"><a href="classes/Twitch-Repository-HypeTrainRepository.html#method_latest">latest()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_save">save()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-HypeTrainRepository.html#method_status">status()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_collectRows">collectRows()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_endpoint">endpoint()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_rows">rows()</a></li>

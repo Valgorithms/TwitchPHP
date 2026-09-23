@@ -64,6 +64,10 @@
 </h4>
     <ul class="phpdocumentor-list">
                     <li>
+                <a href="namespaces/twitch-auth.html" class="">Auth</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/twitch-chat.html" class="">Chat</a>
                 
             </li>
@@ -652,7 +656,7 @@ one is not given, so callers never have to remember that `channel.follow` is
             <dt class="phpdocumentor-table-of-contents__entry -constant -private">
     <a class="" href="classes/Twitch-EventSub-SubscriptionTypes.html#constant_VERSIONS">VERSIONS</a>
     <span>
-        &nbsp;: array&lt;string, string&gt;&nbsp;= [self::CHANNEL_UPDATE =&gt; &#039;2&#039;, self::CHANNEL_FOL...                            </span>
+        &nbsp;: array&lt;string, string&gt;&nbsp;= [ self::CHANNEL_UPDATE =&gt; &#039;2&#039;, self::CHANNEL_FO...                            </span>
 </dt>
 <dd>Types whose current version is not `1`. Anything absent is `1`.</dd>
 
@@ -2999,7 +3003,24 @@ one is not given, so callers never have to remember that `channel.follow` is
     <span class="phpdocumentor-signature__visibility">private</span>
         <span class="phpdocumentor-signature__type">array&lt;string, string&gt;</span>
     <span class="phpdocumentor-signature__name">VERSIONS</span>
-    = <span class="phpdocumentor-signature__default-value">[self::CHANNEL_UPDATE =&gt; &#039;2&#039;, self::CHANNEL_FOLLOW =&gt; &#039;2&#039;, self::CHANNEL_MODERATE =&gt; &#039;2&#039;, self::CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD =&gt; &#039;2&#039;, self::CHANNEL_BITS_USE =&gt; &#039;1&#039;, self::CHANNEL_VIP_ADD =&gt; &#039;1&#039;, self::CHANNEL_VIP_REMOVE =&gt; &#039;1&#039;, self::GUEST_STAR_SESSION_BEGIN =&gt; &#039;beta&#039;, self::GUEST_STAR_SESSION_END =&gt; &#039;beta&#039;, self::GUEST_STAR_GUEST_UPDATE =&gt; &#039;beta&#039;, self::GUEST_STAR_SETTINGS_UPDATE =&gt; &#039;beta&#039;]</span>
+    = <span class="phpdocumentor-signature__default-value">[
+    self::CHANNEL_UPDATE =&gt; &#039;2&#039;,
+    self::CHANNEL_FOLLOW =&gt; &#039;2&#039;,
+    self::CHANNEL_MODERATE =&gt; &#039;2&#039;,
+    self::CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD =&gt; &#039;2&#039;,
+    // v1 of the Hype Train types was withdrawn alongside the
+    // `hypetrain/events` endpoint; subscribing to v1 now fails.
+    self::HYPE_TRAIN_BEGIN =&gt; &#039;2&#039;,
+    self::HYPE_TRAIN_PROGRESS =&gt; &#039;2&#039;,
+    self::HYPE_TRAIN_END =&gt; &#039;2&#039;,
+    self::CHANNEL_BITS_USE =&gt; &#039;1&#039;,
+    self::CHANNEL_VIP_ADD =&gt; &#039;1&#039;,
+    self::CHANNEL_VIP_REMOVE =&gt; &#039;1&#039;,
+    self::GUEST_STAR_SESSION_BEGIN =&gt; &#039;beta&#039;,
+    self::GUEST_STAR_SESSION_END =&gt; &#039;beta&#039;,
+    self::GUEST_STAR_GUEST_UPDATE =&gt; &#039;beta&#039;,
+    self::GUEST_STAR_SETTINGS_UPDATE =&gt; &#039;beta&#039;,
+]</span>
 </code>
 
 
@@ -3033,7 +3054,7 @@ one is not given, so callers never have to remember that `channel.follow` is
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">154</span>
+    <span class="phpdocumentor-element-found-in__line">159</span>
 
     </aside>
 
@@ -3072,7 +3093,7 @@ one is not given, so callers never have to remember that `channel.follow` is
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">144</span>
+    <span class="phpdocumentor-element-found-in__line">149</span>
 
     </aside>
 
@@ -3121,7 +3142,7 @@ one is not given, so callers never have to remember that `channel.follow` is
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/EventSub/SubscriptionTypes.php"><a href="files/src-twitch-eventsub-subscriptiontypes.html"><abbr title="src/Twitch/EventSub/SubscriptionTypes.php">SubscriptionTypes.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">138</span>
+    <span class="phpdocumentor-element-found-in__line">143</span>
 
     </aside>
 

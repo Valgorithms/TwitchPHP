@@ -1,6 +1,126 @@
 Search.appendIndex(
     [
                 {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer",
+            "name": "DeviceCodeReauthorizer",
+            "summary": "Re\u002Dauthorizes\u0020through\u0020the\u0020OAuth\u0020device\u002Dcode\u0020flow.",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#method___construct"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003Areauthorize\u0028\u0029",
+            "name": "reauthorize",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#method_reauthorize"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003Astart\u0028\u0029",
+            "name": "start",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#method_start"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003Apoll\u0028\u0029",
+            "name": "poll",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#method_poll"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003Adisabled\u0028\u0029",
+            "name": "disabled",
+            "summary": "A\u0020reauthorizer\u0020that\u0020never\u0020succeeds\u0020\u2014\u0020the\u0020default,\u0020so\u0020a\u0020headless\u0020client\nsurfaces\u0020the\u0020original\u0020401\u0020instead\u0020of\u0020hanging\u0020on\u0020a\u0020prompt\u0020nobody\u0020sees.",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#method_disabled"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003A\u0024loop",
+            "name": "loop",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#property_loop"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003A\u0024pending",
+            "name": "pending",
+            "summary": "The\u0020in\u002Dflight\u0020attempt,\u0020so\u0020concurrent\u0020callers\u0020share\u0020one\u0020prompt.",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#property_pending"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003A\u0024oauth",
+            "name": "oauth",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#property_oauth"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003A\u0024scopes",
+            "name": "scopes",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#property_scopes"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\DeviceCodeReauthorizer\u003A\u003A\u0024prompt",
+            "name": "prompt",
+            "summary": "",
+            "url": "classes/Twitch-Auth-DeviceCodeReauthorizer.html#property_prompt"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore",
+            "name": "EnvFileTokenStore",
+            "summary": "A\u0020\u007B\u0040see\u0020TokenStoreInterface\u007D\u0020backed\u0020by\u0020a\u0020\u0060.env\u0060\u0020file.",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html#method___construct"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore\u003A\u003Aload\u0028\u0029",
+            "name": "load",
+            "summary": "The\u0020stored\u0020pair,\u0020or\u0020an\u0020empty\u0020array\u0020when\u0020nothing\u0020has\u0020been\u0020saved\u0020yet.",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html#method_load"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore\u003A\u003Asave\u0028\u0029",
+            "name": "save",
+            "summary": "Persists\u0020a\u0020token\u0020payload\u0020as\u0020returned\u0020by\u0020any\u0020OAuth\u0020grant.",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html#method_save"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore\u003A\u003Aparse\u0028\u0029",
+            "name": "parse",
+            "summary": "Every\u0020\u0060KEY\u003Dvalue\u0060\u0020pair\u0020in\u0020the\u0020file.",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html#method_parse"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore\u003A\u003Awrite\u0028\u0029",
+            "name": "write",
+            "summary": "Replaces\u0020the\u0020given\u0020keys\u0020in\u0020place,\u0020appending\u0020any\u0020that\u0020are\u0020not\u0020present.",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html#method_write"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore\u003A\u003AKEYS",
+            "name": "KEYS",
+            "summary": "Token\u0020payload\u0020key\u0020\u2192\u0020\u0060.env\u0060\u0020key.",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html#constant_KEYS"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\EnvFileTokenStore\u003A\u003A\u0024path",
+            "name": "path",
+            "summary": "",
+            "url": "classes/Twitch-Auth-EnvFileTokenStore.html#property_path"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ReauthorizerInterface",
+            "name": "ReauthorizerInterface",
+            "summary": "A\u0020strategy\u0020for\u0020obtaining\u0020a\u0020brand\u002Dnew\u0020token\u0020when\u0020the\u0020existing\u0020grant\u0020can\u0020no\nlonger\u0020be\u0020recovered\u0020by\u0020refreshing.",
+            "url": "classes/Twitch-Auth-ReauthorizerInterface.html"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ReauthorizerInterface\u003A\u003Areauthorize\u0028\u0029",
+            "name": "reauthorize",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ReauthorizerInterface.html#method_reauthorize"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\TokenStoreInterface",
+            "name": "TokenStoreInterface",
+            "summary": "Somewhere\u0020durable\u0020to\u0020keep\u0020the\u0020OAuth\u0020token\u0020pair.",
+            "url": "classes/Twitch-Auth-TokenStoreInterface.html"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\TokenStoreInterface\u003A\u003Aload\u0028\u0029",
+            "name": "load",
+            "summary": "The\u0020stored\u0020pair,\u0020or\u0020an\u0020empty\u0020array\u0020when\u0020nothing\u0020has\u0020been\u0020saved\u0020yet.",
+            "url": "classes/Twitch-Auth-TokenStoreInterface.html#method_load"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\TokenStoreInterface\u003A\u003Asave\u0028\u0029",
+            "name": "save",
+            "summary": "Persists\u0020a\u0020token\u0020payload\u0020as\u0020returned\u0020by\u0020any\u0020OAuth\u0020grant.",
+            "url": "classes/Twitch-Auth-TokenStoreInterface.html#method_save"
+        },                {
             "fqsen": "\\Twitch\\Chat\\Command",
             "name": "Command",
             "summary": "One\u0020registered\u0020chat\u0020command\u0020for\u0020the\u0020\u007B\u0040see\u0020CommandClient\u007D\u003A\u0020a\u0020name,\u0020its\u0020handler,\nand\u0020the\u0020gates\u0020around\u0020it\u0020\u0028aliases,\u0020a\u0020per\u002Duser\u0020cooldown,\u0020a\u0020permission\u0020level\u0029.",
@@ -2323,17 +2443,27 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Repository\\HypeTrainRepository",
             "name": "HypeTrainRepository",
-            "summary": "The\u0020\u0060hypetrain\/events\u0060\u0020resource\u0020\u0028\u0060channel\u003Aread\u003Ahype_train\u0060\u0029\u0020\u2014\u0020the\u0020recent\u0020Hype\nTrain\u0020history\u0020for\u0020a\u0020broadcaster.\u0020Read\u002Donly.",
+            "summary": "The\u0020\u0060hypetrain\/status\u0060\u0020resource\u0020\u0028\u0060channel\u003Aread\u003Ahype_train\u0060\u0029\u0020\u2014\u0020whether\u0020a\u0020Hype\nTrain\u0020is\u0020running\u0020on\u0020a\u0020channel\u0020right\u0020now,\u0020and\u0020the\u0020records\u0020it\u0020is\u0020measured\nagainst.\u0020Read\u002Donly.",
             "url": "classes/Twitch-Repository-HypeTrainRepository.html"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\HypeTrainRepository\u003A\u003Astatus\u0028\u0029",
+            "name": "status",
+            "summary": "The\u0020current\u0020Hype\u0020Train\u0020status\u0020for\u0020a\u0020broadcaster,\u0020or\u0020\u0060null\u0060\u0020when\u0020the\nchannel\u0020has\u0020no\u0020Hype\u0020Train\u0020data\u0020at\u0020all.",
+            "url": "classes/Twitch-Repository-HypeTrainRepository.html#method_status"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\HypeTrainRepository\u003A\u003AisActive\u0028\u0029",
+            "name": "isActive",
+            "summary": "Whether\u0020a\u0020Hype\u0020Train\u0020is\u0020running\u0020on\u0020the\u0020channel\u0020right\u0020now.",
+            "url": "classes/Twitch-Repository-HypeTrainRepository.html#method_isActive"
         },                {
             "fqsen": "\\Twitch\\Repository\\HypeTrainRepository\u003A\u003AforBroadcaster\u0028\u0029",
             "name": "forBroadcaster",
-            "summary": "Recent\u0020Hype\u0020Train\u0020events\u0020for\u0020a\u0020broadcaster\u0020\u0028newest\u0020first\u0029.",
+            "summary": "",
             "url": "classes/Twitch-Repository-HypeTrainRepository.html#method_forBroadcaster"
         },                {
             "fqsen": "\\Twitch\\Repository\\HypeTrainRepository\u003A\u003Alatest\u0028\u0029",
             "name": "latest",
-            "summary": "The\u0020most\u0020recent\u0020Hype\u0020Train\u0020event,\u0020or\u0020\u0060null\u0060\u0020when\u0020the\u0020channel\u0020has\u0020never\nhad\u0020one.",
+            "summary": "",
             "url": "classes/Twitch-Repository-HypeTrainRepository.html#method_latest"
         },                {
             "fqsen": "\\Twitch\\Repository\\HypeTrainRepository\u003A\u003A\u0024part",
@@ -2936,6 +3066,26 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Twitch-Twitch.html#method_applyValidation"
         },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003ArecoverToken\u0028\u0029",
+            "name": "recoverToken",
+            "summary": "Gets\u0020back\u0020to\u0020a\u0020usable\u0020token\u003A\u0020refresh\u0020if\u0020we\u0020can,\u0020re\u002Dauthorize\u0020if\u0020we\nmust.\u0020Rejects\u0020when\u0020neither\u0020route\u0020is\u0020available,\u0020so\u0020the\u0020caller\u0020can\u0020let\nthe\u0020original\u0020failure\u0020surface.",
+            "url": "classes/Twitch-Twitch.html#method_recoverToken"
+        },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003Areauthorize\u0028\u0029",
+            "name": "reauthorize",
+            "summary": "Runs\u0020the\u0020configured\u0020\u007B\u0040see\u0020ReauthorizerInterface\u007D\u0020to\u0020obtain\u0020a\u0020brand\u002Dnew\ngrant.\u0020Concurrent\u0020callers\u0020share\u0020one\u0020attempt,\u0020so\u0020a\u0020burst\u0020of\u0020401s\u0020cannot\nprompt\u0020the\u0020user\u0020several\u0020times\u0020over.\u0020Emits\u0020\u0060reauthorized\u0060.",
+            "url": "classes/Twitch-Twitch.html#method_reauthorize"
+        },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003AapplyToken\u0028\u0029",
+            "name": "applyToken",
+            "summary": "Adopts\u0020a\u0020token\u0020payload\u0020from\u0020any\u0020grant\u003A\u0020updates\u0020the\u0020transport,\u0020refreshes\nthe\u0020cached\u0020scope\u0020list,\u0020and\u0020writes\u0020through\u0020to\u0020the\u0020token\u0020store.",
+            "url": "classes/Twitch-Twitch.html#method_applyToken"
+        },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003Apersist\u0028\u0029",
+            "name": "persist",
+            "summary": "Twitch\u0020invalidates\u0020the\u0020previous\u0020refresh\u0020token\u0020on\u0020every\u0020rotation,\u0020so\u0020a\nclient\u0020that\u0020does\u0020not\u0020write\u0020the\u0020new\u0020pair\u0020somewhere\u0020durable\u0020locks\u0020itself\nout\u0020the\u0020moment\u0020the\u0020process\u0020restarts.",
+            "url": "classes/Twitch-Twitch.html#method_persist"
+        },                {
             "fqsen": "\\Twitch\\Twitch\u003A\u003ArefreshAccessToken\u0028\u0029",
             "name": "refreshAccessToken",
             "summary": "Trades\u0020the\u0020refresh\u0020token\u0020for\u0020a\u0020fresh\u0020access\u0020token\u0020and\u0020updates\u0020the\ntransport.\u0020Emits\u0020\u0060token_refreshed\u0060.",
@@ -2943,7 +3093,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Twitch\u003A\u003Arequest\u0028\u0029",
             "name": "request",
-            "summary": "A\u0020Helix\u0020request\u0020that\u0020transparently\u0020refreshes\u0020the\u0020token\u0020once\u0020on\u0020a\u0020401.",
+            "summary": "A\u0020Helix\u0020request\u0020that\u0020recovers\u0020from\u0020a\u0020dead\u0020token\u0020once,\u0020then\u0020retries.",
             "url": "classes/Twitch-Twitch.html#method_request"
         },                {
             "fqsen": "\\Twitch\\Twitch\u003A\u003AconnectEventSub\u0028\u0029",
@@ -3103,8 +3253,23 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Twitch\u003A\u003A\u0024refreshing",
             "name": "refreshing",
-            "summary": "",
+            "summary": "The\u0020in\u002Dflight\u0020refresh,\u0020shared\u0020by\u0020every\u0020caller\u0020that\u0020arrives\u0020during\u0020it.",
             "url": "classes/Twitch-Twitch.html#property_refreshing"
+        },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003A\u0024reauthorizing",
+            "name": "reauthorizing",
+            "summary": "The\u0020in\u002Dflight\u0020re\u002Dauthorization,\u0020shared\u0020the\u0020same\u0020way.",
+            "url": "classes/Twitch-Twitch.html#property_reauthorizing"
+        },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003A\u0024reauthorizer",
+            "name": "reauthorizer",
+            "summary": "",
+            "url": "classes/Twitch-Twitch.html#property_reauthorizer"
+        },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003A\u0024tokenStore",
+            "name": "tokenStore",
+            "summary": "",
+            "url": "classes/Twitch-Twitch.html#property_tokenStore"
         },                {
             "fqsen": "\\Twitch\\Twitch\u003A\u003A\u0024repositories",
             "name": "repositories",
@@ -3125,6 +3290,11 @@ Search.appendIndex(
             "name": "\\",
             "summary": "",
             "url": "namespaces/default.html"
+        },                {
+            "fqsen": "\\Twitch\\Auth",
+            "name": "Auth",
+            "summary": "",
+            "url": "namespaces/twitch-auth.html"
         },                {
             "fqsen": "\\Twitch\\Chat",
             "name": "Chat",
