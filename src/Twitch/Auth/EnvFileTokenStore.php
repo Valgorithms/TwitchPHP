@@ -19,6 +19,13 @@ namespace Twitch\Auth;
  * atomic rename so a crash mid-write cannot leave a half-written file where
  * the credentials used to be.
  *
+ * Keys are matched without regard to case: `TWITCH_ACCESS_TOKEN`, as this
+ * library's own examples spell it, is the same key as `twitch_access_token`.
+ * An existing line keeps its spelling; a missing one is added in whichever
+ * case the file's other `TWITCH_` keys use. Matching exactly used to append a
+ * lowercase copy beside an uppercase line, and a caller reading the uppercase
+ * one then started every run with the token from before the last rotation.
+ *
  * @author Valithor Obsidion <valithor@valgorithms.com>
  */
 final class EnvFileTokenStore implements TokenStoreInterface
@@ -89,7 +96,7 @@ final class EnvFileTokenStore implements TokenStoreInterface
                 continue;
             }
             [$key, $value] = explode('=', $trimmed, 2);
-            $out[trim($key)] = trim($value, " \t\"'");
+            $out[strtolower(trim($key))] = trim($value, " \t\"'");
         }
 
         return $out;
@@ -104,6 +111,7 @@ final class EnvFileTokenStore implements TokenStoreInterface
     {
         $lines = is_file($this->path) ? (file($this->path, FILE_IGNORE_NEW_LINES) ?: []) : [];
         $seen = [];
+        $uppercase = false;
 
         foreach ($lines as $i => $line) {
             $trimmed = trim($line);
@@ -112,15 +120,22 @@ final class EnvFileTokenStore implements TokenStoreInterface
             }
 
             $key = trim(explode('=', $trimmed, 2)[0]);
-            if (isset($updates[$key])) {
-                $lines[$i] = $key . '=' . $updates[$key];
-                $seen[$key] = true;
+            $lower = strtolower($key);
+
+            // The file's own convention, for any key that has to be added.
+            if (str_starts_with($key, 'TWITCH_')) {
+                $uppercase = true;
+            }
+
+            if (isset($updates[$lower])) {
+                $lines[$i] = $key . '=' . $updates[$lower];
+                $seen[$lower] = true;
             }
         }
 
         foreach ($updates as $key => $value) {
             if (! isset($seen[$key])) {
-                $lines[] = $key . '=' . $value;
+                $lines[] = ($uppercase ? strtoupper($key) : $key) . '=' . $value;
             }
         }
 
