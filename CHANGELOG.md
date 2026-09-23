@@ -4,7 +4,13 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-09-23
+
 ### Added
+
+- `HypeTrainRepository::status()` and `isActive()`, on `hypetrain/status` — the
+  current train, the all-time high and the shared all-time high, or `null` when
+  the channel has no data.
 
 - `Twitch\Auth\TokenStoreInterface` + `EnvFileTokenStore` — somewhere durable to
   keep the token pair, passed as the new `token_store` option. Twitch rotates
@@ -31,6 +37,17 @@ All notable changes to this project are documented here.
 - Concurrent callers now join an in-flight token refresh instead of being
   rejected with "A token refresh is already in progress" — and, more
   importantly, instead of each burning a rotation of their own.
+- EventSub Hype Train subscriptions default to version 2; Twitch withdrew
+  version 1 along with Get Hype Train Events.
+- Requires `twitchphp/http` `^1.1` instead of `dev-main`, so a release is pinned
+  to a transport it was tested with rather than whatever `main` holds when it
+  is installed.
+
+### Deprecated
+
+- `HypeTrainRepository::forBroadcaster()` and `latest()`. Twitch withdrew Get
+  Hype Train Events, which now answers 410; both reject with a message pointing
+  at `status()` instead of a bare HTTP error.
 
 ### Fixed
 
@@ -42,6 +59,12 @@ All notable changes to this project are documented here.
 - A 401 from an endpoint that requires a *different kind* of token (conduits,
   which accept app access tokens only) no longer triggers recovery either — it
   previously refreshed on every call and would have re-authorized in a loop.
+- `EnvFileTokenStore` matches `.env` keys in any case. It matched
+  `twitch_access_token` exactly, so against a file spelled
+  `TWITCH_ACCESS_TOKEN` — as the README and examples spell it — every save
+  appended lowercase copies, and the next start read the token from before the
+  last rotation, took a 401 and refreshed again. Existing lines keep their
+  spelling, every matching line is updated, and new keys follow the file's case.
 
 ## [3.1.0] - 2026-09-08
 

@@ -16,7 +16,7 @@
     },
     "require": {
         "php": "^8.4",
-        "twitchphp/http": "dev-main",
+        "twitchphp/http": "^1.1",
         "discord-php-helpers/collection": "dev-main",
         "evenement/evenement": "^3.0",
         "nesbot/carbon": "^3.8 || ^2.72",
@@ -53,6 +53,11 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-main": "3.x-dev"
+        }
+    },
     "config": {
         "sort-packages": true
     }
