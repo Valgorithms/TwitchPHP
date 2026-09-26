@@ -122,6 +122,20 @@ class UserRepository extends AbstractRepository
     }
 
     /**
+     * Whether each user has authorized this application, and the scopes they
+     * granted it. Needs an app access token; up to 10 users.
+     *
+     * @param list<string>|string $userIds
+     *
+     * @return PromiseInterface<list<array{user_id: string, user_name: string, user_login: string, scopes: list<string>, has_authorized: bool}>>
+     */
+    public function authorizations(array|string $userIds): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::USER_AUTHORIZATIONS))->addQuery('user_id', (array) $userIds))
+            ->then(fn (?array $body) => $this->rows($body));
+    }
+
+    /**
      * @param list<string> $values
      *
      * @return PromiseInterface<Collection<User>>

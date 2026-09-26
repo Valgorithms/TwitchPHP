@@ -54,10 +54,13 @@ final class SubscriptionTypes
     public const CHANNEL_VIP_ADD = 'channel.vip.add';
     public const CHANNEL_VIP_REMOVE = 'channel.vip.remove';
     public const CHANNEL_BITS_USE = 'channel.bits.use';
+    public const CHANNEL_CUSTOM_POWER_UP_REDEMPTION_ADD = 'channel.custom_power_up_redemption.add';
     public const CHANNEL_WARNING_ACKNOWLEDGE = 'channel.warning.acknowledge';
     public const CHANNEL_WARNING_SEND = 'channel.warning.send';
     public const CHANNEL_SUSPICIOUS_USER_MESSAGE = 'channel.suspicious_user.message';
     public const CHANNEL_SUSPICIOUS_USER_UPDATE = 'channel.suspicious_user.update';
+    public const CHANNEL_SHIELD_MODE_BEGIN = 'channel.shield_mode.begin';
+    public const CHANNEL_SHIELD_MODE_END = 'channel.shield_mode.end';
 
     // ── Channel Points ─────────────────────────────────────────────────
     public const CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD = 'channel.channel_points_automatic_reward_redemption.add';
@@ -130,6 +133,10 @@ final class SubscriptionTypes
         self::HYPE_TRAIN_BEGIN => '2',
         self::HYPE_TRAIN_PROGRESS => '2',
         self::HYPE_TRAIN_END => '2',
+        // v2 also delivers messages held for a blocked term, which v1 never
+        // sends. Pass '1' to EventSub::subscribe() for the v1 payload.
+        self::AUTOMOD_MESSAGE_HOLD => '2',
+        self::AUTOMOD_MESSAGE_UPDATE => '2',
         self::CHANNEL_BITS_USE => '1',
         self::CHANNEL_VIP_ADD => '1',
         self::CHANNEL_VIP_REMOVE => '1',

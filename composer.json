@@ -16,7 +16,7 @@
     },
     "require": {
         "php": "^8.4",
-        "twitchphp/http": "^1.1",
+        "twitchphp/http": "^1.2",
         "discord-php-helpers/collection": "dev-main",
         "evenement/evenement": "^3.0",
         "nesbot/carbon": "^3.8 || ^2.72",

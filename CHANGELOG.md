@@ -4,6 +4,43 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- The Helix operations the client still lacked. It now sends 147 of the 149 in
+  the Twitch OpenAPI spec; the other two are the deprecated stream-tag
+  endpoints.
+  - Chat: `pinnedMessage()`, `pinMessage()`, `updatePinnedMessage()`,
+    `unpinMessage()` and `sharedChatSession()`.
+  - Moderation: `checkAutoModStatus()`, `resolveHeldMessage()`,
+    `autoModSettings()`, `updateAutoModSettings()`, `addSuspiciousUser()` and
+    `removeSuspiciousUser()`.
+  - Clips: `createFromVod()` and `downloads()`.
+  - Guest Star: `invites()`, `moveSlot()` and `updateSlotSettings()`.
+  - `BitsRepository::customPowerUps()` and `UserRepository::authorizations()`.
+  - Extensions: `released()`, `bitsProducts()`, `saveBitsProduct()`, and,
+    authenticated as the extension, `configurationSegments()`,
+    `setConfigurationSegment()`, `setRequiredConfiguration()`,
+    `sendPubSubMessage()`, `broadcastPubSubMessage()`, `sendChatMessage()`,
+    `secrets()` and `createSecret()`.
+- `Twitch\Auth\ExtensionJwt`, which signs the JWTs those extension endpoints
+  require in place of an OAuth token. Requests made with one skip the
+  client's token recovery, since refreshing an OAuth token cannot fix a
+  rejected JWT. The secret never appears in debug output.
+- `ExtensionRepository::metadata()` takes an optional `ExtensionJwt`. Twitch
+  requires one there, so without it the call could not succeed.
+- `SubscriptionTypes::CHANNEL_SHIELD_MODE_BEGIN`, `CHANNEL_SHIELD_MODE_END` and
+  `CHANNEL_CUSTOM_POWER_UP_REDEMPTION_ADD`.
+
+### Changed
+
+- `automod.message.hold` and `automod.message.update` subscriptions default to
+  version 2. It also delivers messages held for a blocked term, which version
+  1 never sends, and its payload has a different shape: `reason`, with the
+  details under `automod` or `blocked_term`. Pass `'1'` as the version to
+  `EventSub::subscribe()` to keep the version 1 payload.
+- Requires `twitchphp/http` `^1.2`, for `Endpoint::USER_AUTHORIZATIONS` and for
+  requests that carry their own `Authorization` header.
+
 ## [3.2.0] - 2026-09-23
 
 ### Added

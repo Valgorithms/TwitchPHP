@@ -18,8 +18,9 @@ use Twitch\Parts\BitsLeaderboardEntry;
 use Twitch\Parts\Cheermote;
 
 /**
- * The `bits/*` resource — the Bits leaderboard (`bits:read`) and the Cheermote
- * catalogue (global + a channel's custom set).
+ * The `bits/*` resource — the Bits leaderboard (`bits:read`), the Cheermote
+ * catalogue (global + a channel's custom set) and a channel's custom
+ * Power-ups.
  *
  * @link https://dev.twitch.tv/docs/api/reference/#get-bits-leaderboard
  *
@@ -62,5 +63,22 @@ class BitsRepository extends AbstractRepository
         return $this->twitch->request('GET', (new Endpoint(Endpoint::CHEERMOTES))
             ->withQuery(['broadcaster_id' => $broadcasterId]))
             ->then(fn (?array $body) => $this->collectRows($body, Cheermote::class, 'prefix'));
+    }
+
+    /**
+     * The custom Power-ups the authenticated broadcaster created, enabled or
+     * not (`bits:read`). `$ids` narrows them down, up to 50; Twitch answers 404
+     * when none of them exists.
+     *
+     * @param list<string>|string|null $ids
+     *
+     * @return PromiseInterface<list<array<string, mixed>>>
+     */
+    public function customPowerUps(string $broadcasterId, array|string|null $ids = null): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::CUSTOM_POWER_UPS))
+            ->addQuery('broadcaster_id', $broadcasterId)
+            ->addQuery('id', (array) ($ids ?? [])))
+            ->then(fn (?array $body) => $this->rows($body));
     }
 }

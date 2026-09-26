@@ -205,4 +205,162 @@ final class RepositoryTest extends TestCase
         self::assertStringContainsString('analytics/games?', $this->http->calls[0][1]);
         self::assertStringContainsString('game_id=9', $this->http->calls[0][1]);
     }
+
+    public function testBitsCustomPowerUpsRepeatsTheIdFilter(): void
+    {
+        $this->http->script[] = ['data' => [['id' => 'a', 'title' => 'Confetti', 'bits' => 100]]];
+
+        $powerUps = await($this->twitch->bits->customPowerUps('1', ['a', 'b']));
+        await($this->twitch->bits->customPowerUps('1'));
+
+        self::assertSame(['GET', 'bits/custom_power_ups?broadcaster_id=1&id=a&id=b'], $this->http->calls[0]);
+        self::assertSame(['GET', 'bits/custom_power_ups?broadcaster_id=1'], $this->http->calls[1]);
+        self::assertSame('Confetti', $powerUps[0]['title']);
+    }
+
+    public function testChatPinsUseEachVerbOnTheSameEndpoint(): void
+    {
+        $this->http->script[] = ['data' => [['message_id' => 'm1', 'pinned_by_user_id' => '2']]];
+        $this->http->script[] = null;
+        $this->http->script[] = null;
+        $this->http->script[] = null;
+        $this->http->script[] = ['data' => []];
+
+        $pinned = await($this->twitch->chat->pinnedMessage('1', '2'));
+        await($this->twitch->chat->pinMessage('1', '2', 'm1', 300));
+        await($this->twitch->chat->updatePinnedMessage('1', '2', 'm1'));
+        await($this->twitch->chat->unpinMessage('1', '2', 'm1'));
+        $nothing = await($this->twitch->chat->pinnedMessage('1', '2'));
+
+        self::assertSame('m1', $pinned['message_id']);
+        self::assertNull($nothing);
+        self::assertSame([
+            ['GET', 'chat/pins?broadcaster_id=1&moderator_id=2'],
+            ['PUT', 'chat/pins?broadcaster_id=1&moderator_id=2&message_id=m1&duration_seconds=300'],
+            ['PATCH', 'chat/pins?broadcaster_id=1&moderator_id=2&message_id=m1'],
+            ['DELETE', 'chat/pins?broadcaster_id=1&moderator_id=2&message_id=m1'],
+        ], array_slice($this->http->calls, 0, 4));
+    }
+
+    public function testSharedChatSessionIsNullOutsideASession(): void
+    {
+        $this->http->script[] = ['data' => [['session_id' => 's1', 'host_broadcaster_id' => '1', 'participants' => []]]];
+        $this->http->script[] = ['data' => []];
+
+        $session = await($this->twitch->chat->sharedChatSession('1'));
+
+        self::assertSame(['GET', 'shared_chat/session?broadcaster_id=1'], $this->http->calls[0]);
+        self::assertSame('s1', $session['session_id']);
+        self::assertNull(await($this->twitch->chat->sharedChatSession('2')));
+    }
+
+    public function testClipsCreateFromVodAndDownloads(): void
+    {
+        $this->http->script[] = ['data' => [['id' => 'clip-1', 'edit_url' => 'https://clips.twitch.tv/clip-1/edit']]];
+        $this->http->script[] = ['data' => [['clip_id' => 'clip-1', 'landscape_download_url' => 'https://x/l.mp4', 'portrait_download_url' => null]]];
+
+        $clip = await($this->twitch->clips->createFromVod('9', '1', 'v5', 120, 'Big play', 12.54));
+        $links = await($this->twitch->clips->downloads('9', '1', ['clip-1', 'clip-2']));
+
+        self::assertSame(['POST', 'videos/clips?editor_id=9&broadcaster_id=1&vod_id=v5&vod_offset=120&duration=12.5&title=Big%20play'], $this->http->calls[0]);
+        self::assertSame(['GET', 'clips/downloads?editor_id=9&broadcaster_id=1&clip_id=clip-1&clip_id=clip-2'], $this->http->calls[1]);
+        self::assertSame('clip-1', $clip['id']);
+        self::assertSame('https://x/l.mp4', $links[0]['landscape_download_url']);
+    }
+
+    public function testModerationCheckAutoModStatusMapsYourIdsToVerdicts(): void
+    {
+        $this->http->script[] = ['data' => [
+            ['msg_id' => 'a', 'is_permitted' => true],
+            ['msg_id' => 'b', 'is_permitted' => false],
+        ]];
+
+        $verdicts = await($this->twitch->moderation->checkAutoModStatus('1', ['a' => 'hello', 'b' => 'something rude']));
+
+        self::assertSame(['POST', 'moderation/enforcements/status?broadcaster_id=1'], $this->http->calls[0]);
+        self::assertSame(['data' => [
+            ['msg_id' => 'a', 'msg_text' => 'hello'],
+            ['msg_id' => 'b', 'msg_text' => 'something rude'],
+        ]], $this->http->requests[0][2]);
+        self::assertSame(['a' => true, 'b' => false], $verdicts);
+    }
+
+    public function testModerationHeldMessagesAndAutoModSettings(): void
+    {
+        $settings = ['broadcaster_id' => '1', 'moderator_id' => '2', 'overall_level' => 3];
+        $this->http->script[] = null;
+        $this->http->script[] = ['data' => [$settings]];
+        $this->http->script[] = ['data' => [$settings]];
+
+        await($this->twitch->moderation->resolveHeldMessage('2', 'msg-1', false));
+        $current = await($this->twitch->moderation->autoModSettings('1', '2'));
+        $saved = await($this->twitch->moderation->updateAutoModSettings('1', '2', ['overall_level' => 3]));
+
+        self::assertSame(['POST', 'moderation/automod/message', ['user_id' => '2', 'msg_id' => 'msg-1', 'action' => 'DENY']], array_slice($this->http->requests[0], 0, 3));
+        self::assertSame(['GET', 'moderation/automod/settings?broadcaster_id=1&moderator_id=2'], $this->http->calls[1]);
+        self::assertSame(['PUT', 'moderation/automod/settings?broadcaster_id=1&moderator_id=2', ['overall_level' => 3]], array_slice($this->http->requests[2], 0, 3));
+        self::assertSame(3, $current['overall_level']);
+        self::assertSame($current, $saved);
+    }
+
+    public function testModerationSuspiciousUsers(): void
+    {
+        $this->http->script[] = ['data' => [['user_id' => '9', 'status' => 'RESTRICTED', 'types' => ['MANUALLY_ADDED']]]];
+        $this->http->script[] = ['data' => [['user_id' => '9', 'status' => 'NO_TREATMENT', 'types' => []]]];
+
+        $added = await($this->twitch->moderation->addSuspiciousUser('1', '2', '9', 'RESTRICTED'));
+        $removed = await($this->twitch->moderation->removeSuspiciousUser('1', '2', '9'));
+
+        self::assertSame(['POST', 'moderation/suspicious_users?broadcaster_id=1&moderator_id=2', ['user_id' => '9', 'status' => 'RESTRICTED']], array_slice($this->http->requests[0], 0, 3));
+        self::assertSame(['DELETE', 'moderation/suspicious_users?broadcaster_id=1&moderator_id=2&user_id=9'], $this->http->calls[1]);
+        self::assertSame('RESTRICTED', $added['status']);
+        self::assertSame('NO_TREATMENT', $removed['status']);
+    }
+
+    public function testGuestStarInvitesSlotMovesAndSlotSettings(): void
+    {
+        $this->http->script[] = ['data' => [['user_id' => '7', 'status' => 'INVITED']]];
+
+        $invites = await($this->twitch->guestStar->invites('1', '2', 's1'));
+        await($this->twitch->guestStar->moveSlot('1', '2', 's1', '1', '2'));
+        await($this->twitch->guestStar->moveSlot('1', '2', 's1', '1'));
+        await($this->twitch->guestStar->updateSlotSettings('1', '2', 's1', '1', ['is_audio_enabled' => false, 'volume' => 80, 'slot_id' => 'ignored']));
+
+        self::assertSame('7', $invites[0]['user_id']);
+        self::assertSame([
+            ['GET', 'guest_star/invites?broadcaster_id=1&moderator_id=2&session_id=s1'],
+            ['PATCH', 'guest_star/slot?broadcaster_id=1&moderator_id=2&session_id=s1&source_slot_id=1&destination_slot_id=2'],
+            ['PATCH', 'guest_star/slot?broadcaster_id=1&moderator_id=2&session_id=s1&source_slot_id=1'],
+            ['PATCH', 'guest_star/slot_settings?broadcaster_id=1&moderator_id=2&session_id=s1&slot_id=1&is_audio_enabled=false&volume=80'],
+        ], $this->http->calls);
+    }
+
+    public function testUsersAuthorizationsRepeatsTheUserId(): void
+    {
+        $this->http->script[] = ['data' => [['user_id' => '1', 'scopes' => ['chat:read'], 'has_authorized' => true]]];
+
+        $grants = await($this->twitch->users->authorizations(['1', '2']));
+
+        self::assertSame(['GET', 'authorization/users?user_id=1&user_id=2'], $this->http->calls[0]);
+        self::assertSame(['chat:read'], $grants[0]['scopes']);
+    }
+
+    public function testExtensionsReleasedAndBitsProductsUseTheClientToken(): void
+    {
+        $product = ['sku' => 'boost', 'cost' => ['amount' => 100, 'type' => 'bits'], 'display_name' => 'Boost'];
+        $this->http->script[] = ['data' => [['id' => 'ext', 'name' => 'Overlay', 'state' => 'Released']]];
+        $this->http->script[] = ['data' => [$product]];
+        $this->http->script[] = ['data' => [$product]];
+
+        $released = await($this->twitch->extensions->released('ext'));
+        $products = await($this->twitch->extensions->bitsProducts());
+        $saved = await($this->twitch->extensions->saveBitsProduct($product));
+
+        self::assertSame(['GET', 'extensions/released?extension_id=ext'], $this->http->calls[0]);
+        self::assertSame(['GET', 'bits/extensions?should_include_all=false'], $this->http->calls[1]);
+        self::assertSame(['PUT', 'bits/extensions', $product, []], $this->http->requests[2]);
+        self::assertSame('Overlay', $released['name']);
+        self::assertSame('boost', $products[0]['sku']);
+        self::assertSame($product, $saved);
+    }
 }

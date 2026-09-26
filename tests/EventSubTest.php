@@ -142,6 +142,28 @@ final class EventSubTest extends TestCase
         self::assertSame([], $this->http->requests, 'nothing goes over HTTP until the session is ready');
     }
 
+    public function testAutoModMessageTypesDefaultToVersionTwoAndCanStillAskForOne(): void
+    {
+        self::assertSame('2', SubscriptionTypes::version(SubscriptionTypes::AUTOMOD_MESSAGE_HOLD));
+        self::assertSame('2', SubscriptionTypes::version(SubscriptionTypes::AUTOMOD_MESSAGE_UPDATE));
+
+        $this->http->script[] = ['data' => [['id' => 'sub-1', 'status' => 'enabled']]];
+        await($this->eventSub->subscribe(SubscriptionTypes::AUTOMOD_MESSAGE_HOLD, [
+            'broadcaster_user_id' => '1',
+            'moderator_user_id' => '2',
+        ], '1'));
+
+        self::assertSame('1', $this->lastSubscribeBody()['version']);
+    }
+
+    public function testShieldModeAndCustomPowerUpTypesAreKnown(): void
+    {
+        foreach (['channel.shield_mode.begin', 'channel.shield_mode.end', 'channel.custom_power_up_redemption.add'] as $type) {
+            self::assertTrue(SubscriptionTypes::isKnown($type), $type);
+            self::assertSame('1', SubscriptionTypes::version($type));
+        }
+    }
+
     public function testAllTypesAreDistinctStringsWithADot(): void
     {
         $all = SubscriptionTypes::all();

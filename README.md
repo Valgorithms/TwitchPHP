@@ -129,6 +129,24 @@ Repositories share a common surface from `Twitch\Repository\AbstractRepository`:
 `freshen()`, `all()` (auto-follows `pagination.cursor`), `fetch($id)`, `save($part)`,
 `delete($part)`, plus `get()`, `first()`, `filter()` and iteration.
 
+### Extension backends
+
+Some extension endpoints want a JWT signed with the extension's shared secret
+rather than an OAuth token: configuration segments, PubSub, extension chat and
+the secrets themselves. Those methods take a `Twitch\Auth\ExtensionJwt`, which
+signs a short-lived token for each request:
+
+```php
+use Twitch\Auth\ExtensionJwt;
+
+// The extension's client id, its base64 secret from the developer console, and the owner's user id
+$jwt = new ExtensionJwt($extensionClientId, $base64Secret, $ownerUserId);
+
+$twitch->extensions->sendPubSubMessage($jwt, $broadcasterId, json_encode(['score' => 3]));
+$twitch->extensions->configurationSegments($jwt, 'broadcaster', $broadcasterId);
+$twitch->extensions->sendChatMessage($jwt, $broadcasterId, '1.0.0', 'GG!');
+```
+
 ## EventSub
 
 Enable the WebSocket transport with `'eventsub' => true`, then subscribe once the session is ready:

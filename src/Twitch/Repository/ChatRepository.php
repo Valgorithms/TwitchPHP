@@ -21,7 +21,8 @@ use Twitch\Parts\Emote;
 
 /**
  * The Helix `chat/*` resource group — settings, chatters, emotes, badges,
- * announcements, shoutouts, sending a message, and per-user colour.
+ * announcements, shoutouts, sending and pinning messages, per-user colour, and
+ * shared chat sessions.
  *
  * @link https://dev.twitch.tv/docs/api/reference/#get-chat-settings
  *
@@ -181,6 +182,82 @@ class ChatRepository extends AbstractRepository
             'to_broadcaster_id' => $toBroadcasterId,
             'moderator_id' => $moderatorId,
         ]));
+    }
+
+    // ── Pinned messages ─────────────────────────────────────────────────
+
+    /**
+     * The message pinned in the channel's chat, or `null` when none is
+     * (`moderator:read:chat_messages` or `moderator:manage:chat_messages`).
+     *
+     * @return PromiseInterface<array<string, mixed>|null>
+     */
+    public function pinnedMessage(string $broadcasterId, string $moderatorId): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::CHAT_PINS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+        ]))->then(fn (?array $body) => $this->rows($body)[0] ?? null);
+    }
+
+    /**
+     * Pins a chat message (`moderator:manage:chat_messages`) for
+     * `$durationSeconds` (30–1800), or until the stream ends when that is null.
+     *
+     * @return PromiseInterface<null>
+     */
+    public function pinMessage(string $broadcasterId, string $moderatorId, string $messageId, ?int $durationSeconds = null): PromiseInterface
+    {
+        return $this->twitch->request('PUT', (new Endpoint(Endpoint::CHAT_PINS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'message_id' => $messageId,
+            'duration_seconds' => $durationSeconds,
+        ]));
+    }
+
+    /**
+     * Re-times a pinned message: pinned for `$durationSeconds` (30–1800) from
+     * now, or until the stream ends when that is null.
+     *
+     * @return PromiseInterface<null>
+     */
+    public function updatePinnedMessage(string $broadcasterId, string $moderatorId, string $messageId, ?int $durationSeconds = null): PromiseInterface
+    {
+        return $this->twitch->request('PATCH', (new Endpoint(Endpoint::CHAT_PINS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'message_id' => $messageId,
+            'duration_seconds' => $durationSeconds,
+        ]));
+    }
+
+    /**
+     * Unpins a chat message (`moderator:manage:chat_messages`).
+     *
+     * @return PromiseInterface<null>
+     */
+    public function unpinMessage(string $broadcasterId, string $moderatorId, string $messageId): PromiseInterface
+    {
+        return $this->twitch->request('DELETE', (new Endpoint(Endpoint::CHAT_PINS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'message_id' => $messageId,
+        ]));
+    }
+
+    // ── Shared chat ─────────────────────────────────────────────────────
+
+    /**
+     * The shared chat session the channel is part of, or `null` when it is in
+     * none.
+     *
+     * @return PromiseInterface<array<string, mixed>|null> `{ session_id, host_broadcaster_id, participants, created_at, updated_at }`
+     */
+    public function sharedChatSession(string $broadcasterId): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::SHARED_CHAT_SESSION))->addQuery('broadcaster_id', $broadcasterId))
+            ->then(fn (?array $body) => $this->rows($body)[0] ?? null);
     }
 
     // ── Colour ──────────────────────────────────────────────────────────

@@ -20,7 +20,7 @@ final class ScriptedHttp implements HttpInterface
     /** @var list<array{0: string, 1: string}> */
     public array $calls = [];
 
-    /** @var list<array{0: string, 1: string, 2: array<string, mixed>|null}> */
+    /** @var list<array{0: string, 1: string, 2: array<string, mixed>|null, 3: array<string, string>}> */
     public array $requests = [];
 
     /** @var list<array<string, mixed>|null> */
@@ -32,7 +32,7 @@ final class ScriptedHttp implements HttpInterface
     public function request(string $method, Endpoint|string $endpoint, ?array $content = null, array $headers = []): PromiseInterface
     {
         $this->calls[] = [$method, (string) $endpoint];
-        $this->requests[] = [$method, (string) $endpoint, $content];
+        $this->requests[] = [$method, (string) $endpoint, $content, $headers];
 
         if ($this->throw !== null) {
             $e = $this->throw;

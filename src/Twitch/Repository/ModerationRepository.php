@@ -20,7 +20,8 @@ use Twitch\Parts\Moderator;
 
 /**
  * The Helix `moderation/*` and related resources — bans and timeouts,
- * moderators, VIPs, blocked terms, message deletion, Shield Mode, warnings.
+ * moderators, VIPs, blocked terms, message deletion, Shield Mode, warnings,
+ * AutoMod and suspicious users.
  *
  * Every call takes an explicit `$broadcasterId` and (where the API requires it)
  * a `$moderatorId`; the authenticated user must be that moderator.
@@ -302,6 +303,122 @@ class ModerationRepository extends AbstractRepository
             'first' => $first,
             'after' => $after,
         ]))->then(fn (?array $body) => $this->rows($body));
+    }
+
+    // ── AutoMod ────────────────────────────────────────────────────────
+
+    /**
+     * Whether AutoMod would let each message through, checked against the
+     * authenticated broadcaster's settings and blocked terms
+     * (`moderation:read`). Up to 100 messages at a time.
+     *
+     * @param array<string, string> $messages Your own id for each message => its text.
+     *
+     * @return PromiseInterface<array<string, bool>> The same ids => whether the message is permitted.
+     */
+    public function checkAutoModStatus(string $broadcasterId, array $messages): PromiseInterface
+    {
+        $data = [];
+        foreach ($messages as $id => $text) {
+            $data[] = ['msg_id' => (string) $id, 'msg_text' => $text];
+        }
+
+        return $this->twitch->request(
+            'POST',
+            (new Endpoint(Endpoint::AUTOMOD_STATUS))->addQuery('broadcaster_id', $broadcasterId),
+            ['data' => $data],
+        )->then(function (?array $body): array {
+            $out = [];
+            foreach ($this->rows($body) as $row) {
+                $out[$row['msg_id']] = (bool) $row['is_permitted'];
+            }
+
+            return $out;
+        });
+    }
+
+    /**
+     * Allows or denies a message AutoMod is holding for review
+     * (`moderator:manage:automod`). `$moderatorId` is the user in the token.
+     *
+     * @return PromiseInterface<null>
+     */
+    public function resolveHeldMessage(string $moderatorId, string $messageId, bool $allow): PromiseInterface
+    {
+        return $this->twitch->request('POST', Endpoint::AUTOMOD_HELD_MESSAGE, [
+            'user_id' => $moderatorId,
+            'msg_id' => $messageId,
+            'action' => $allow ? 'ALLOW' : 'DENY',
+        ]);
+    }
+
+    /**
+     * The channel's AutoMod levels, 0–4 per category
+     * (`moderator:read:automod_settings` or `moderator:manage:automod_settings`).
+     *
+     * @return PromiseInterface<array<string, mixed>>
+     */
+    public function autoModSettings(string $broadcasterId, string $moderatorId): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::AUTOMOD_SETTINGS))
+            ->withQuery(['broadcaster_id' => $broadcasterId, 'moderator_id' => $moderatorId]))
+            ->then(fn (?array $body) => $this->rows($body)[0] ?? []);
+    }
+
+    /**
+     * Replaces the channel's AutoMod levels
+     * (`moderator:manage:automod_settings`). This is an overwrite: send every
+     * level you want kept, usually by editing what {@see autoModSettings()}
+     * returned. Set either `overall_level`, which applies Twitch's
+     * recommended level for each category, or the categories themselves, not
+     * both.
+     *
+     * @param array<string, int> $settings `overall_level`, or any of `aggression`, `bullying`, `disability`,
+     *                                     `misogyny`, `race_ethnicity_or_religion`, `sex_based_terms`,
+     *                                     `sexuality_sex_or_gender` and `swearing`.
+     *
+     * @return PromiseInterface<array<string, mixed>> The settings as saved.
+     */
+    public function updateAutoModSettings(string $broadcasterId, string $moderatorId, array $settings): PromiseInterface
+    {
+        return $this->twitch->request(
+            'PUT',
+            (new Endpoint(Endpoint::AUTOMOD_SETTINGS))->withQuery(['broadcaster_id' => $broadcasterId, 'moderator_id' => $moderatorId]),
+            $settings,
+        )->then(fn (?array $body) => $this->rows($body)[0] ?? []);
+    }
+
+    // ── Suspicious users ───────────────────────────────────────────────
+
+    /**
+     * Marks a chatter as suspicious (`moderator:manage:suspicious_users`).
+     * `$status` is `ACTIVE_MONITORING`, which flags their messages to
+     * moderators, or `RESTRICTED`, which shows their messages to moderators
+     * only.
+     *
+     * @return PromiseInterface<array<string, mixed>> `{ user_id, broadcaster_id, moderator_id, updated_at, status, types }`
+     */
+    public function addSuspiciousUser(string $broadcasterId, string $moderatorId, string $userId, string $status = 'ACTIVE_MONITORING'): PromiseInterface
+    {
+        return $this->twitch->request(
+            'POST',
+            (new Endpoint(Endpoint::SUSPICIOUS_USERS))->withQuery(['broadcaster_id' => $broadcasterId, 'moderator_id' => $moderatorId]),
+            ['user_id' => $userId, 'status' => $status],
+        )->then(fn (?array $body) => $this->rows($body)[0] ?? []);
+    }
+
+    /**
+     * Clears a chatter's suspicious status (`moderator:manage:suspicious_users`).
+     *
+     * @return PromiseInterface<array<string, mixed>> The chatter's record, now with status `NO_TREATMENT`.
+     */
+    public function removeSuspiciousUser(string $broadcasterId, string $moderatorId, string $userId): PromiseInterface
+    {
+        return $this->twitch->request('DELETE', (new Endpoint(Endpoint::SUSPICIOUS_USERS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'user_id' => $userId,
+        ]))->then(fn (?array $body) => $this->rows($body)[0] ?? []);
     }
 
     // ── Internals ──────────────────────────────────────────────────────

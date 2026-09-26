@@ -107,6 +107,20 @@ class GuestStarRepository extends AbstractRepository
     }
 
     /**
+     * The session's pending invites.
+     *
+     * @return PromiseInterface<list<array<string, mixed>>> `{ user_id, invited_at, status, is_video_enabled, is_audio_enabled, is_video_available, is_audio_available }` rows.
+     */
+    public function invites(string $broadcasterId, string $moderatorId, string $sessionId): PromiseInterface
+    {
+        return $this->twitch->request('GET', (new Endpoint(Endpoint::GUEST_STAR_INVITES))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'session_id' => $sessionId,
+        ]))->then(fn (?array $body) => $this->rows($body));
+    }
+
+    /**
      * Revokes an invite.
      *
      * @return PromiseInterface<null>
@@ -135,6 +149,41 @@ class GuestStarRepository extends AbstractRepository
             'guest_id' => $guestId,
             'slot_id' => $slotId,
         ]));
+    }
+
+    /**
+     * Moves the guest in `$sourceSlotId` to `$destinationSlotId`. A guest
+     * already in the destination slot swaps into the source slot.
+     *
+     * @return PromiseInterface<null>
+     */
+    public function moveSlot(string $broadcasterId, string $moderatorId, string $sessionId, string $sourceSlotId, ?string $destinationSlotId = null): PromiseInterface
+    {
+        return $this->twitch->request('PATCH', (new Endpoint(Endpoint::GUEST_STAR_SLOT))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'session_id' => $sessionId,
+            'source_slot_id' => $sourceSlotId,
+            'destination_slot_id' => $destinationSlotId,
+        ]));
+    }
+
+    /**
+     * Updates the settings of the guest in a slot.
+     *
+     * @param array{is_audio_enabled?: bool, is_video_enabled?: bool, is_live?: bool, volume?: int} $settings
+     *        `is_live` decides whether the slot shows in broadcasting software; `volume` is 0–100.
+     *
+     * @return PromiseInterface<null>
+     */
+    public function updateSlotSettings(string $broadcasterId, string $moderatorId, string $sessionId, string $slotId, array $settings): PromiseInterface
+    {
+        return $this->twitch->request('PATCH', (new Endpoint(Endpoint::GUEST_STAR_SLOT_SETTINGS))->withQuery([
+            'broadcaster_id' => $broadcasterId,
+            'moderator_id' => $moderatorId,
+            'session_id' => $sessionId,
+            'slot_id' => $slotId,
+        ] + $settings));
     }
 
     /**
