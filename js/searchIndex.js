@@ -333,12 +333,27 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Aconnect\u0028\u0029",
             "name": "connect",
-            "summary": "",
+            "summary": "Makes\u0020the\u0020first\u0020connection.",
             "url": "classes/Twitch-Chat-Irc.html#method_connect"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Areconnect\u0028\u0029",
+            "name": "reconnect",
+            "summary": "Tries\u0020to\u0020connect\u0020again\u0020now,\u0020whatever\u0020the\u0020retrying\u0020is\u0020doing\u003A\u0020for\u0020someone\nwho\u0020has\u0020fixed\u0020the\u0020network,\u0020or\u0020pressed\u0020a\u0020button.",
+            "url": "classes/Twitch-Chat-Irc.html#method_reconnect"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AisConnected\u0028\u0029",
+            "name": "isConnected",
+            "summary": "Whether\u0020logged\u0020in\u0020over\u0020a\u0020connection\u0020that\u0020is\u0020still\u0020answering.",
+            "url": "classes/Twitch-Chat-Irc.html#method_isConnected"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AsetToken\u0028\u0029",
+            "name": "setToken",
+            "summary": "Uses\u0020a\u0020new\u0020access\u0020token\u0020from\u0020the\u0020next\u0020login\u0020on.",
+            "url": "classes/Twitch-Chat-Irc.html#method_setToken"
         },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Aclose\u0028\u0029",
             "name": "close",
-            "summary": "",
+            "summary": "Disconnects\u0020for\u0020good\u003A\u0020nothing\u0020is\u0020retried\u0020after\u0020this.",
             "url": "classes/Twitch-Chat-Irc.html#method_close"
         },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Asay\u0028\u0029",
@@ -366,6 +381,56 @@ Search.appendIndex(
             "summary": "The\u0020raw\u0020IRC\u0020line,\u0020without\u0020the\u0020trailing\u0020CRLF.",
             "url": "classes/Twitch-Chat-Irc.html#method_raw"
         },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024attempt",
+            "name": "attempt",
+            "summary": "The\u0020attempt\u0020in\u0020flight,\u0020shared\u0020by\u0020everything\u0020that\u0020asks\u0020for\u0020one\u0020meanwhile.",
+            "url": "classes/Twitch-Chat-Irc.html#property_attempt"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Aopen\u0028\u0029",
+            "name": "open",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#method_open"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Awelcomed\u0028\u0029",
+            "name": "welcomed",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#method_welcomed"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AfailAttempt\u0028\u0029",
+            "name": "failAttempt",
+            "summary": "One\u0020attempt\u0020is\u0020over\u0020without\u0020a\u0020login\u003B\u0020retries,\u0020unless\u0020it\u0020was\u0020the\u0020first\u0020connection.",
+            "url": "classes/Twitch-Chat-Irc.html#method_failAttempt"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Alost\u0028\u0029",
+            "name": "lost",
+            "summary": "A\u0020connection\u0020that\u0020was\u0020logged\u0020in\u0020is\u0020gone.",
+            "url": "classes/Twitch-Chat-Irc.html#method_lost"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AscheduleRetry\u0028\u0029",
+            "name": "scheduleRetry",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#method_scheduleRetry"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Aabandon\u0028\u0029",
+            "name": "abandon",
+            "summary": "Lets\u0020go\u0020of\u0020the\u0020current\u0020socket\u003A\u0020its\u0020events\u0020stop\u0020counting,\u0020and\u0020it\u0020is\u0020closed\nas\u0020far\u0020as\u0020it\u0020still\u0020can\u0020be.\u0020One\u0020whose\u0020network\u0020has\u0020gone\u0020may\u0020never\u0020report\nclosing,\u0020so\u0020nothing\u0020waits\u0020for\u0020it\u0020to.",
+            "url": "classes/Twitch-Chat-Irc.html#method_abandon"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AcheckAlive\u0028\u0029",
+            "name": "checkAlive",
+            "summary": "Notices\u0020a\u0020connection\u0020that\u0020has\u0020stopped\u0020answering.\u0020Twitch\u0020sends\u0020nothing\nwhile\u0020a\u0020channel\u0020is\u0020quiet,\u0020so\u0020silence\u0020alone\u0020proves\u0020nothing\u003B\u0020silence\u0020after\na\u0020PING\u0020of\u0020our\u0020own\u0020does.",
+            "url": "classes/Twitch-Chat-Irc.html#method_checkAlive"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Aheard\u0028\u0029",
+            "name": "heard",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#method_heard"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003Acancel\u0028\u0029",
+            "name": "cancel",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#method_cancel"
+        },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AonMessage\u0028\u0029",
             "name": "onMessage",
             "summary": "",
@@ -375,6 +440,11 @@ Search.appendIndex(
             "name": "onLine",
             "summary": "",
             "url": "classes/Twitch-Chat-Irc.html#method_onLine"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AloginRefused\u0028\u0029",
+            "name": "loginRefused",
+            "summary": "Twitch\u0020refused\u0020the\u0020login,\u0020which\u0020retrying\u0020with\u0020the\u0020same\u0020token\u0020cannot\u0020fix.",
+            "url": "classes/Twitch-Chat-Irc.html#method_loginRefused"
         },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003AhandlePrivmsg\u0028\u0029",
             "name": "handlePrivmsg",
@@ -411,10 +481,25 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Twitch-Chat-Irc.html#constant_GATEWAY"
         },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003ARETRY_DELAYS",
+            "name": "RETRY_DELAYS",
+            "summary": "Seconds\u0020before\u0020each\u0020reconnect\u0020attempt\u0020of\u0020an\u0020outage,\u0020first\u0020to\u0020last\u003B\u0020the\noutage\u0020counts\u0020as\u0020failed\u0020once\u0020the\u0020last\u0020one\u0020has.",
+            "url": "classes/Twitch-Chat-Irc.html#constant_RETRY_DELAYS"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003ADEFAULTS",
+            "name": "DEFAULTS",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#constant_DEFAULTS"
+        },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024conn",
             "name": "conn",
             "summary": "",
             "url": "classes/Twitch-Chat-Irc.html#property_conn"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024generation",
+            "name": "generation",
+            "summary": "Which\u0020connection\u0027s\u0020events\u0020count.\u0020Bumped\u0020whenever\u0020one\u0020is\u0020replaced,\u0020so\u0020a\nsocket\u0020that\u0020was\u0020given\u0020up\u0020on\u0020cannot\u0020close\u0020or\u0020speak\u0020for\u0020its\u0020successor.",
+            "url": "classes/Twitch-Chat-Irc.html#property_generation"
         },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024ready",
             "name": "ready",
@@ -426,10 +511,65 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Twitch-Chat-Irc.html#property_commands"
         },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024options",
+            "name": "options",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_options"
+        },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024closing",
             "name": "closing",
             "summary": "",
             "url": "classes/Twitch-Chat-Irc.html#property_closing"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024connected",
+            "name": "connected",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_connected"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024everConnected",
+            "name": "everConnected",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_everConnected"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024failures",
+            "name": "failures",
+            "summary": "Failed\u0020attempts\u0020in\u0020this\u0020outage.",
+            "url": "classes/Twitch-Chat-Irc.html#property_failures"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024gaveUp",
+            "name": "gaveUp",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_gaveUp"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024authFailed",
+            "name": "authFailed",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_authFailed"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024lastHeard",
+            "name": "lastHeard",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_lastHeard"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024pingSentAt",
+            "name": "pingSentAt",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_pingSentAt"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024retryTimer",
+            "name": "retryTimer",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_retryTimer"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024welcomeTimer",
+            "name": "welcomeTimer",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_welcomeTimer"
+        },                {
+            "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024watchdog",
+            "name": "watchdog",
+            "summary": "",
+            "url": "classes/Twitch-Chat-Irc.html#property_watchdog"
         },                {
             "fqsen": "\\Twitch\\Chat\\Irc\u003A\u003A\u0024twitch",
             "name": "twitch",
@@ -3285,6 +3425,11 @@ Search.appendIndex(
             "name": "recoverToken",
             "summary": "Gets\u0020back\u0020to\u0020a\u0020usable\u0020token\u003A\u0020refresh\u0020if\u0020we\u0020can,\u0020re\u002Dauthorize\u0020if\u0020we\nmust.\u0020Rejects\u0020when\u0020neither\u0020route\u0020is\u0020available,\u0020so\u0020the\u0020caller\u0020can\u0020let\nthe\u0020original\u0020failure\u0020surface.",
             "url": "classes/Twitch-Twitch.html#method_recoverToken"
+        },                {
+            "fqsen": "\\Twitch\\Twitch\u003A\u003ArecoverChatLogin\u0028\u0029",
+            "name": "recoverChatLogin",
+            "summary": "Twitch\u0020refused\u0020the\u0020chat\u0020login,\u0020which\u0020a\u0020token\u0020that\u0020expired\u0020while\u0020chat\u0020was\ndown\u0020does.\u0020A\u0020new\u0020token\u0020reaches\u0020the\u0020chat\u0020client\u0020through\u0020applyToken\u0028\u0029,\u0020and\nit\u0020logs\u0020in\u0020with\u0020it\u0020at\u0020once.",
+            "url": "classes/Twitch-Twitch.html#method_recoverChatLogin"
         },                {
             "fqsen": "\\Twitch\\Twitch\u003A\u003Areauthorize\u0028\u0029",
             "name": "reauthorize",

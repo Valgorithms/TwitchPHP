@@ -149,7 +149,7 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">37</span>
+    <span class="phpdocumentor-element-found-in__line">61</span>
 
     </aside>
 
@@ -163,6 +163,27 @@ the <code class="prettyprint">chat</code> event carrying a <a href="classes/Twit
 command prefix also fires <code class="prettyprint">command</code> and any handler registered with
 <abbr title="\Twitch\Chat\registerCommand()">registerCommand()</abbr> — the small equivalent of DiscordPHP's
 <code class="prettyprint">MessageCommandClient</code>.</p>
+<p>Once connected, it stays connected. A connection that closes, or goes quiet
+and then does not answer a <code class="prettyprint">PING</code> (what a dropped network looks like: no
+close ever arrives), is replaced, and so is one Twitch asks to replace with
+<code class="prettyprint">RECONNECT</code>. Attempts back off along <code class="prettyprint">retry_delays</code>; when those run out it
+fires <code class="prettyprint">chat.reconnect_failed</code> once and keeps trying every
+<code class="prettyprint">keep_trying_every</code> seconds, and <abbr title="\Twitch\Chat\reconnect()">reconnect()</abbr> tries at once. Only the
+first connection is the caller's to retry: <abbr title="\Twitch\Chat\connect()">connect()</abbr> rejects if it
+fails.</p>
+<p>Events, on the <a href="classes/Twitch-Twitch.html"><abbr title="\Twitch\Twitch">Twitch</abbr></a> client:</p>
+<ul>
+<li><code class="prettyprint">chat.connected</code> (Twitch) — logged in, including after a reconnect.</li>
+<li><code class="prettyprint">chat.disconnected</code> (int $code, string $reason, Twitch) — a connection that
+was up is gone. The code is the close frame's, or 0 when the connection
+was given up on.</li>
+<li><code class="prettyprint">chat.reconnecting</code> (int $attempt, float $delay, string $reason, Twitch) —
+attempt <code class="prettyprint">$attempt</code> of this outage starts in <code class="prettyprint">$delay</code> seconds.</li>
+<li><code class="prettyprint">chat.reconnect_failed</code> (int $attempts, string $reason, Twitch) — the retry
+schedule ran out; once per outage.</li>
+<li><code class="prettyprint">chat.auth_failed</code> (string $notice, Twitch) — Twitch refused the token;
+once per outage. <a href="classes/Twitch-Twitch.html"><abbr title="\Twitch\Twitch">Twitch</abbr></a> recovers the token when it sees this.</li>
+</ul>
 </section>
 
 
@@ -209,6 +230,20 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
 
 </h4>
 <dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -constant -public">
+    <a class="" href="classes/Twitch-Chat-Irc.html#constant_RETRY_DELAYS">RETRY_DELAYS</a>
+    <span>
+        &nbsp;: mixed&nbsp;= [1, 2, 5, 10, 20, 30, 60, 60, 60, 60]                            </span>
+</dt>
+<dd>Seconds before each reconnect attempt of an outage, first to last; the
+outage counts as failed once the last one has.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -constant -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#constant_DEFAULTS">DEFAULTS</a>
+    <span>
+        &nbsp;: mixed&nbsp;= [ &#039;retry_delays&#039; =&gt; self::RETRY_DELAYS, // Once...                            </span>
+</dt>
+
             <dt class="phpdocumentor-table-of-contents__entry -constant -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#constant_GATEWAY">GATEWAY</a>
     <span>
@@ -224,6 +259,19 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
 
 </h4>
 <dl class="phpdocumentor-table-of-contents">
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_attempt">$attempt</a>
+    <span>
+                        &nbsp;: <abbr title="\React\Promise\Deferred">Deferred</abbr>|null            </span>
+</dt>
+<dd>The attempt in flight, shared by everything that asks for one meanwhile.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_authFailed">$authFailed</a>
+    <span>
+                        &nbsp;: bool            </span>
+</dt>
+
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#property_channels">$channels</a>
     <span>
@@ -245,13 +293,64 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#property_conn">$conn</a>
     <span>
-                        &nbsp;: <abbr title="\Ratchet\Client\WebSocket">WebSocket</abbr>|null            </span>
+                        &nbsp;: object|null            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_connected">$connected</a>
+    <span>
+                        &nbsp;: bool            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_everConnected">$everConnected</a>
+    <span>
+                        &nbsp;: bool            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_failures">$failures</a>
+    <span>
+                        &nbsp;: int            </span>
+</dt>
+<dd>Failed attempts in this outage.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_gaveUp">$gaveUp</a>
+    <span>
+                        &nbsp;: bool            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_generation">$generation</a>
+    <span>
+                        &nbsp;: int            </span>
+</dt>
+<dd>Which connection&#039;s events count. Bumped whenever one is replaced, so a
+socket that was given up on cannot close or speak for its successor.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_lastHeard">$lastHeard</a>
+    <span>
+                        &nbsp;: float            </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#property_nick">$nick</a>
     <span>
                         &nbsp;: string            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_options">$options</a>
+    <span>
+                        &nbsp;: array&lt;string, mixed&gt;            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_pingSentAt">$pingSentAt</a>
+    <span>
+                        &nbsp;: float|null            </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
@@ -267,6 +366,12 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_retryTimer">$retryTimer</a>
+    <span>
+                        &nbsp;: <abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#property_token">$token</a>
     <span>
                         &nbsp;: string            </span>
@@ -276,6 +381,18 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <a class="" href="classes/Twitch-Chat-Irc.html#property_twitch">$twitch</a>
     <span>
                         &nbsp;: <a href="classes/Twitch-Twitch.html"><abbr title="\Twitch\Twitch">Twitch</abbr></a>            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_watchdog">$watchdog</a>
+    <span>
+                        &nbsp;: <abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null            </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -property -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#property_welcomeTimer">$welcomeTimer</a>
+    <span>
+                        &nbsp;: <abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null            </span>
 </dt>
 
     </dl>
@@ -297,12 +414,21 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <span>
                                 &nbsp;: void    </span>
 </dt>
+<dd>Disconnects for good: nothing is retried after this.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Chat-Irc.html#method_connect">connect()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;    </span>
 </dt>
+<dd>Makes the first connection.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_isConnected">isConnected()</a>
+    <span>
+                                &nbsp;: bool    </span>
+</dt>
+<dd>Whether logged in over a connection that is still answering.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Chat-Irc.html#method_join">join()</a>
@@ -324,6 +450,14 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
 <dd>The raw IRC line, without the trailing CRLF.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_reconnect">reconnect()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;    </span>
+</dt>
+<dd>Tries to connect again now, whatever the retrying is doing: for someone
+who has fixed the network, or pressed a button.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Chat-Irc.html#method_registerCommand">registerCommand()</a>
     <span>
                                 &nbsp;: void    </span>
@@ -337,6 +471,34 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
 </dt>
 <dd>Sends a message; pass `$replyTo` to thread it under another message id.</dd>
 
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_setToken">setToken()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Uses a new access token from the next login on.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_abandon">abandon()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Lets go of the current socket: its events stop counting, and it is closed
+as far as it still can be. One whose network has gone may never report
+closing, so nothing waits for it to.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_attempt">attempt()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_cancel">cancel()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#method_channelOf">channelOf()</a>
     <span>
@@ -344,10 +506,46 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_checkAlive">checkAlive()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Notices a connection that has stopped answering. Twitch sends nothing
+while a channel is quiet, so silence alone proves nothing; silence after
+a PING of our own does.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_failAttempt">failAttempt()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>One attempt is over without a login; retries, unless it was the first connection.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#method_handlePrivmsg">handlePrivmsg()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_heard">heard()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_loginRefused">loginRefused()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Twitch refused the login, which retrying with the same token cannot fix.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_lost">lost()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>A connection that was logged in is gone.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#method_nickOf">nickOf()</a>
@@ -374,6 +572,12 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_open">open()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, object&gt;    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Twitch-Chat-Irc.html#method_parseBadges">parseBadges()</a>
     <span>
                                 &nbsp;: array&lt;string, string&gt;    </span>
@@ -383,6 +587,18 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <a class="" href="classes/Twitch-Chat-Irc.html#method_parseTags">parseTags()</a>
     <span>
                                 &nbsp;: array&lt;string, string&gt;    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_scheduleRetry">scheduleRetry()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Chat-Irc.html#method_welcomed">welcomed()</a>
+    <span>
+                                &nbsp;: void    </span>
 </dt>
 
     </dl>
@@ -396,6 +612,87 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             <a href="classes/Twitch-Chat-Irc.html#constants" class="headerlink"><i class="fas fa-link"></i></a>
 
         </h3>
+                    <article class="phpdocumentor-element -constant -public ">
+    <h4 class="phpdocumentor-element__name" id="constant_RETRY_DELAYS">
+        RETRY_DELAYS
+        <a href="classes/Twitch-Chat-Irc.html#constant_RETRY_DELAYS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">71</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Seconds before each reconnect attempt of an outage, first to last; the
+outage counts as failed once the last one has.</p>
+
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">RETRY_DELAYS</span>
+    = <span class="phpdocumentor-signature__default-value">[1, 2, 5, 10, 20, 30, 60, 60, 60, 60]</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
+                    <article class="phpdocumentor-element -constant -private ">
+    <h4 class="phpdocumentor-element__name" id="constant_DEFAULTS">
+        DEFAULTS
+        <a href="classes/Twitch-Chat-Irc.html#constant_DEFAULTS" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">73</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-signature phpdocumentor-code ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+        <span class="phpdocumentor-signature__type">mixed</span>
+    <span class="phpdocumentor-signature__name">DEFAULTS</span>
+    = <span class="phpdocumentor-signature__default-value">[
+    &#039;retry_delays&#039; =&gt; self::RETRY_DELAYS,
+    // Once retry_delays has run out.
+    &#039;keep_trying_every&#039; =&gt; 300.0,
+    // Each delay is moved by up to this fraction either way, so a bot that
+    // lost the network with everyone else does not return in step with them.
+    &#039;jitter&#039; =&gt; 0.2,
+    // Quiet for this long, and a PING goes out; Twitch&#039;s own come every ~5
+    // minutes, far too slowly to notice a dead connection by.
+    &#039;ping_after&#039; =&gt; 60.0,
+    // No reply to that PING for this long, and the connection is dead.
+    &#039;pong_timeout&#039; =&gt; 15.0,
+    // From the socket opening to Twitch&#039;s welcome.
+    &#039;welcome_timeout&#039; =&gt; 15.0,
+    // For DNS, TCP, TLS and the WebSocket handshake together.
+    &#039;connect_timeout&#039; =&gt; 15.0,
+    // callable(string $url): PromiseInterface resolving to the socket. For
+    // tests; the real one is Pawl&#039;s.
+    &#039;connector&#039; =&gt; null,
+]</span>
+</code>
+
+
+    
+    
+    
+
+        
+    </article>
                     <article class="phpdocumentor-element -constant -private ">
     <h4 class="phpdocumentor-element__name" id="constant_GATEWAY">
         GATEWAY
@@ -406,7 +703,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">41</span>
+    <span class="phpdocumentor-element-found-in__line">65</span>
 
     </aside>
 
@@ -442,6 +739,81 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             -private
                                                                     "
 >
+    <h4 class="phpdocumentor-element__name" id="property_attempt">
+        $attempt
+        <a href="classes/Twitch-Chat-Irc.html#property_attempt" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">106</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The attempt in flight, shared by everything that asks for one meanwhile.</p>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type"><abbr title="\React\Promise\Deferred">Deferred</abbr>|null</span>
+    <span class="phpdocumentor-signature__name">$attempt</span>
+     = <span class="phpdocumentor-signature__default-value">null</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_authFailed">
+        $authFailed
+        <a href="classes/Twitch-Chat-Irc.html#property_authFailed" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">125</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">bool</span>
+    <span class="phpdocumentor-signature__name">$authFailed</span>
+     = <span class="phpdocumentor-signature__default-value">false</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
     <h4 class="phpdocumentor-element__name" id="property_channels">
         $channels
         <a href="classes/Twitch-Chat-Irc.html#property_channels" class="headerlink"><i class="fas fa-link"></i></a>
@@ -452,7 +824,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">59</span>
+    <span class="phpdocumentor-element-found-in__line">145</span>
 
     </aside>
 
@@ -489,7 +861,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">50</span>
+    <span class="phpdocumentor-element-found-in__line">114</span>
 
     </aside>
 
@@ -526,7 +898,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">48</span>
+    <span class="phpdocumentor-element-found-in__line">109</span>
 
     </aside>
 
@@ -563,7 +935,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">43</span>
+    <span class="phpdocumentor-element-found-in__line">95</span>
 
     </aside>
 
@@ -571,9 +943,236 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
         <span class="phpdocumentor-signature__visibility">private</span>
-            <span class="phpdocumentor-signature__type"><abbr title="\Ratchet\Client\WebSocket">WebSocket</abbr>|null</span>
+            <span class="phpdocumentor-signature__type">object|null</span>
     <span class="phpdocumentor-signature__name">$conn</span>
      = <span class="phpdocumentor-signature__default-value">null</span></code>
+
+    
+        <section class="phpdocumentor-description"><p>The WebSocket: Pawl's, or a test's stand-in with on(), send() and close().</p>
+</section>
+
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_connected">
+        $connected
+        <a href="classes/Twitch-Chat-Irc.html#property_connected" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">116</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">bool</span>
+    <span class="phpdocumentor-signature__name">$connected</span>
+     = <span class="phpdocumentor-signature__default-value">false</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_everConnected">
+        $everConnected
+        <a href="classes/Twitch-Chat-Irc.html#property_everConnected" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">118</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">bool</span>
+    <span class="phpdocumentor-signature__name">$everConnected</span>
+     = <span class="phpdocumentor-signature__default-value">false</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_failures">
+        $failures
+        <a href="classes/Twitch-Chat-Irc.html#property_failures" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">121</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Failed attempts in this outage.</p>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">int</span>
+    <span class="phpdocumentor-signature__name">$failures</span>
+     = <span class="phpdocumentor-signature__default-value">0</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_gaveUp">
+        $gaveUp
+        <a href="classes/Twitch-Chat-Irc.html#property_gaveUp" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">123</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">bool</span>
+    <span class="phpdocumentor-signature__name">$gaveUp</span>
+     = <span class="phpdocumentor-signature__default-value">false</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_generation">
+        $generation
+        <a href="classes/Twitch-Chat-Irc.html#property_generation" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">101</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Which connection&#039;s events count. Bumped whenever one is replaced, so a
+socket that was given up on cannot close or speak for its successor.</p>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">int</span>
+    <span class="phpdocumentor-signature__name">$generation</span>
+     = <span class="phpdocumentor-signature__default-value">0</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_lastHeard">
+        $lastHeard
+        <a href="classes/Twitch-Chat-Irc.html#property_lastHeard" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">127</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">float</span>
+    <span class="phpdocumentor-signature__name">$lastHeard</span>
+     = <span class="phpdocumentor-signature__default-value">0.0</span></code>
 
     
     
@@ -600,7 +1199,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">57</span>
+    <span class="phpdocumentor-element-found-in__line">143</span>
 
     </aside>
 
@@ -611,6 +1210,80 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             <span class="phpdocumentor-signature__type">string</span>
     <span class="phpdocumentor-signature__name">$nick</span>
     </code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_options">
+        $options
+        <a href="classes/Twitch-Chat-Irc.html#property_options" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">112</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">array&lt;string, mixed&gt;</span>
+    <span class="phpdocumentor-signature__name">$options</span>
+    </code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_pingSentAt">
+        $pingSentAt
+        <a href="classes/Twitch-Chat-Irc.html#property_pingSentAt" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">129</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type">float|null</span>
+    <span class="phpdocumentor-signature__name">$pingSentAt</span>
+     = <span class="phpdocumentor-signature__default-value">null</span></code>
 
     
     
@@ -637,7 +1310,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">60</span>
+    <span class="phpdocumentor-element-found-in__line">146</span>
 
     </aside>
 
@@ -674,7 +1347,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">45</span>
+    <span class="phpdocumentor-element-found-in__line">103</span>
 
     </aside>
 
@@ -684,6 +1357,43 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
         <span class="phpdocumentor-signature__visibility">private</span>
             <span class="phpdocumentor-signature__type"><abbr title="\React\Promise\Deferred">Deferred</abbr>|null</span>
     <span class="phpdocumentor-signature__name">$ready</span>
+     = <span class="phpdocumentor-signature__default-value">null</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_retryTimer">
+        $retryTimer
+        <a href="classes/Twitch-Chat-Irc.html#property_retryTimer" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">131</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type"><abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null</span>
+    <span class="phpdocumentor-signature__name">$retryTimer</span>
      = <span class="phpdocumentor-signature__default-value">null</span></code>
 
     
@@ -711,7 +1421,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">58</span>
+    <span class="phpdocumentor-element-found-in__line">144</span>
 
     </aside>
 
@@ -748,7 +1458,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">56</span>
+    <span class="phpdocumentor-element-found-in__line">142</span>
 
     </aside>
 
@@ -759,6 +1469,80 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             <span class="phpdocumentor-signature__type"><a href="classes/Twitch-Twitch.html"><abbr title="\Twitch\Twitch">Twitch</abbr></a></span>
     <span class="phpdocumentor-signature__name">$twitch</span>
     </code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_watchdog">
+        $watchdog
+        <a href="classes/Twitch-Chat-Irc.html#property_watchdog" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">135</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type"><abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null</span>
+    <span class="phpdocumentor-signature__name">$watchdog</span>
+     = <span class="phpdocumentor-signature__default-value">null</span></code>
+
+    
+    
+    
+
+        
+        
+
+</article>
+                    <article
+        class="
+            phpdocumentor-element
+            -property
+            -private
+                                                                    "
+>
+    <h4 class="phpdocumentor-element__name" id="property_welcomeTimer">
+        $welcomeTimer
+        <a href="classes/Twitch-Chat-Irc.html#property_welcomeTimer" class="headerlink"><i class="fas fa-link"></i></a>
+
+        <span class="phpdocumentor-element__modifiers">
+                                            </span>
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">133</span>
+
+    </aside>
+
+    
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+        <span class="phpdocumentor-signature__visibility">private</span>
+            <span class="phpdocumentor-signature__type"><abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null</span>
+    <span class="phpdocumentor-signature__name">$welcomeTimer</span>
+     = <span class="phpdocumentor-signature__default-value">null</span></code>
 
     
     
@@ -790,14 +1574,14 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">55</span>
+    <span class="phpdocumentor-element-found-in__line">141</span>
 
     </aside>
 
     
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Twitch.html"><abbr title="\Twitch\Twitch">Twitch</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$twitch</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$nick</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$token</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;int, string&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channels</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">[]</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$prefix</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">'!'</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Twitch.html"><abbr title="\Twitch\Twitch">Twitch</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$twitch</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$nick</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$token</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;int, string&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$channels</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">[]</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$prefix</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">'!'</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;string, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$options</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">[]</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -842,6 +1626,15 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             <dd class="phpdocumentor-argument-list__definition">
                 
             </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$options</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;string, mixed&gt;</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">[]</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Overrides for the timing above, by key.</p>
+</section>
+
+            </dd>
             </dl>
 
     
@@ -864,11 +1657,12 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">87</span>
+    <span class="phpdocumentor-element-found-in__line">212</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Disconnects for good: nothing is retried after this.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">close</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
@@ -898,11 +1692,12 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">65</span>
+    <span class="phpdocumentor-element-found-in__line">158</span>
 
     </aside>
 
-    
+        <p class="phpdocumentor-summary">Makes the first connection.</p>
+
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">connect</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;</span></code>
@@ -919,6 +1714,50 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Resolves once logged in; rejects if this
+first attempt fails, without retrying.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_isConnected">
+        isConnected()
+        <a href="classes/Twitch-Chat-Irc.html#method_isConnected" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">187</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Whether logged in over a connection that is still answering.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">isConnected</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">bool</span>
             </section>
 
 </article>
@@ -936,7 +1775,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">102</span>
+    <span class="phpdocumentor-element-found-in__line">241</span>
 
     </aside>
 
@@ -980,7 +1819,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">109</span>
+    <span class="phpdocumentor-element-found-in__line">248</span>
 
     </aside>
 
@@ -1024,7 +1863,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">127</span>
+    <span class="phpdocumentor-element-found-in__line">266</span>
 
     </aside>
 
@@ -1061,6 +1900,52 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_reconnect">
+        reconnect()
+        <a href="classes/Twitch-Chat-Irc.html#method_reconnect" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">175</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Tries to connect again now, whatever the retrying is doing: for someone
+who has fixed the network, or pressed a button.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">reconnect</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>Resolves once logged in, at once when
+already connected. Rejects with why this
+attempt failed; the retrying carries on.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_registerCommand">
         registerCommand()
         <a href="classes/Twitch-Chat-Irc.html#method_registerCommand" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1069,7 +1954,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">121</span>
+    <span class="phpdocumentor-element-found-in__line">260</span>
 
     </aside>
 
@@ -1121,7 +2006,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">95</span>
+    <span class="phpdocumentor-element-found-in__line">234</span>
 
     </aside>
 
@@ -1169,6 +2054,173 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
                     <article
         class="phpdocumentor-element
             -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_setToken">
+        setToken()
+        <a href="classes/Twitch-Chat-Irc.html#method_setToken" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">198</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Uses a new access token from the next login on.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">setToken</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$token</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p>A connection that is up keeps going: Twitch checks the token only when
+logging in. A retry waiting to log in with the old one goes now.</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$token</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_abandon">
+        abandon()
+        <a href="classes/Twitch-Chat-Irc.html#method_abandon" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">464</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Lets go of the current socket: its events stop counting, and it is closed
+as far as it still can be. One whose network has gone may never report
+closing, so nothing waits for it to.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">abandon</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_attempt">
+        attempt()
+        <a href="classes/Twitch-Chat-Irc.html#method_attempt" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">274</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">attempt</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, self&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_cancel">
+        cancel()
+        <a href="classes/Twitch-Chat-Irc.html#method_cancel" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">510</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">cancel</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null&nbsp;</span><span class="phpdocumentor-signature__argument__reference-operator">&amp;</span><span class="phpdocumentor-signature__argument__name">$timer</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$timer</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><abbr title="\React\EventLoop\TimerInterface">TimerInterface</abbr>|null</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
             -private
                                     -static                    "
 >
@@ -1180,7 +2232,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">283</span>
+    <span class="phpdocumentor-element-found-in__line">696</span>
 
     </aside>
 
@@ -1220,6 +2272,88 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             -private
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_checkAlive">
+        checkAlive()
+        <a href="classes/Twitch-Chat-Irc.html#method_checkAlive" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">482</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Notices a connection that has stopped answering. Twitch sends nothing
+while a channel is quiet, so silence alone proves nothing; silence after
+a PING of our own does.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">checkAlive</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_failAttempt">
+        failAttempt()
+        <a href="classes/Twitch-Chat-Irc.html#method_failAttempt" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">375</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">One attempt is over without a login; retries, unless it was the first connection.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">failAttempt</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$reason</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$reason</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_handlePrivmsg">
         handlePrivmsg()
         <a href="classes/Twitch-Chat-Irc.html#method_handlePrivmsg" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1228,7 +2362,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">193</span>
+    <span class="phpdocumentor-element-found-in__line">604</span>
 
     </aside>
 
@@ -1276,6 +2410,144 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
         class="phpdocumentor-element
             -method
             -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_heard">
+        heard()
+        <a href="classes/Twitch-Chat-Irc.html#method_heard" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">504</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">heard</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_loginRefused">
+        loginRefused()
+        <a href="classes/Twitch-Chat-Irc.html#method_loginRefused" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">586</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Twitch refused the login, which retrying with the same token cannot fix.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">loginRefused</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$params</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$params</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_lost">
+        lost()
+        <a href="classes/Twitch-Chat-Irc.html#method_lost" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">401</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">A connection that was logged in is gone.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">lost</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$reason</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$code</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">0</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">bool&nbsp;</span><span class="phpdocumentor-signature__argument__name">$now</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">false</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$reason</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$code</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">0</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$now</span>
+                : <span class="phpdocumentor-argument-list__argument__type">bool</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">false</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
                                     -static                    "
 >
     <h4 class="phpdocumentor-element__name" id="method_nickOf">
@@ -1286,7 +2558,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">278</span>
+    <span class="phpdocumentor-element-found-in__line">691</span>
 
     </aside>
 
@@ -1334,7 +2606,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">235</span>
+    <span class="phpdocumentor-element-found-in__line">646</span>
 
     </aside>
 
@@ -1385,7 +2657,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">143</span>
+    <span class="phpdocumentor-element-found-in__line">531</span>
 
     </aside>
 
@@ -1429,7 +2701,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">134</span>
+    <span class="phpdocumentor-element-found-in__line">520</span>
 
     </aside>
 
@@ -1463,6 +2735,54 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
         class="phpdocumentor-element
             -method
             -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_open">
+        open()
+        <a href="classes/Twitch-Chat-Irc.html#method_open" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">336</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">open</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$url</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, object&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$url</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, object&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
                                     -static                    "
 >
     <h4 class="phpdocumentor-element__name" id="method_parseBadges">
@@ -1473,7 +2793,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">264</span>
+    <span class="phpdocumentor-element-found-in__line">677</span>
 
     </aside>
 
@@ -1521,7 +2841,7 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">249</span>
+    <span class="phpdocumentor-element-found-in__line">662</span>
 
     </aside>
 
@@ -1555,6 +2875,84 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
             </section>
 
 </article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_scheduleRetry">
+        scheduleRetry()
+        <a href="classes/Twitch-Chat-Irc.html#method_scheduleRetry" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">428</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">scheduleRetry</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$reason</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$reason</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_welcomed">
+        welcomed()
+        <a href="classes/Twitch-Chat-Irc.html#method_welcomed" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Chat/Irc.php"><a href="files/src-twitch-chat-irc.html"><abbr title="src/Twitch/Chat/Irc.php">Irc.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">347</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">welcomed</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
             </section>
 
         
@@ -1577,6 +2975,8 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
                             <li class="phpdocumentor-on-this-page-section__title">Constants</li>
                 <li>
                     <ul class="phpdocumentor-list -clean">
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#constant_RETRY_DELAYS">RETRY_DELAYS</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#constant_DEFAULTS">DEFAULTS</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#constant_GATEWAY">GATEWAY</a></li>
                                             </ul>
                 </li>
@@ -1584,15 +2984,28 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
                             <li class="phpdocumentor-on-this-page-section__title">Properties</li>
                 <li>
                     <ul class="phpdocumentor-list -clean">
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_attempt">$attempt</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_authFailed">$authFailed</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_channels">$channels</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_closing">$closing</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_commands">$commands</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_conn">$conn</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_connected">$connected</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_everConnected">$everConnected</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_failures">$failures</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_gaveUp">$gaveUp</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_generation">$generation</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_lastHeard">$lastHeard</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_nick">$nick</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_options">$options</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_pingSentAt">$pingSentAt</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_prefix">$prefix</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_ready">$ready</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_retryTimer">$retryTimer</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_token">$token</a></li>
                                                     <li class=""><a href="classes/Twitch-Chat-Irc.html#property_twitch">$twitch</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_watchdog">$watchdog</a></li>
+                                                    <li class=""><a href="classes/Twitch-Chat-Irc.html#property_welcomeTimer">$welcomeTimer</a></li>
                                             </ul>
                 </li>
             
@@ -1602,19 +3015,33 @@ command prefix also fires <code class="prettyprint">command</code> and any handl
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method___construct">__construct()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_close">close()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_connect">connect()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_isConnected">isConnected()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_join">join()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_part">part()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_raw">raw()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_reconnect">reconnect()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_registerCommand">registerCommand()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_say">say()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_setToken">setToken()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_abandon">abandon()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_attempt">attempt()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_cancel">cancel()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_channelOf">channelOf()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_checkAlive">checkAlive()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_failAttempt">failAttempt()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_handlePrivmsg">handlePrivmsg()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_heard">heard()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_loginRefused">loginRefused()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_lost">lost()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_nickOf">nickOf()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_onClose">onClose()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_onLine">onLine()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_onMessage">onMessage()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_open">open()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_parseBadges">parseBadges()</a></li>
                                             <li class=""><a href="classes/Twitch-Chat-Irc.html#method_parseTags">parseTags()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_scheduleRetry">scheduleRetry()</a></li>
+                                            <li class=""><a href="classes/Twitch-Chat-Irc.html#method_welcomed">welcomed()</a></li>
                                     </ul>
             </li>
                     </ul>

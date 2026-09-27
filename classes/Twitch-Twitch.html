@@ -146,7 +146,7 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">91</span>
+    <span class="phpdocumentor-element-found-in__line">96</span>
 
     </aside>
 
@@ -166,6 +166,10 @@ last resort when refreshing can no longer recover a grant. Between them a
 401 on any call is recovered from and the request retried once — except a
 missing scope, which surfaces immediately as no new token can widen a grant.
 Emits <code class="prettyprint">token_refreshed</code> and <code class="prettyprint">reauthorized</code> as those happen.</p>
+<p>The chat client reconnects by itself; <a href="classes/Twitch-Chat-Irc.html"><abbr title="\Twitch\Chat\Irc">Irc</abbr></a> lists the <code class="prettyprint">chat.*</code> events it
+fires on this client along the way, and the <code class="prettyprint">irc</code> option adjusts its timing.
+Every new token reaches it for its next login, and a login Twitch refuses
+sends the token through the same recovery as a 401.</p>
 </section>
 
 
@@ -215,7 +219,7 @@ Emits <code class="prettyprint">token_refreshed</code> and <code class="prettypr
             <dt class="phpdocumentor-table-of-contents__entry -constant -public">
     <a class="" href="classes/Twitch-Twitch.html#constant_VERSION">VERSION</a>
     <span>
-        &nbsp;: mixed&nbsp;= &#039;3.3.0&#039;                            </span>
+        &nbsp;: mixed&nbsp;= &#039;3.4.0&#039;                            </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -constant -private">
@@ -709,6 +713,15 @@ client that does not write the new pair somewhere durable locks itself
 out the moment the process restarts.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -private">
+    <a class="" href="classes/Twitch-Twitch.html#method_recoverChatLogin">recoverChatLogin()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
+<dd>Twitch refused the chat login, which a token that expired while chat was
+down does. A new token reaches the chat client through applyToken(), and
+it logs in with it at once.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -private">
     <a class="" href="classes/Twitch-Twitch.html#method_recoverToken">recoverToken()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, string&gt;    </span>
@@ -744,7 +757,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">95</span>
+    <span class="phpdocumentor-element-found-in__line">100</span>
 
     </aside>
 
@@ -754,7 +767,7 @@ the original failure surface.</dd>
     <span class="phpdocumentor-signature__visibility">public</span>
         <span class="phpdocumentor-signature__type">mixed</span>
     <span class="phpdocumentor-signature__name">VERSION</span>
-    = <span class="phpdocumentor-signature__default-value">&#039;3.3.0&#039;</span>
+    = <span class="phpdocumentor-signature__default-value">&#039;3.4.0&#039;</span>
 </code>
 
 
@@ -774,7 +787,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">98</span>
+    <span class="phpdocumentor-element-found-in__line">103</span>
 
     </aside>
 
@@ -1894,7 +1907,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">169</span>
+    <span class="phpdocumentor-element-found-in__line">174</span>
 
     </aside>
 
@@ -1931,7 +1944,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">141</span>
+    <span class="phpdocumentor-element-found-in__line">146</span>
 
     </aside>
 
@@ -1968,7 +1981,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">139</span>
+    <span class="phpdocumentor-element-found-in__line">144</span>
 
     </aside>
 
@@ -2005,7 +2018,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">171</span>
+    <span class="phpdocumentor-element-found-in__line">176</span>
 
     </aside>
 
@@ -2042,7 +2055,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">135</span>
+    <span class="phpdocumentor-element-found-in__line">140</span>
 
     </aside>
 
@@ -2079,7 +2092,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">149</span>
+    <span class="phpdocumentor-element-found-in__line">154</span>
 
     </aside>
 
@@ -2116,7 +2129,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">133</span>
+    <span class="phpdocumentor-element-found-in__line">138</span>
 
     </aside>
 
@@ -2153,7 +2166,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">137</span>
+    <span class="phpdocumentor-element-found-in__line">142</span>
 
     </aside>
 
@@ -2190,7 +2203,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">131</span>
+    <span class="phpdocumentor-element-found-in__line">136</span>
 
     </aside>
 
@@ -2227,7 +2240,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">154</span>
+    <span class="phpdocumentor-element-found-in__line">159</span>
 
     </aside>
 
@@ -2264,7 +2277,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">162</span>
+    <span class="phpdocumentor-element-found-in__line">167</span>
 
     </aside>
 
@@ -2301,7 +2314,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">160</span>
+    <span class="phpdocumentor-element-found-in__line">165</span>
 
     </aside>
 
@@ -2339,7 +2352,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">157</span>
+    <span class="phpdocumentor-element-found-in__line">162</span>
 
     </aside>
 
@@ -2377,7 +2390,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">145</span>
+    <span class="phpdocumentor-element-found-in__line">150</span>
 
     </aside>
 
@@ -2414,7 +2427,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">167</span>
+    <span class="phpdocumentor-element-found-in__line">172</span>
 
     </aside>
 
@@ -2451,7 +2464,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">152</span>
+    <span class="phpdocumentor-element-found-in__line">157</span>
 
     </aside>
 
@@ -2488,7 +2501,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">143</span>
+    <span class="phpdocumentor-element-found-in__line">148</span>
 
     </aside>
 
@@ -2525,7 +2538,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">164</span>
+    <span class="phpdocumentor-element-found-in__line">169</span>
 
     </aside>
 
@@ -2562,7 +2575,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">147</span>
+    <span class="phpdocumentor-element-found-in__line">152</span>
 
     </aside>
 
@@ -2604,7 +2617,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">176</span>
+    <span class="phpdocumentor-element-found-in__line">181</span>
 
     </aside>
 
@@ -2648,7 +2661,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">561</span>
+    <span class="phpdocumentor-element-found-in__line">587</span>
 
     </aside>
 
@@ -2696,7 +2709,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">227</span>
+    <span class="phpdocumentor-element-found-in__line">234</span>
 
     </aside>
 
@@ -2735,7 +2748,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">246</span>
+    <span class="phpdocumentor-element-found-in__line">253</span>
 
     </aside>
 
@@ -2770,7 +2783,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">520</span>
+    <span class="phpdocumentor-element-found-in__line">546</span>
 
     </aside>
 
@@ -2808,7 +2821,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">551</span>
+    <span class="phpdocumentor-element-found-in__line">577</span>
 
     </aside>
 
@@ -2846,7 +2859,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">505</span>
+    <span class="phpdocumentor-element-found-in__line">531</span>
 
     </aside>
 
@@ -2884,7 +2897,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">495</span>
+    <span class="phpdocumentor-element-found-in__line">521</span>
 
     </aside>
 
@@ -2922,7 +2935,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">556</span>
+    <span class="phpdocumentor-element-found-in__line">582</span>
 
     </aside>
 
@@ -2960,7 +2973,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">515</span>
+    <span class="phpdocumentor-element-found-in__line">541</span>
 
     </aside>
 
@@ -2998,7 +3011,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">535</span>
+    <span class="phpdocumentor-element-found-in__line">561</span>
 
     </aside>
 
@@ -3036,7 +3049,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">510</span>
+    <span class="phpdocumentor-element-found-in__line">536</span>
 
     </aside>
 
@@ -3074,7 +3087,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">500</span>
+    <span class="phpdocumentor-element-found-in__line">526</span>
 
     </aside>
 
@@ -3112,7 +3125,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">541</span>
+    <span class="phpdocumentor-element-found-in__line">567</span>
 
     </aside>
 
@@ -3150,7 +3163,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">525</span>
+    <span class="phpdocumentor-element-found-in__line">551</span>
 
     </aside>
 
@@ -3188,7 +3201,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">530</span>
+    <span class="phpdocumentor-element-found-in__line">556</span>
 
     </aside>
 
@@ -3226,7 +3239,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">546</span>
+    <span class="phpdocumentor-element-found-in__line">572</span>
 
     </aside>
 
@@ -3264,7 +3277,7 @@ the original failure surface.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">321</span>
+    <span class="phpdocumentor-element-found-in__line">343</span>
 
     </aside>
 
@@ -3309,7 +3322,7 @@ prompt the user several times over. Emits `reauthorized`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">403</span>
+    <span class="phpdocumentor-element-found-in__line">428</span>
 
     </aside>
 
@@ -3353,7 +3366,7 @@ transport. Emits `token_refreshed`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">451</span>
+    <span class="phpdocumentor-element-found-in__line">476</span>
 
     </aside>
 
@@ -3433,7 +3446,7 @@ widens a grant that was never asked for.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">208</span>
+    <span class="phpdocumentor-element-found-in__line">215</span>
 
     </aside>
 
@@ -3468,7 +3481,7 @@ widens a grant that was never asked for.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">256</span>
+    <span class="phpdocumentor-element-found-in__line">263</span>
 
     </aside>
 
@@ -3506,7 +3519,7 @@ widens a grant that was never asked for.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">357</span>
+    <span class="phpdocumentor-element-found-in__line">379</span>
 
     </aside>
 
@@ -3552,7 +3565,7 @@ the cached scope list, and writes through to the token store.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">287</span>
+    <span class="phpdocumentor-element-found-in__line">294</span>
 
     </aside>
 
@@ -3596,7 +3609,7 @@ the cached scope list, and writes through to the token store.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">473</span>
+    <span class="phpdocumentor-element-found-in__line">498</span>
 
     </aside>
 
@@ -3634,7 +3647,7 @@ the cached scope list, and writes through to the token store.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">480</span>
+    <span class="phpdocumentor-element-found-in__line">505</span>
 
     </aside>
 
@@ -3672,7 +3685,7 @@ the cached scope list, and writes through to the token store.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">384</span>
+    <span class="phpdocumentor-element-found-in__line">409</span>
 
     </aside>
 
@@ -3714,6 +3727,43 @@ persistence should not take down a request that otherwise succeeded.</p>
             -private
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_recoverChatLogin">
+        recoverChatLogin()
+        <a href="classes/Twitch-Twitch.html#method_recoverChatLogin" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">326</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Twitch refused the chat login, which a token that expired while chat was
+down does. A new token reaches the chat client through applyToken(), and
+it logs in with it at once.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">private</span>
+                    <span class="phpdocumentor-signature__name">recoverChatLogin</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+    
+    
+
+        
+    
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -private
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_recoverToken">
         recoverToken()
         <a href="classes/Twitch-Twitch.html#method_recoverToken" class="headerlink"><i class="fas fa-link"></i></a>
@@ -3722,7 +3772,7 @@ persistence should not take down a request that otherwise succeeded.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">301</span>
+    <span class="phpdocumentor-element-found-in__line">308</span>
 
     </aside>
 
@@ -3763,7 +3813,7 @@ the original failure surface.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Twitch.php"><a href="files/src-twitch-twitch.html"><abbr title="src/Twitch/Twitch.php">Twitch.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">575</span>
+    <span class="phpdocumentor-element-found-in__line">601</span>
 
     </aside>
 
@@ -3908,6 +3958,7 @@ the original failure surface.</p>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_connectEventSub">connectEventSub()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_connectIrc">connectIrc()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_persist">persist()</a></li>
+                                            <li class=""><a href="classes/Twitch-Twitch.html#method_recoverChatLogin">recoverChatLogin()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_recoverToken">recoverToken()</a></li>
                                             <li class=""><a href="classes/Twitch-Twitch.html#method_resolveOptions">resolveOptions()</a></li>
                                     </ul>
