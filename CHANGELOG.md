@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-09-26
+
 ### Added
 
 - The Helix operations the client still lacked. It now sends 147 of the 149 in
@@ -40,6 +42,10 @@ All notable changes to this project are documented here.
   `EventSub::subscribe()` to keep the version 1 payload.
 - Requires `twitchphp/http` `^1.2`, for `Endpoint::USER_AUTHORIZATIONS` and for
   requests that carry their own `Authorization` header.
+
+### Fixed
+
+- `Twitch::VERSION` still said 3.1.0.
 
 ## [3.2.0] - 2026-09-23
 
