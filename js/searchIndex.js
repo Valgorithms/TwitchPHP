@@ -96,6 +96,61 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Twitch-Auth-EnvFileTokenStore.html#property_path"
         },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt",
+            "name": "ExtensionJwt",
+            "summary": "Signs\u0020the\u0020JSON\u0020Web\u0020Tokens\u0020an\u0020extension\u0020backend\u0020service\u0020\u0028EBS\u0029\u0020sends\u0020to\u0020the\nHelix\u0020extension\u0020endpoints\u0020in\u0020place\u0020of\u0020an\u0020OAuth\u0020token.",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003A__construct\u0028\u0029",
+            "name": "__construct",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#method___construct"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003Asign\u0028\u0029",
+            "name": "sign",
+            "summary": "A\u0020signed\u0020token\u0020carrying\u0020\u0060exp\u0060,\u0020\u0060user_id\u0060\u0020and\u0020\u0060role\u0060\u0020\u0060external\u0060,\u0020plus\u0020\u0060\u0024claims\u0060.",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#method_sign"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003Aheaders\u0028\u0029",
+            "name": "headers",
+            "summary": "The\u0020headers\u0020that\u0020authenticate\u0020one\u0020request\u0020as\u0020the\u0020extension.",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#method_headers"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003A__debugInfo\u0028\u0029",
+            "name": "__debugInfo",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#method___debugInfo"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003Aencode\u0028\u0029",
+            "name": "encode",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#method_encode"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003Abase64Url\u0028\u0029",
+            "name": "base64Url",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#method_base64Url"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003A\u0024key",
+            "name": "key",
+            "summary": "The\u0020decoded\u0020signing\u0020key.",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#property_key"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003A\u0024extensionId",
+            "name": "extensionId",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#property_extensionId"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003A\u0024ownerId",
+            "name": "ownerId",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#property_ownerId"
+        },                {
+            "fqsen": "\\Twitch\\Auth\\ExtensionJwt\u003A\u003A\u0024ttl",
+            "name": "ttl",
+            "summary": "",
+            "url": "classes/Twitch-Auth-ExtensionJwt.html#property_ttl"
+        },                {
             "fqsen": "\\Twitch\\Auth\\ReauthorizerInterface",
             "name": "ReauthorizerInterface",
             "summary": "A\u0020strategy\u0020for\u0020obtaining\u0020a\u0020brand\u002Dnew\u0020token\u0020when\u0020the\u0020existing\u0020grant\u0020can\u0020no\nlonger\u0020be\u0020recovered\u0020by\u0020refreshing.",
@@ -726,6 +781,11 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_BITS_USE"
         },                {
+            "fqsen": "\\Twitch\\EventSub\\SubscriptionTypes\u003A\u003ACHANNEL_CUSTOM_POWER_UP_REDEMPTION_ADD",
+            "name": "CHANNEL_CUSTOM_POWER_UP_REDEMPTION_ADD",
+            "summary": "",
+            "url": "classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_CUSTOM_POWER_UP_REDEMPTION_ADD"
+        },                {
             "fqsen": "\\Twitch\\EventSub\\SubscriptionTypes\u003A\u003ACHANNEL_WARNING_ACKNOWLEDGE",
             "name": "CHANNEL_WARNING_ACKNOWLEDGE",
             "summary": "",
@@ -745,6 +805,16 @@ Search.appendIndex(
             "name": "CHANNEL_SUSPICIOUS_USER_UPDATE",
             "summary": "",
             "url": "classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SUSPICIOUS_USER_UPDATE"
+        },                {
+            "fqsen": "\\Twitch\\EventSub\\SubscriptionTypes\u003A\u003ACHANNEL_SHIELD_MODE_BEGIN",
+            "name": "CHANNEL_SHIELD_MODE_BEGIN",
+            "summary": "",
+            "url": "classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHIELD_MODE_BEGIN"
+        },                {
+            "fqsen": "\\Twitch\\EventSub\\SubscriptionTypes\u003A\u003ACHANNEL_SHIELD_MODE_END",
+            "name": "CHANNEL_SHIELD_MODE_END",
+            "summary": "",
+            "url": "classes/Twitch-EventSub-SubscriptionTypes.html#constant_CHANNEL_SHIELD_MODE_END"
         },                {
             "fqsen": "\\Twitch\\EventSub\\SubscriptionTypes\u003A\u003ACHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD",
             "name": "CHANNEL_POINTS_AUTOMATIC_REWARD_REDEMPTION_ADD",
@@ -1853,7 +1923,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Repository\\BitsRepository",
             "name": "BitsRepository",
-            "summary": "The\u0020\u0060bits\/\u002A\u0060\u0020resource\u0020\u2014\u0020the\u0020Bits\u0020leaderboard\u0020\u0028\u0060bits\u003Aread\u0060\u0029\u0020and\u0020the\u0020Cheermote\ncatalogue\u0020\u0028global\u0020\u002B\u0020a\u0020channel\u0027s\u0020custom\u0020set\u0029.",
+            "summary": "The\u0020\u0060bits\/\u002A\u0060\u0020resource\u0020\u2014\u0020the\u0020Bits\u0020leaderboard\u0020\u0028\u0060bits\u003Aread\u0060\u0029,\u0020the\u0020Cheermote\ncatalogue\u0020\u0028global\u0020\u002B\u0020a\u0020channel\u0027s\u0020custom\u0020set\u0029\u0020and\u0020a\u0020channel\u0027s\u0020custom\nPower\u002Dups.",
             "url": "classes/Twitch-Repository-BitsRepository.html"
         },                {
             "fqsen": "\\Twitch\\Repository\\BitsRepository\u003A\u003Aleaderboard\u0028\u0029",
@@ -1865,6 +1935,11 @@ Search.appendIndex(
             "name": "cheermotes",
             "summary": "Cheermotes\u0020usable\u0020in\u0020chat\u0020\u2014\u0020the\u0020global\u0020set,\u0020plus\u0020\u0060\u0024broadcasterId\u0060\u0027s\u0020custom\nCheermotes\u0020when\u0020given.",
             "url": "classes/Twitch-Repository-BitsRepository.html#method_cheermotes"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\BitsRepository\u003A\u003AcustomPowerUps\u0028\u0029",
+            "name": "customPowerUps",
+            "summary": "The\u0020custom\u0020Power\u002Dups\u0020the\u0020authenticated\u0020broadcaster\u0020created,\u0020enabled\u0020or\nnot\u0020\u0028\u0060bits\u003Aread\u0060\u0029.\u0020\u0060\u0024ids\u0060\u0020narrows\u0020them\u0020down,\u0020up\u0020to\u002050\u003B\u0020Twitch\u0020answers\u0020404\nwhen\u0020none\u0020of\u0020them\u0020exists.",
+            "url": "classes/Twitch-Repository-BitsRepository.html#method_customPowerUps"
         },                {
             "fqsen": "\\Twitch\\Repository\\BitsRepository\u003A\u003A\u0024part",
             "name": "part",
@@ -2003,7 +2078,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Repository\\ChatRepository",
             "name": "ChatRepository",
-            "summary": "The\u0020Helix\u0020\u0060chat\/\u002A\u0060\u0020resource\u0020group\u0020\u2014\u0020settings,\u0020chatters,\u0020emotes,\u0020badges,\nannouncements,\u0020shoutouts,\u0020sending\u0020a\u0020message,\u0020and\u0020per\u002Duser\u0020colour.",
+            "summary": "The\u0020Helix\u0020\u0060chat\/\u002A\u0060\u0020resource\u0020group\u0020\u2014\u0020settings,\u0020chatters,\u0020emotes,\u0020badges,\nannouncements,\u0020shoutouts,\u0020sending\u0020and\u0020pinning\u0020messages,\u0020per\u002Duser\u0020colour,\u0020and\nshared\u0020chat\u0020sessions.",
             "url": "classes/Twitch-Repository-ChatRepository.html"
         },                {
             "fqsen": "\\Twitch\\Repository\\ChatRepository\u003A\u003Asettings\u0028\u0029",
@@ -2066,6 +2141,31 @@ Search.appendIndex(
             "summary": "Sends\u0020a\u0020shoutout\u0020\u0028\u0060moderator\u003Amanage\u003Ashoutouts\u0060\u0029.",
             "url": "classes/Twitch-Repository-ChatRepository.html#method_shoutout"
         },                {
+            "fqsen": "\\Twitch\\Repository\\ChatRepository\u003A\u003ApinnedMessage\u0028\u0029",
+            "name": "pinnedMessage",
+            "summary": "The\u0020message\u0020pinned\u0020in\u0020the\u0020channel\u0027s\u0020chat,\u0020or\u0020\u0060null\u0060\u0020when\u0020none\u0020is\n\u0028\u0060moderator\u003Aread\u003Achat_messages\u0060\u0020or\u0020\u0060moderator\u003Amanage\u003Achat_messages\u0060\u0029.",
+            "url": "classes/Twitch-Repository-ChatRepository.html#method_pinnedMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ChatRepository\u003A\u003ApinMessage\u0028\u0029",
+            "name": "pinMessage",
+            "summary": "Pins\u0020a\u0020chat\u0020message\u0020\u0028\u0060moderator\u003Amanage\u003Achat_messages\u0060\u0029\u0020for\n\u0060\u0024durationSeconds\u0060\u0020\u002830\u20131800\u0029,\u0020or\u0020until\u0020the\u0020stream\u0020ends\u0020when\u0020that\u0020is\u0020null.",
+            "url": "classes/Twitch-Repository-ChatRepository.html#method_pinMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ChatRepository\u003A\u003AupdatePinnedMessage\u0028\u0029",
+            "name": "updatePinnedMessage",
+            "summary": "Re\u002Dtimes\u0020a\u0020pinned\u0020message\u003A\u0020pinned\u0020for\u0020\u0060\u0024durationSeconds\u0060\u0020\u002830\u20131800\u0029\u0020from\nnow,\u0020or\u0020until\u0020the\u0020stream\u0020ends\u0020when\u0020that\u0020is\u0020null.",
+            "url": "classes/Twitch-Repository-ChatRepository.html#method_updatePinnedMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ChatRepository\u003A\u003AunpinMessage\u0028\u0029",
+            "name": "unpinMessage",
+            "summary": "Unpins\u0020a\u0020chat\u0020message\u0020\u0028\u0060moderator\u003Amanage\u003Achat_messages\u0060\u0029.",
+            "url": "classes/Twitch-Repository-ChatRepository.html#method_unpinMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ChatRepository\u003A\u003AsharedChatSession\u0028\u0029",
+            "name": "sharedChatSession",
+            "summary": "The\u0020shared\u0020chat\u0020session\u0020the\u0020channel\u0020is\u0020part\u0020of,\u0020or\u0020\u0060null\u0060\u0020when\u0020it\u0020is\u0020in\nnone.",
+            "url": "classes/Twitch-Repository-ChatRepository.html#method_sharedChatSession"
+        },                {
             "fqsen": "\\Twitch\\Repository\\ChatRepository\u003A\u003Acolors\u0028\u0029",
             "name": "colors",
             "summary": "The\u0020chat\u0020name\u0020colour\u0020for\u0020one\u0020or\u0020more\u0020users.",
@@ -2103,7 +2203,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Repository\\ClipRepository",
             "name": "ClipRepository",
-            "summary": "The\u0020\u0060clips\u0060\u0020resource\u0020\u2014\u0020look\u0020clips\u0020up\u0020by\u0020id\u0020\/\u0020broadcaster\u0020\/\u0020game,\u0020and\u0020create\none\u0020from\u0020the\u0020running\u0020stream.",
+            "summary": "The\u0020\u0060clips\u0060\u0020resource\u0020\u2014\u0020look\u0020clips\u0020up\u0020by\u0020id\u0020\/\u0020broadcaster\u0020\/\u0020game,\u0020create\u0020one\nfrom\u0020the\u0020running\u0020stream\u0020or\u0020a\u0020VOD,\u0020and\u0020download\u0020them.",
             "url": "classes/Twitch-Repository-ClipRepository.html"
         },                {
             "fqsen": "\\Twitch\\Repository\\ClipRepository\u003A\u003AforBroadcaster\u0028\u0029",
@@ -2130,6 +2230,16 @@ Search.appendIndex(
             "name": "create",
             "summary": "Creates\u0020a\u0020clip\u0020from\u0020the\u0020broadcaster\u0027s\u0020running\u0020stream\u0020\u0028\u0060clips\u003Aedit\u0060\u0029.",
             "url": "classes/Twitch-Repository-ClipRepository.html#method_create"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ClipRepository\u003A\u003AcreateFromVod\u0028\u0029",
+            "name": "createFromVod",
+            "summary": "Creates\u0020a\u0020clip\u0020from\u0020one\u0020of\u0020the\u0020broadcaster\u0027s\u0020VODs,\u0020which\u0020includes\u0020the\nstream\u0020that\u0020is\u0020running\u0020now\u0020\u0028\u0060editor\u003Amanage\u003Aclips\u0060\u0020or\n\u0060channel\u003Amanage\u003Aclips\u0060\u0029.\u0020\u0060\u0024vodOffset\u0060\u0020is\u0020where\u0020the\u0020clip\u0020\u002Aends\u002A,\u0020in\nseconds\u0020into\u0020the\u0020VOD\u003B\u0020\u0060\u0024duration\u0060\u0020is\u00205\u201360\u0020seconds,\u0020to\u0020a\u0020tenth,\u0020and\nTwitch\u0020makes\u0020it\u002030\u0020when\u0020null.\u0020\u0060\u0024editorId\u0060\u0020is\u0020the\u0020user\u0020in\u0020the\u0020token\u003A\u0020the\nbroadcaster\u0020or\u0020one\u0020of\u0020their\u0020editors.",
+            "url": "classes/Twitch-Repository-ClipRepository.html#method_createFromVod"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ClipRepository\u003A\u003Adownloads\u0028\u0029",
+            "name": "downloads",
+            "summary": "Download\u0020links\u0020for\u0020up\u0020to\u002010\u0020of\u0020the\u0020broadcaster\u0027s\u0020clips\n\u0028\u0060editor\u003Amanage\u003Aclips\u0060\u0020or\u0020\u0060channel\u003Amanage\u003Aclips\u0060\u0029.\u0020The\u0020links\u0020expire,\u0020so\nfetch\u0020them\u0020when\u0020you\u0020are\u0020about\u0020to\u0020download.",
+            "url": "classes/Twitch-Repository-ClipRepository.html#method_downloads"
         },                {
             "fqsen": "\\Twitch\\Repository\\ClipRepository\u003A\u003A\u0024part",
             "name": "part",
@@ -2268,7 +2378,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Repository\\ExtensionRepository",
             "name": "ExtensionRepository",
-            "summary": "The\u0020\u0060extensions\/\u002A\u0060\u0020and\u0020\u0060users\/extensions\u0060\u0020resources\u0020\u2014\u0020a\u0020user\u0027s\u0020installed\nextensions\u0020and\u0020their\u0020active\u0020slots,\u0020an\u0020extension\u0020developer\u0027s\u0020own\u0020version\nmetadata,\u0020live\u0020channels\u0020running\u0020an\u0020extension,\u0020and\u0020Bits\u0020transactions.",
+            "summary": "The\u0020\u0060extensions\/\u002A\u0060,\u0020\u0060bits\/extensions\u0060\u0020and\u0020\u0060users\/extensions\u0060\u0020resources\u0020\u2014\u0020a\nuser\u0027s\u0020installed\u0020extensions\u0020and\u0020their\u0020active\u0020slots,\u0020released\u0020extensions,\nlive\u0020channels\u0020running\u0020an\u0020extension\u0020and\u0020Bits\u0020transactions,\u0020plus\u0020what\u0020an\nextension\u0027s\u0020backend\u0020does\u0020as\u0020the\u0020extension\u003A\u0020configuration\u0020segments,\u0020PubSub,\nchat,\u0020shared\u0020secrets\u0020and\u0020Bits\u0020products.",
             "url": "classes/Twitch-Repository-ExtensionRepository.html"
         },                {
             "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AuserExtensions\u0028\u0029",
@@ -2288,8 +2398,13 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003Ametadata\u0028\u0029",
             "name": "metadata",
-            "summary": "Version\u0020metadata\u0020for\u0020an\u0020extension\u0020you\u0020develop\n\u0028requires\u0020an\u0020extension\u0020client\u0020id\u0020\/\u0020JWT\u0029.",
+            "summary": "Version\u0020metadata\u0020for\u0020an\u0020extension\u0020you\u0020develop.\u0020Twitch\u0020requires\u0020a\u0020signed\nJWT\u0020here\u003B\u0020without\u0020\u0060\u0024jwt\u0060\u0020the\u0020call\u0020goes\u0020out\u0020with\u0020the\u0020client\u0027s\u0020OAuth\u0020token,\nas\u0020it\u0020did\u0020before\u0020the\u0020parameter\u0020existed.",
             "url": "classes/Twitch-Repository-ExtensionRepository.html#method_metadata"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003Areleased\u0028\u0029",
+            "name": "released",
+            "summary": "A\u0020released\u0020extension\u0027s\u0020public\u0020listing\u003A\u0020its\u0020views,\u0020icons,\u0020state\u0020and\nsupport\u0020details.\u0020The\u0020latest\u0020release\u0020unless\u0020\u0060\u0024version\u0060\u0020names\u0020one.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_released"
         },                {
             "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AliveChannels\u0028\u0029",
             "name": "liveChannels",
@@ -2300,6 +2415,56 @@ Search.appendIndex(
             "name": "transactions",
             "summary": "Bits\u002Din\u002DExtensions\u0020transactions\u0020for\u0020\u0060\u0024extensionId\u0060.",
             "url": "classes/Twitch-Repository-ExtensionRepository.html#method_transactions"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AbitsProducts\u0028\u0029",
+            "name": "bitsProducts",
+            "summary": "The\u0020extension\u0027s\u0020Bits\u0020products.\u0020The\u0020client\u0020needs\u0020an\u0020app\u0020access\u0020token\nissued\u0020to\u0020the\u0020extension\u0027s\u0020own\u0020client\u0020id.\u0020Disabled\u0020and\u0020expired\u0020products\nare\u0020left\u0020out\u0020unless\u0020\u0060\u0024includeAll\u0060.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_bitsProducts"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AsaveBitsProduct\u0028\u0029",
+            "name": "saveBitsProduct",
+            "summary": "Adds\u0020a\u0020Bits\u0020product,\u0020or\u0020updates\u0020the\u0020one\u0020with\u0020the\u0020same\u0020\u0060sku\u0060.\u0020Same\u0020token\nrequirement\u0020as\u0020\u007B\u0040see\u0020bitsProducts\u0028\u0029\u007D.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_saveBitsProduct"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AconfigurationSegments\u0028\u0029",
+            "name": "configurationSegments",
+            "summary": "Configuration\u0020segments.\u0020\u0060\u0024segments\u0060\u0020is\u0020any\u0020of\u0020\u0060broadcaster\u0060,\u0020\u0060developer\u0060\nand\u0020\u0060global\u0060\u003B\u0020the\u0020first\u0020two\u0020belong\u0020to\u0020one\u0020channel,\u0020named\u0020by\n\u0060\u0024broadcasterId\u0060.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_configurationSegments"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AsetConfigurationSegment\u0028\u0029",
+            "name": "setConfigurationSegment",
+            "summary": "Sets\u0020a\u0020configuration\u0020segment.\u0020A\u0020\u0060broadcaster\u0060\u0020or\u0020\u0060developer\u0060\u0020segment\nneeds\u0020\u0060\u0024broadcasterId\u0060\u003B\u0020\u0060global\u0060\u0020takes\u0020none.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_setConfigurationSegment"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AsetRequiredConfiguration\u0028\u0029",
+            "name": "setRequiredConfiguration",
+            "summary": "Sets\u0020the\u0020\u0060required_configuration\u0060\u0020string\u0020a\u0020broadcaster\u0027s\u0020installation\nmust\u0020match\u0020before\u0020they\u0020can\u0020activate\u0020the\u0020extension.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_setRequiredConfiguration"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AsendPubSubMessage\u0028\u0029",
+            "name": "sendPubSubMessage",
+            "summary": "Sends\u0020a\u0020PubSub\u0020message\u0020to\u0020the\u0020extension\u0027s\u0020viewers\u0020on\u0020one\u0020channel.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_sendPubSubMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AbroadcastPubSubMessage\u0028\u0029",
+            "name": "broadcastPubSubMessage",
+            "summary": "Sends\u0020a\u0020PubSub\u0020message\u0020to\u0020the\u0020extension\u0027s\u0020viewers\u0020on\u0020every\u0020channel\u0020where\nit\u0020is\u0020active.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_broadcastPubSubMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AsendChatMessage\u0028\u0029",
+            "name": "sendChatMessage",
+            "summary": "Sends\u0020a\u0020message\u0020to\u0020a\u0020channel\u0027s\u0020chat,\u0020under\u0020the\u0020extension\u0027s\u0020name.\u0020Twitch\ncaps\u0020it\u0020at\u0020280\u0020characters,\u0020and\u002012\u0020messages\u0020a\u0020minute\u0020per\u0020channel.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_sendChatMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003Asecrets\u0028\u0029",
+            "name": "secrets",
+            "summary": "The\u0020extension\u0027s\u0020shared\u0020secrets.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_secrets"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003AcreateSecret\u0028\u0029",
+            "name": "createSecret",
+            "summary": "Creates\u0020a\u0020shared\u0020secret,\u0020which\u0020retires\u0020the\u0020current\u0020ones.\u0020It\u0020becomes\nactive\u0020after\u0020\u0060\u0024delay\u0060\u0020seconds\u0020\u0028Twitch\u0027s\u0020minimum\u0020and\u0020default\u0020is\u0020300\u0029,\ntime\u0020for\u0020every\u0020instance\u0020of\u0020the\u0020backend\u0020to\u0020switch\u0020over\u0020to\u0020it.",
+            "url": "classes/Twitch-Repository-ExtensionRepository.html#method_createSecret"
         },                {
             "fqsen": "\\Twitch\\Repository\\ExtensionRepository\u003A\u003A\u0024part",
             "name": "part",
@@ -2416,6 +2581,11 @@ Search.appendIndex(
             "summary": "Invites\u0020a\u0020user\u0020to\u0020the\u0020session.",
             "url": "classes/Twitch-Repository-GuestStarRepository.html#method_invite"
         },                {
+            "fqsen": "\\Twitch\\Repository\\GuestStarRepository\u003A\u003Ainvites\u0028\u0029",
+            "name": "invites",
+            "summary": "The\u0020session\u0027s\u0020pending\u0020invites.",
+            "url": "classes/Twitch-Repository-GuestStarRepository.html#method_invites"
+        },                {
             "fqsen": "\\Twitch\\Repository\\GuestStarRepository\u003A\u003ArevokeInvite\u0028\u0029",
             "name": "revokeInvite",
             "summary": "Revokes\u0020an\u0020invite.",
@@ -2425,6 +2595,16 @@ Search.appendIndex(
             "name": "assignSlot",
             "summary": "Assigns\u0020an\u0020invited\u0020guest\u0020to\u0020a\u0020slot.",
             "url": "classes/Twitch-Repository-GuestStarRepository.html#method_assignSlot"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\GuestStarRepository\u003A\u003AmoveSlot\u0028\u0029",
+            "name": "moveSlot",
+            "summary": "Moves\u0020the\u0020guest\u0020in\u0020\u0060\u0024sourceSlotId\u0060\u0020to\u0020\u0060\u0024destinationSlotId\u0060.\u0020A\u0020guest\nalready\u0020in\u0020the\u0020destination\u0020slot\u0020swaps\u0020into\u0020the\u0020source\u0020slot.",
+            "url": "classes/Twitch-Repository-GuestStarRepository.html#method_moveSlot"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\GuestStarRepository\u003A\u003AupdateSlotSettings\u0028\u0029",
+            "name": "updateSlotSettings",
+            "summary": "Updates\u0020the\u0020settings\u0020of\u0020the\u0020guest\u0020in\u0020a\u0020slot.",
+            "url": "classes/Twitch-Repository-GuestStarRepository.html#method_updateSlotSettings"
         },                {
             "fqsen": "\\Twitch\\Repository\\GuestStarRepository\u003A\u003AremoveSlot\u0028\u0029",
             "name": "removeSlot",
@@ -2478,7 +2658,7 @@ Search.appendIndex(
         },                {
             "fqsen": "\\Twitch\\Repository\\ModerationRepository",
             "name": "ModerationRepository",
-            "summary": "The\u0020Helix\u0020\u0060moderation\/\u002A\u0060\u0020and\u0020related\u0020resources\u0020\u2014\u0020bans\u0020and\u0020timeouts,\nmoderators,\u0020VIPs,\u0020blocked\u0020terms,\u0020message\u0020deletion,\u0020Shield\u0020Mode,\u0020warnings.",
+            "summary": "The\u0020Helix\u0020\u0060moderation\/\u002A\u0060\u0020and\u0020related\u0020resources\u0020\u2014\u0020bans\u0020and\u0020timeouts,\nmoderators,\u0020VIPs,\u0020blocked\u0020terms,\u0020message\u0020deletion,\u0020Shield\u0020Mode,\u0020warnings,\nAutoMod\u0020and\u0020suspicious\u0020users.",
             "url": "classes/Twitch-Repository-ModerationRepository.html"
         },                {
             "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003Aban\u0028\u0029",
@@ -2580,6 +2760,36 @@ Search.appendIndex(
             "name": "moderatedChannels",
             "summary": "The\u0020channels\u0020where\u0020\u0060\u0024userId\u0060\u0020has\u0020moderator\u0020privileges\n\u0028\u0060user\u003Aread\u003Amoderated_channels\u0060\u0029.",
             "url": "classes/Twitch-Repository-ModerationRepository.html#method_moderatedChannels"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003AcheckAutoModStatus\u0028\u0029",
+            "name": "checkAutoModStatus",
+            "summary": "Whether\u0020AutoMod\u0020would\u0020let\u0020each\u0020message\u0020through,\u0020checked\u0020against\u0020the\nauthenticated\u0020broadcaster\u0027s\u0020settings\u0020and\u0020blocked\u0020terms\n\u0028\u0060moderation\u003Aread\u0060\u0029.\u0020Up\u0020to\u0020100\u0020messages\u0020at\u0020a\u0020time.",
+            "url": "classes/Twitch-Repository-ModerationRepository.html#method_checkAutoModStatus"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003AresolveHeldMessage\u0028\u0029",
+            "name": "resolveHeldMessage",
+            "summary": "Allows\u0020or\u0020denies\u0020a\u0020message\u0020AutoMod\u0020is\u0020holding\u0020for\u0020review\n\u0028\u0060moderator\u003Amanage\u003Aautomod\u0060\u0029.\u0020\u0060\u0024moderatorId\u0060\u0020is\u0020the\u0020user\u0020in\u0020the\u0020token.",
+            "url": "classes/Twitch-Repository-ModerationRepository.html#method_resolveHeldMessage"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003AautoModSettings\u0028\u0029",
+            "name": "autoModSettings",
+            "summary": "The\u0020channel\u0027s\u0020AutoMod\u0020levels,\u00200\u20134\u0020per\u0020category\n\u0028\u0060moderator\u003Aread\u003Aautomod_settings\u0060\u0020or\u0020\u0060moderator\u003Amanage\u003Aautomod_settings\u0060\u0029.",
+            "url": "classes/Twitch-Repository-ModerationRepository.html#method_autoModSettings"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003AupdateAutoModSettings\u0028\u0029",
+            "name": "updateAutoModSettings",
+            "summary": "Replaces\u0020the\u0020channel\u0027s\u0020AutoMod\u0020levels\n\u0028\u0060moderator\u003Amanage\u003Aautomod_settings\u0060\u0029.\u0020This\u0020is\u0020an\u0020overwrite\u003A\u0020send\u0020every\nlevel\u0020you\u0020want\u0020kept,\u0020usually\u0020by\u0020editing\u0020what\u0020\u007B\u0040see\u0020autoModSettings\u0028\u0029\u007D\nreturned.\u0020Set\u0020either\u0020\u0060overall_level\u0060,\u0020which\u0020applies\u0020Twitch\u0027s\nrecommended\u0020level\u0020for\u0020each\u0020category,\u0020or\u0020the\u0020categories\u0020themselves,\u0020not\nboth.",
+            "url": "classes/Twitch-Repository-ModerationRepository.html#method_updateAutoModSettings"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003AaddSuspiciousUser\u0028\u0029",
+            "name": "addSuspiciousUser",
+            "summary": "Marks\u0020a\u0020chatter\u0020as\u0020suspicious\u0020\u0028\u0060moderator\u003Amanage\u003Asuspicious_users\u0060\u0029.",
+            "url": "classes/Twitch-Repository-ModerationRepository.html#method_addSuspiciousUser"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003AremoveSuspiciousUser\u0028\u0029",
+            "name": "removeSuspiciousUser",
+            "summary": "Clears\u0020a\u0020chatter\u0027s\u0020suspicious\u0020status\u0020\u0028\u0060moderator\u003Amanage\u003Asuspicious_users\u0060\u0029.",
+            "url": "classes/Twitch-Repository-ModerationRepository.html#method_removeSuspiciousUser"
         },                {
             "fqsen": "\\Twitch\\Repository\\ModerationRepository\u003A\u003AbanRequest\u0028\u0029",
             "name": "banRequest",
@@ -2955,6 +3165,11 @@ Search.appendIndex(
             "name": "unblock",
             "summary": "Unblocks\u0020a\u0020user.",
             "url": "classes/Twitch-Repository-UserRepository.html#method_unblock"
+        },                {
+            "fqsen": "\\Twitch\\Repository\\UserRepository\u003A\u003Aauthorizations\u0028\u0029",
+            "name": "authorizations",
+            "summary": "Whether\u0020each\u0020user\u0020has\u0020authorized\u0020this\u0020application,\u0020and\u0020the\u0020scopes\u0020they\ngranted\u0020it.\u0020Needs\u0020an\u0020app\u0020access\u0020token\u003B\u0020up\u0020to\u002010\u0020users.",
+            "url": "classes/Twitch-Repository-UserRepository.html#method_authorizations"
         },                {
             "fqsen": "\\Twitch\\Repository\\UserRepository\u003A\u003Alookup\u0028\u0029",
             "name": "lookup",

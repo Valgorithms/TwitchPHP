@@ -148,8 +148,8 @@
 
     </aside>
 
-            <p class="phpdocumentor-summary">The `clips` resource — look clips up by id / broadcaster / game, and create
-one from the running stream.</p>
+            <p class="phpdocumentor-summary">The `clips` resource — look clips up by id / broadcaster / game, create one
+from the running stream or a VOD, and download them.</p>
 
 
 
@@ -298,10 +298,31 @@ one from the running stream.</p>
 <dd>Creates a clip from the broadcaster&#039;s running stream (`clips:edit`).</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ClipRepository.html#method_createFromVod">createFromVod()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array{id: string, edit_url: string}&gt;    </span>
+</dt>
+<dd>Creates a clip from one of the broadcaster&#039;s VODs, which includes the
+stream that is running now (`editor:manage:clips` or
+`channel:manage:clips`). `$vodOffset` is where the clip *ends*, in
+seconds into the VOD; `$duration` is 5–60 seconds, to a tenth, and
+Twitch makes it 30 when null. `$editorId` is the user in the token: the
+broadcaster or one of their editors.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_delete">delete()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ClipRepository.html#method_downloads">downloads()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array{clip_id: string, landscape_download_url: string|null, portrait_download_url: string|null}&gt;&gt;    </span>
+</dt>
+<dd>Download links for up to 10 of the broadcaster&#039;s clips
+(`editor:manage:clips` or `channel:manage:clips`). The links expire, so
+fetch them when you are about to download.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_fetch">fetch()</a>
@@ -1017,6 +1038,95 @@ fetched.</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_createFromVod">
+        createFromVod()
+        <a href="classes/Twitch-Repository-ClipRepository.html#method_createFromVod" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ClipRepository.php"><a href="files/src-twitch-repository-cliprepository.html"><abbr title="src/Twitch/Repository/ClipRepository.php">ClipRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">110</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Creates a clip from one of the broadcaster&#039;s VODs, which includes the
+stream that is running now (`editor:manage:clips` or
+`channel:manage:clips`). `$vodOffset` is where the clip *ends*, in
+seconds into the VOD; `$duration` is 5–60 seconds, to a tenth, and
+Twitch makes it 30 when null. `$editorId` is the user in the token: the
+broadcaster or one of their editors.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">createFromVod</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$editorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$vodId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$vodOffset</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$title</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">float|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$duration</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array{id: string, edit_url: string}&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$editorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$vodId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$vodOffset</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$title</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$duration</span>
+                : <span class="phpdocumentor-argument-list__argument__type">float|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array{id: string, edit_url: string}&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_delete">
         delete()
         <a href="classes/Twitch-Repository-AbstractRepository.html#method_delete" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1056,6 +1166,71 @@ fetched.</p>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_downloads">
+        downloads()
+        <a href="classes/Twitch-Repository-ClipRepository.html#method_downloads" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ClipRepository.php"><a href="files/src-twitch-repository-cliprepository.html"><abbr title="src/Twitch/Repository/ClipRepository.php">ClipRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">131</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Download links for up to 10 of the broadcaster&#039;s clips
+(`editor:manage:clips` or `channel:manage:clips`). The links expire, so
+fetch them when you are about to download.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">downloads</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$editorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;int, string&gt;|string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$clipIds</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array{clip_id: string, landscape_download_url: string|null, portrait_download_url: string|null}&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$editorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$clipIds</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;int, string&gt;|string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array{clip_id: string, landscape_download_url: string|null, portrait_download_url: string|null}&gt;&gt;</span>
             </section>
 
 </article>
@@ -1763,7 +1938,9 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_collect">collect()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_count">count()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ClipRepository.html#method_create">create()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ClipRepository.html#method_createFromVod">createFromVod()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_delete">delete()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ClipRepository.html#method_downloads">downloads()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_fetch">fetch()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ClipRepository.html#method_fetchById">fetchById()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_filter">filter()</a></li>

@@ -144,15 +144,21 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">27</span>
+    <span class="phpdocumentor-element-found-in__line">34</span>
 
     </aside>
 
-            <p class="phpdocumentor-summary">The `extensions/*` and `users/extensions` resources — a user&#039;s installed
-extensions and their active slots, an extension developer&#039;s own version
-metadata, live channels running an extension, and Bits transactions.</p>
+            <p class="phpdocumentor-summary">The `extensions/*`, `bits/extensions` and `users/extensions` resources — a
+user&#039;s installed extensions and their active slots, released extensions,
+live channels running an extension and Bits transactions, plus what an
+extension&#039;s backend does as the extension: configuration segments, PubSub,
+chat, shared secrets and Bits products.</p>
 
 
+    <section class="phpdocumentor-description"><p>Methods that take an <a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a> authenticate with a token it signs
+instead of the client's OAuth token. They skip the client's token recovery,
+because a rejected JWT is not something refreshing an OAuth token can fix.</p>
+</section>
 
 
     <h5 class="phpdocumentor-tag-list__heading" id="tags">
@@ -281,16 +287,51 @@ metadata, live channels running an extension, and Bits transactions.</p>
 `$max` rows (0 = no limit) or when Twitch runs out of pages.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_bitsProducts">bitsProducts()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;    </span>
+</dt>
+<dd>The extension&#039;s Bits products. The client needs an app access token
+issued to the extension&#039;s own client id. Disabled and expired products
+are left out unless `$includeAll`.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_broadcastPubSubMessage">broadcastPubSubMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Sends a PubSub message to the extension&#039;s viewers on every channel where
+it is active.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_collect">collect()</a>
     <span>
                                 &nbsp;: <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <abbr title="\Twitch\Repository\TPart">TPart</abbr>&gt;    </span>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_configurationSegments">configurationSegments()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;    </span>
+</dt>
+<dd>Configuration segments. `$segments` is any of `broadcaster`, `developer`
+and `global`; the first two belong to one channel, named by
+`$broadcasterId`.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_count">count()</a>
     <span>
                                 &nbsp;: int    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_createSecret">createSecret()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;    </span>
+</dt>
+<dd>Creates a shared secret, which retires the current ones. It becomes
+active after `$delay` seconds (Twitch&#039;s minimum and default is 300),
+time for every instance of the backend to switch over to it.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_delete">delete()</a>
@@ -349,8 +390,17 @@ the list endpoint filtered by {@see $idParam}.</dd>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;    </span>
 </dt>
-<dd>Version metadata for an extension you develop
-(requires an extension client id / JWT).</dd>
+<dd>Version metadata for an extension you develop. Twitch requires a signed
+JWT here; without `$jwt` the call goes out with the client&#039;s OAuth token,
+as it did before the parameter existed.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_released">released()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;    </span>
+</dt>
+<dd>A released extension&#039;s public listing: its views, icons, state and
+support details. The latest release unless `$version` names one.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_save">save()</a>
@@ -358,6 +408,52 @@ the list endpoint filtered by {@see $idParam}.</dd>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Twitch\Repository\TPart">TPart</abbr>&gt;    </span>
 </dt>
 <dd>POSTs a new row (`$part-&gt;created === false`) or PATCHes an existing one.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_saveBitsProduct">saveBitsProduct()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;    </span>
+</dt>
+<dd>Adds a Bits product, or updates the one with the same `sku`. Same token
+requirement as {@see bitsProducts()}.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_secrets">secrets()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;    </span>
+</dt>
+<dd>The extension&#039;s shared secrets.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_sendChatMessage">sendChatMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Sends a message to a channel&#039;s chat, under the extension&#039;s name. Twitch
+caps it at 280 characters, and 12 messages a minute per channel.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_sendPubSubMessage">sendPubSubMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Sends a PubSub message to the extension&#039;s viewers on one channel.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_setConfigurationSegment">setConfigurationSegment()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Sets a configuration segment. A `broadcaster` or `developer` segment
+needs `$broadcasterId`; `global` takes none.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_setRequiredConfiguration">setRequiredConfiguration()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Sets the `required_configuration` string a broadcaster&#039;s installation
+must match before they can activate the extension.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ExtensionRepository.html#method_transactions">transactions()</a>
@@ -473,7 +569,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">32</span>
+    <span class="phpdocumentor-element-found-in__line">39</span>
 
     </aside>
 
@@ -624,7 +720,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">29</span>
+    <span class="phpdocumentor-element-found-in__line">36</span>
 
     </aside>
 
@@ -794,7 +890,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">52</span>
+    <span class="phpdocumentor-element-found-in__line">59</span>
 
     </aside>
 
@@ -893,6 +989,114 @@ a bare object. Normalise to a list of rows.</dd>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_bitsProducts">
+        bitsProducts()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_bitsProducts" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">146</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The extension&#039;s Bits products. The client needs an app access token
+issued to the extension&#039;s own client id. Disabled and expired products
+are left out unless `$includeAll`.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">bitsProducts</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__type">bool&nbsp;</span><span class="phpdocumentor-signature__argument__name">$includeAll</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">false</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$includeAll</span>
+                : <span class="phpdocumentor-argument-list__argument__type">bool</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">false</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_broadcastPubSubMessage">
+        broadcastPubSubMessage()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_broadcastPubSubMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">247</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Sends a PubSub message to the extension&#039;s viewers on every channel where
+it is active.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">broadcastPubSubMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$message</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$message</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_collect">
         collect()
         <a href="classes/Twitch-Repository-AbstractRepository.html#method_collect" class="headerlink"><i class="fas fa-link"></i></a>
@@ -931,6 +1135,75 @@ a bare object. Normalise to a list of rows.</dd>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_configurationSegments">
+        configurationSegments()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_configurationSegments" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">179</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Configuration segments. `$segments` is any of `broadcaster`, `developer`
+and `global`; the first two belong to one channel, named by
+`$broadcasterId`.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">configurationSegments</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;int, string&gt;|string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$segments</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$segments</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;int, string&gt;|string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p><code class="prettyprint">{ segment, broadcaster_id?, content, version }</code> rows.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_count">
         count()
         <a href="classes/Twitch-Repository-AbstractRepository.html#method_count" class="headerlink"><i class="fas fa-link"></i></a>
@@ -960,6 +1233,68 @@ a bare object. Normalise to a list of rows.</dd>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type">int</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_createSecret">
+        createSecret()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_createSecret" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">290</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Creates a shared secret, which retires the current ones. It becomes
+active after `$delay` seconds (Twitch&#039;s minimum and default is 300),
+time for every instance of the backend to switch over to it.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">createSecret</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$delay</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$delay</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p><code class="prettyprint">{ format_version, secrets }</code></p>
+</section>
+
             </section>
 
 </article>
@@ -1312,7 +1647,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">89</span>
+    <span class="phpdocumentor-element-found-in__line">115</span>
 
     </aside>
 
@@ -1375,16 +1710,81 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">77</span>
+    <span class="phpdocumentor-element-found-in__line">85</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Version metadata for an extension you develop
-(requires an extension client id / JWT).</p>
+        <p class="phpdocumentor-summary">Version metadata for an extension you develop. Twitch requires a signed
+JWT here; without `$jwt` the call goes out with the client&#039;s OAuth token,
+as it did before the parameter existed.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">metadata</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$extensionId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$version</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span></code>
+                    <span class="phpdocumentor-signature__name">metadata</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$extensionId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$version</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$extensionId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$version</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_released">
+        released()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_released" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">103</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">A released extension&#039;s public listing: its views, icons, state and
+support details. The latest release unless `$version` names one.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">released</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$extensionId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$version</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1414,7 +1814,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array&lt;string, mixed&gt;&gt;&gt;</span>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;</span>
             </section>
 
 </article>
@@ -1473,6 +1873,409 @@ the list endpoint filtered by {@see $idParam}.</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_saveBitsProduct">
+        saveBitsProduct()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_saveBitsProduct" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">162</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Adds a Bits product, or updates the one with the same `sku`. Same token
+requirement as {@see bitsProducts()}.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">saveBitsProduct</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">array&lt;string, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$product</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$product</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;string, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p><code class="prettyprint">sku</code>, <code class="prettyprint">cost</code> (<code class="prettyprint">{ amount, type: &quot;bits&quot; }</code>) and <code class="prettyprint">display_name</code>,
+plus optional <code class="prettyprint">in_development</code>, <code class="prettyprint">expiration</code> and <code class="prettyprint">is_broadcast</code>.</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>The product as saved.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_secrets">
+        secrets()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_secrets" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">277</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The extension&#039;s shared secrets.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">secrets</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p><code class="prettyprint">{ format_version, secrets: [{ content, active_at, expires_at }] }</code></p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_sendChatMessage">
+        sendChatMessage()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_sendChatMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">262</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Sends a message to a channel&#039;s chat, under the extension&#039;s name. Twitch
+caps it at 280 characters, and 12 messages a minute per channel.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">sendChatMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$extensionVersion</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$text</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$extensionVersion</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$text</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_sendPubSubMessage">
+        sendPubSubMessage()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_sendPubSubMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">229</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Sends a PubSub message to the extension&#039;s viewers on one channel.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">sendPubSubMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$message</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;int, string&gt;|string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$targets</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">'broadcast'</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p><code class="prettyprint">$targets</code> is <code class="prettyprint">broadcast</code> (everyone watching) and/or <code class="prettyprint">whisper-&lt;user-id&gt;</code>
+(one viewer). The token is scoped to exactly those targets.</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$message</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$targets</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;int, string&gt;|string</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">'broadcast'</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_setConfigurationSegment">
+        setConfigurationSegment()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_setConfigurationSegment" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">193</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Sets a configuration segment. A `broadcaster` or `developer` segment
+needs `$broadcasterId`; `global` takes none.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">setConfigurationSegment</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$segment</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$content</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$version</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$segment</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$content</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$version</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_setRequiredConfiguration">
+        setRequiredConfiguration()
+        <a href="classes/Twitch-Repository-ExtensionRepository.html#method_setRequiredConfiguration" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">210</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Sets the `required_configuration` string a broadcaster&#039;s installation
+must match before they can activate the extension.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">setRequiredConfiguration</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$jwt</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$extensionVersion</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$requiredConfiguration</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$jwt</span>
+                : <span class="phpdocumentor-argument-list__argument__type"><a href="classes/Twitch-Auth-ExtensionJwt.html"><abbr title="\Twitch\Auth\ExtensionJwt">ExtensionJwt</abbr></a></span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$extensionVersion</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$requiredConfiguration</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_transactions">
         transactions()
         <a href="classes/Twitch-Repository-ExtensionRepository.html#method_transactions" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1481,7 +2284,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">103</span>
+    <span class="phpdocumentor-element-found-in__line">129</span>
 
     </aside>
 
@@ -1544,7 +2347,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">65</span>
+    <span class="phpdocumentor-element-found-in__line">72</span>
 
     </aside>
 
@@ -1595,7 +2398,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ExtensionRepository.php"><a href="files/src-twitch-repository-extensionrepository.html"><abbr title="src/Twitch/Repository/ExtensionRepository.php">ExtensionRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">40</span>
+    <span class="phpdocumentor-element-found-in__line">47</span>
 
     </aside>
 
@@ -1824,8 +2627,12 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method___construct">__construct()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_activeExtensions">activeExtensions()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_all">all()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_bitsProducts">bitsProducts()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_broadcastPubSubMessage">broadcastPubSubMessage()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_collect">collect()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_configurationSegments">configurationSegments()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_count">count()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_createSecret">createSecret()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_delete">delete()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_fetch">fetch()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_filter">filter()</a></li>
@@ -1835,7 +2642,14 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_getIterator">getIterator()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_liveChannels">liveChannels()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_metadata">metadata()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_released">released()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_save">save()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_saveBitsProduct">saveBitsProduct()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_secrets">secrets()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_sendChatMessage">sendChatMessage()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_sendPubSubMessage">sendPubSubMessage()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_setConfigurationSegment">setConfigurationSegment()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_setRequiredConfiguration">setRequiredConfiguration()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_transactions">transactions()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_updateActiveExtensions">updateActiveExtensions()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ExtensionRepository.html#method_userExtensions">userExtensions()</a></li>

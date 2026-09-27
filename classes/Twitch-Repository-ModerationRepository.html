@@ -144,12 +144,13 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">32</span>
+    <span class="phpdocumentor-element-found-in__line">33</span>
 
     </aside>
 
             <p class="phpdocumentor-summary">The Helix `moderation/*` and related resources — bans and timeouts,
-moderators, VIPs, blocked terms, message deletion, Shield Mode, warnings.</p>
+moderators, VIPs, blocked terms, message deletion, Shield Mode, warnings,
+AutoMod and suspicious users.</p>
 
 
     <section class="phpdocumentor-description"><p>Every call takes an explicit <code class="prettyprint">$broadcasterId</code> and (where the API requires it)
@@ -280,6 +281,13 @@ a <code class="prettyprint">$moderatorId</code>; the authenticated user must be 
 <dd>Grants moderator (`channel:manage:moderators`).</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_addSuspiciousUser">addSuspiciousUser()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;    </span>
+</dt>
+<dd>Marks a chatter as suspicious (`moderator:manage:suspicious_users`).</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_addVip">addVip()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>    </span>
@@ -293,6 +301,14 @@ a <code class="prettyprint">$moderatorId</code>; the authenticated user must be 
 </dt>
 <dd>Follows `pagination.cursor` and returns every row as Parts. Stops at
 `$max` rows (0 = no limit) or when Twitch runs out of pages.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_autoModSettings">autoModSettings()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;    </span>
+</dt>
+<dd>The channel&#039;s AutoMod levels, 0–4 per category
+(`moderator:read:automod_settings` or `moderator:manage:automod_settings`).</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_ban">ban()</a>
@@ -313,6 +329,15 @@ a <code class="prettyprint">$moderatorId</code>; the authenticated user must be 
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <a href="classes/Twitch-Parts-BlockedTerm.html"><abbr title="\Twitch\Parts\BlockedTerm">BlockedTerm</abbr></a>&gt;&gt;    </span>
 </dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_checkAutoModStatus">checkAutoModStatus()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, bool&gt;&gt;    </span>
+</dt>
+<dd>Whether AutoMod would let each message through, checked against the
+authenticated broadcaster&#039;s settings and blocked terms
+(`moderation:read`). Up to 100 messages at a time.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_collect">collect()</a>
@@ -407,11 +432,26 @@ the list endpoint filtered by {@see $idParam}.</dd>
 <dd>Revokes moderator.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_removeSuspiciousUser">removeSuspiciousUser()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;    </span>
+</dt>
+<dd>Clears a chatter&#039;s suspicious status (`moderator:manage:suspicious_users`).</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_removeVip">removeVip()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>    </span>
 </dt>
 <dd>Revokes VIP.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_resolveHeldMessage">resolveHeldMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Allows or denies a message AutoMod is holding for review
+(`moderator:manage:automod`). `$moderatorId` is the user in the token.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_resolveUnbanRequest">resolveUnbanRequest()</a>
@@ -462,6 +502,18 @@ the list endpoint filtered by {@see $idParam}.</dd>
 <dd>Pending or resolved unban requests for a channel
 (`moderator:read:unban_requests`). `$status` is `pending`, `approved` or
 `denied`.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_updateAutoModSettings">updateAutoModSettings()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;    </span>
+</dt>
+<dd>Replaces the channel&#039;s AutoMod levels
+(`moderator:manage:automod_settings`). This is an overwrite: send every
+level you want kept, usually by editing what {@see autoModSettings()}
+returned. Set either `overall_level`, which applies Twitch&#039;s
+recommended level for each category, or the categories themselves, not
+both.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ModerationRepository.html#method_vips">vips()</a>
@@ -542,7 +594,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">36</span>
+    <span class="phpdocumentor-element-found-in__line">37</span>
 
     </aside>
 
@@ -580,7 +632,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">41</span>
+    <span class="phpdocumentor-element-found-in__line">42</span>
 
     </aside>
 
@@ -656,7 +708,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">38</span>
+    <span class="phpdocumentor-element-found-in__line">39</span>
 
     </aside>
 
@@ -731,7 +783,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">34</span>
+    <span class="phpdocumentor-element-found-in__line">35</span>
 
     </aside>
 
@@ -901,7 +953,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">187</span>
+    <span class="phpdocumentor-element-found-in__line">188</span>
 
     </aside>
 
@@ -963,7 +1015,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">124</span>
+    <span class="phpdocumentor-element-found-in__line">125</span>
 
     </aside>
 
@@ -1013,6 +1065,84 @@ a bare object. Normalise to a list of rows.</dd>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_addSuspiciousUser">
+        addSuspiciousUser()
+        <a href="classes/Twitch-Repository-ModerationRepository.html#method_addSuspiciousUser" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">401</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Marks a chatter as suspicious (`moderator:manage:suspicious_users`).</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">addSuspiciousUser</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$userId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$status</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">'ACTIVE_MONITORING'</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <section class="phpdocumentor-description"><p><code class="prettyprint">$status</code> is <code class="prettyprint">ACTIVE_MONITORING</code>, which flags their messages to
+moderators, or <code class="prettyprint">RESTRICTED</code>, which shows their messages to moderators
+only.</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$userId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$status</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">'ACTIVE_MONITORING'</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p><code class="prettyprint">{ user_id, broadcaster_id, moderator_id, updated_at, status, types }</code></p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_addVip">
         addVip()
         <a href="classes/Twitch-Repository-ModerationRepository.html#method_addVip" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1021,7 +1151,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">160</span>
+    <span class="phpdocumentor-element-found-in__line">161</span>
 
     </aside>
 
@@ -1128,6 +1258,63 @@ a bare object. Normalise to a list of rows.</dd>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_autoModSettings">
+        autoModSettings()
+        <a href="classes/Twitch-Repository-ModerationRepository.html#method_autoModSettings" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">361</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The channel&#039;s AutoMod levels, 0–4 per category
+(`moderator:read:automod_settings` or `moderator:manage:automod_settings`).</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">autoModSettings</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_ban">
         ban()
         <a href="classes/Twitch-Repository-ModerationRepository.html#method_ban" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1136,7 +1323,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">50</span>
+    <span class="phpdocumentor-element-found-in__line">51</span>
 
     </aside>
 
@@ -1206,7 +1393,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">86</span>
+    <span class="phpdocumentor-element-found-in__line">87</span>
 
     </aside>
 
@@ -1278,7 +1465,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">176</span>
+    <span class="phpdocumentor-element-found-in__line">177</span>
 
     </aside>
 
@@ -1330,6 +1517,70 @@ a bare object. Normalise to a list of rows.</dd>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <a href="classes/Twitch-Parts-BlockedTerm.html"><abbr title="\Twitch\Parts\BlockedTerm">BlockedTerm</abbr></a>&gt;&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_checkAutoModStatus">
+        checkAutoModStatus()
+        <a href="classes/Twitch-Repository-ModerationRepository.html#method_checkAutoModStatus" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">319</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Whether AutoMod would let each message through, checked against the
+authenticated broadcaster&#039;s settings and blocked terms
+(`moderation:read`). Up to 100 messages at a time.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">checkAutoModStatus</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;string, string&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$messages</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, bool&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$messages</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;string, string&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p>Your own id for each message =&gt; its text.</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, bool&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>The same ids =&gt; whether the message is permitted.</p>
+</section>
+
             </section>
 
 </article>
@@ -1471,7 +1722,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">214</span>
+    <span class="phpdocumentor-element-found-in__line">215</span>
 
     </aside>
 
@@ -1822,7 +2073,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">298</span>
+    <span class="phpdocumentor-element-found-in__line">299</span>
 
     </aside>
 
@@ -1886,7 +2137,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">108</span>
+    <span class="phpdocumentor-element-found-in__line">109</span>
 
     </aside>
 
@@ -1955,7 +2206,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">197</span>
+    <span class="phpdocumentor-element-found-in__line">198</span>
 
     </aside>
 
@@ -2017,7 +2268,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">131</span>
+    <span class="phpdocumentor-element-found-in__line">132</span>
 
     </aside>
 
@@ -2067,6 +2318,73 @@ the list endpoint filtered by {@see $idParam}.</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_removeSuspiciousUser">
+        removeSuspiciousUser()
+        <a href="classes/Twitch-Repository-ModerationRepository.html#method_removeSuspiciousUser" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">415</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Clears a chatter&#039;s suspicious status (`moderator:manage:suspicious_users`).</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">removeSuspiciousUser</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$userId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$userId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>The chatter's record, now with status <code class="prettyprint">NO_TREATMENT</code>.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_removeVip">
         removeVip()
         <a href="classes/Twitch-Repository-ModerationRepository.html#method_removeVip" class="headerlink"><i class="fas fa-link"></i></a>
@@ -2075,7 +2393,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">167</span>
+    <span class="phpdocumentor-element-found-in__line">168</span>
 
     </aside>
 
@@ -2125,6 +2443,70 @@ the list endpoint filtered by {@see $idParam}.</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_resolveHeldMessage">
+        resolveHeldMessage()
+        <a href="classes/Twitch-Repository-ModerationRepository.html#method_resolveHeldMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">346</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Allows or denies a message AutoMod is holding for review
+(`moderator:manage:automod`). `$moderatorId` is the user in the token.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">resolveHeldMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$messageId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">bool&nbsp;</span><span class="phpdocumentor-signature__argument__name">$allow</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$messageId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$allow</span>
+                : <span class="phpdocumentor-argument-list__argument__type">bool</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_resolveUnbanRequest">
         resolveUnbanRequest()
         <a href="classes/Twitch-Repository-ModerationRepository.html#method_resolveUnbanRequest" class="headerlink"><i class="fas fa-link"></i></a>
@@ -2133,7 +2515,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">281</span>
+    <span class="phpdocumentor-element-found-in__line">282</span>
 
     </aside>
 
@@ -2260,7 +2642,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">232</span>
+    <span class="phpdocumentor-element-found-in__line">233</span>
 
     </aside>
 
@@ -2322,7 +2704,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">224</span>
+    <span class="phpdocumentor-element-found-in__line">225</span>
 
     </aside>
 
@@ -2377,7 +2759,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">60</span>
+    <span class="phpdocumentor-element-found-in__line">61</span>
 
     </aside>
 
@@ -2454,7 +2836,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">70</span>
+    <span class="phpdocumentor-element-found-in__line">71</span>
 
     </aside>
 
@@ -2519,7 +2901,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">264</span>
+    <span class="phpdocumentor-element-found-in__line">265</span>
 
     </aside>
 
@@ -2590,6 +2972,82 @@ the list endpoint filtered by {@see $idParam}.</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_updateAutoModSettings">
+        updateAutoModSettings()
+        <a href="classes/Twitch-Repository-ModerationRepository.html#method_updateAutoModSettings" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">382</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Replaces the channel&#039;s AutoMod levels
+(`moderator:manage:automod_settings`). This is an overwrite: send every
+level you want kept, usually by editing what {@see autoModSettings()}
+returned. Set either `overall_level`, which applies Twitch&#039;s
+recommended level for each category, or the categories themselves, not
+both.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">updateAutoModSettings</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">array&lt;string, int&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$settings</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$settings</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;string, int&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                    <section class="phpdocumentor-description"><p><code class="prettyprint">overall_level</code>, or any of <code class="prettyprint">aggression</code>, <code class="prettyprint">bullying</code>, <code class="prettyprint">disability</code>,
+<code class="prettyprint">misogyny</code>, <code class="prettyprint">race_ethnicity_or_religion</code>, <code class="prettyprint">sex_based_terms</code>,
+<code class="prettyprint">sexuality_sex_or_gender</code> and <code class="prettyprint">swearing</code>.</p>
+</section>
+
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p>The settings as saved.</p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_vips">
         vips()
         <a href="classes/Twitch-Repository-ModerationRepository.html#method_vips" class="headerlink"><i class="fas fa-link"></i></a>
@@ -2598,7 +3056,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">144</span>
+    <span class="phpdocumentor-element-found-in__line">145</span>
 
     </aside>
 
@@ -2667,7 +3125,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">246</span>
+    <span class="phpdocumentor-element-found-in__line">247</span>
 
     </aside>
 
@@ -2901,7 +3359,7 @@ a bare object. Normalise to a list of rows.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">314</span>
+    <span class="phpdocumentor-element-found-in__line">431</span>
 
     </aside>
 
@@ -2963,7 +3421,7 @@ a bare object. Normalise to a list of rows.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ModerationRepository.php"><a href="files/src-twitch-repository-moderationrepository.html"><abbr title="src/Twitch/Repository/ModerationRepository.php">ModerationRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">329</span>
+    <span class="phpdocumentor-element-found-in__line">446</span>
 
     </aside>
 
@@ -3050,11 +3508,14 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method___construct">__construct()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_addBlockedTerm">addBlockedTerm()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_addModerator">addModerator()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_addSuspiciousUser">addSuspiciousUser()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_addVip">addVip()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_all">all()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_autoModSettings">autoModSettings()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_ban">ban()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_bannedUsers">bannedUsers()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_blockedTerms">blockedTerms()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_checkAutoModStatus">checkAutoModStatus()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_collect">collect()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_count">count()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_delete">delete()</a></li>
@@ -3069,7 +3530,9 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_moderators">moderators()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_removeBlockedTerm">removeBlockedTerm()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_removeModerator">removeModerator()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_removeSuspiciousUser">removeSuspiciousUser()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_removeVip">removeVip()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_resolveHeldMessage">resolveHeldMessage()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_resolveUnbanRequest">resolveUnbanRequest()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_save">save()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_setShieldMode">setShieldMode()</a></li>
@@ -3077,6 +3540,7 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_timeout">timeout()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_unban">unban()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_unbanRequests">unbanRequests()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_updateAutoModSettings">updateAutoModSettings()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_vips">vips()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ModerationRepository.html#method_warn">warn()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_collectRows">collectRows()</a></li>

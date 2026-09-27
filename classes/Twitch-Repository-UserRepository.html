@@ -272,6 +272,14 @@ description update, and the block list.</p>
 `$max` rows (0 = no limit) or when Twitch runs out of pages.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-UserRepository.html#method_authorizations">authorizations()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array{user_id: string, user_name: string, user_login: string, scopes: list<string>, has_authorized: bool}&gt;&gt;    </span>
+</dt>
+<dd>Whether each user has authorized this application, and the scopes they
+granted it. Needs an app access token; up to 10 users.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-UserRepository.html#method_block">block()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>    </span>
@@ -848,6 +856,56 @@ a bare object. Normalise to a list of rows.</dd>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <abbr title="\Twitch\Repository\TPart">TPart</abbr>&gt;&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_authorizations">
+        authorizations()
+        <a href="classes/Twitch-Repository-UserRepository.html#method_authorizations" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/UserRepository.php"><a href="files/src-twitch-repository-userrepository.html"><abbr title="src/Twitch/Repository/UserRepository.php">UserRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">132</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Whether each user has authorized this application, and the scopes they
+granted it. Needs an app access token; up to 10 users.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">authorizations</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">array&lt;int, string&gt;|string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$userIds</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array{user_id: string, user_name: string, user_login: string, scopes: list<string>, has_authorized: bool}&gt;&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$userIds</span>
+                : <span class="phpdocumentor-argument-list__argument__type">array&lt;int, string&gt;|string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;int, array{user_id: string, user_name: string, user_login: string, scopes: list<string>, has_authorized: bool}&gt;&gt;</span>
             </section>
 
 </article>
@@ -1898,7 +1956,7 @@ a bare object. Normalise to a list of rows.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/UserRepository.php"><a href="files/src-twitch-repository-userrepository.html"><abbr title="src/Twitch/Repository/UserRepository.php">UserRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">129</span>
+    <span class="phpdocumentor-element-found-in__line">143</span>
 
     </aside>
 
@@ -1977,6 +2035,7 @@ a bare object. Normalise to a list of rows.</p>
                 <ul class="phpdocumentor-list -clean">
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method___construct">__construct()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_all">all()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-UserRepository.html#method_authorizations">authorizations()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-UserRepository.html#method_block">block()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-UserRepository.html#method_blocks">blocks()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-UserRepository.html#method_byIds">byIds()</a></li>

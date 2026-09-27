@@ -144,12 +144,13 @@
         <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">30</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
             <p class="phpdocumentor-summary">The Helix `chat/*` resource group — settings, chatters, emotes, badges,
-announcements, shoutouts, sending a message, and per-user colour.</p>
+announcements, shoutouts, sending and pinning messages, per-user colour, and
+shared chat sessions.</p>
 
 
 
@@ -381,6 +382,22 @@ the list endpoint filtered by {@see $idParam}.</dd>
 </dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ChatRepository.html#method_pinMessage">pinMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Pins a chat message (`moderator:manage:chat_messages`) for
+`$durationSeconds` (30–1800), or until the stream ends when that is null.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ChatRepository.html#method_pinnedMessage">pinnedMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;    </span>
+</dt>
+<dd>The message pinned in the channel&#039;s chat, or `null` when none is
+(`moderator:read:chat_messages` or `moderator:manage:chat_messages`).</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-AbstractRepository.html#method_save">save()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Twitch\Repository\TPart">TPart</abbr>&gt;    </span>
@@ -411,11 +428,34 @@ the list endpoint filtered by {@see $idParam}.</dd>
 moderator-only fields (`non_moderator_chat_delay*`).</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ChatRepository.html#method_sharedChatSession">sharedChatSession()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;    </span>
+</dt>
+<dd>The shared chat session the channel is part of, or `null` when it is in
+none.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ChatRepository.html#method_shoutout">shoutout()</a>
     <span>
                                 &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
 </dt>
 <dd>Sends a shoutout (`moderator:manage:shoutouts`).</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ChatRepository.html#method_unpinMessage">unpinMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Unpins a chat message (`moderator:manage:chat_messages`).</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a class="" href="classes/Twitch-Repository-ChatRepository.html#method_updatePinnedMessage">updatePinnedMessage()</a>
+    <span>
+                                &nbsp;: <abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;    </span>
+</dt>
+<dd>Re-times a pinned message: pinned for `$durationSeconds` (30–1800) from
+now, or until the stream ends when that is null.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a class="" href="classes/Twitch-Repository-ChatRepository.html#method_updateSettings">updateSettings()</a>
@@ -496,7 +536,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">34</span>
+    <span class="phpdocumentor-element-found-in__line">35</span>
 
     </aside>
 
@@ -534,7 +574,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">37</span>
+    <span class="phpdocumentor-element-found-in__line">38</span>
 
     </aside>
 
@@ -685,7 +725,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">32</span>
+    <span class="phpdocumentor-element-found-in__line">33</span>
 
     </aside>
 
@@ -912,7 +952,7 @@ a bare object. Normalise to a list of rows.</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">163</span>
+    <span class="phpdocumentor-element-found-in__line">164</span>
 
     </aside>
 
@@ -983,7 +1023,7 @@ of `blue`, `green`, `orange`, `purple`, `primary`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">128</span>
+    <span class="phpdocumentor-element-found-in__line">129</span>
 
     </aside>
 
@@ -1031,7 +1071,7 @@ of `blue`, `green`, `orange`, `purple`, `primary`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">98</span>
+    <span class="phpdocumentor-element-found-in__line">99</span>
 
     </aside>
 
@@ -1079,7 +1119,7 @@ of `blue`, `green`, `orange`, `purple`, `primary`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">78</span>
+    <span class="phpdocumentor-element-found-in__line">79</span>
 
     </aside>
 
@@ -1187,7 +1227,7 @@ of `blue`, `green`, `orange`, `purple`, `primary`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">195</span>
+    <span class="phpdocumentor-element-found-in__line">272</span>
 
     </aside>
 
@@ -1326,7 +1366,7 @@ of `blue`, `green`, `orange`, `purple`, `primary`.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">110</span>
+    <span class="phpdocumentor-element-found-in__line">111</span>
 
     </aside>
 
@@ -1663,7 +1703,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">134</span>
+    <span class="phpdocumentor-element-found-in__line">135</span>
 
     </aside>
 
@@ -1701,7 +1741,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">104</span>
+    <span class="phpdocumentor-element-found-in__line">105</span>
 
     </aside>
 
@@ -1722,6 +1762,134 @@ the list endpoint filtered by {@see $idParam}.</p>
             <section>
         <h5 class="phpdocumentor-return-value__heading">Return values</h5>
         <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, <abbr title="\Discord\Helpers\Collection">Collection</abbr>&lt;string|int, <a href="classes/Twitch-Parts-Emote.html"><abbr title="\Twitch\Parts\Emote">Emote</abbr></a>&gt;&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_pinMessage">
+        pinMessage()
+        <a href="classes/Twitch-Repository-ChatRepository.html#method_pinMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">209</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Pins a chat message (`moderator:manage:chat_messages`) for
+`$durationSeconds` (30–1800), or until the stream ends when that is null.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">pinMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$messageId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$durationSeconds</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$messageId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$durationSeconds</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_pinnedMessage">
+        pinnedMessage()
+        <a href="classes/Twitch-Repository-ChatRepository.html#method_pinnedMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">195</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The message pinned in the channel&#039;s chat, or `null` when none is
+(`moderator:read:chat_messages` or `moderator:manage:chat_messages`).</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">pinnedMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;</span>
             </section>
 
 </article>
@@ -1788,7 +1956,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">147</span>
+    <span class="phpdocumentor-element-found-in__line">148</span>
 
     </aside>
 
@@ -1863,7 +2031,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">214</span>
+    <span class="phpdocumentor-element-found-in__line">291</span>
 
     </aside>
 
@@ -1921,7 +2089,7 @@ the list endpoint filtered by {@see $idParam}.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">47</span>
+    <span class="phpdocumentor-element-found-in__line">48</span>
 
     </aside>
 
@@ -1970,6 +2138,60 @@ moderator-only fields (`non_moderator_chat_delay*`).</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_sharedChatSession">
+        sharedChatSession()
+        <a href="classes/Twitch-Repository-ChatRepository.html#method_sharedChatSession" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">257</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">The shared chat session the channel is part of, or `null` when it is in
+none.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">sharedChatSession</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, array&lt;string, mixed&gt;|null&gt;</span>
+                    &mdash;
+                <section class="phpdocumentor-description"><p><code class="prettyprint">{ session_id, host_broadcaster_id, participants, created_at, updated_at }</code></p>
+</section>
+
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_shoutout">
         shoutout()
         <a href="classes/Twitch-Repository-ChatRepository.html#method_shoutout" class="headerlink"><i class="fas fa-link"></i></a>
@@ -1978,7 +2200,7 @@ moderator-only fields (`non_moderator_chat_delay*`).</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">177</span>
+    <span class="phpdocumentor-element-found-in__line">178</span>
 
     </aside>
 
@@ -2033,6 +2255,140 @@ moderator-only fields (`non_moderator_chat_delay*`).</p>
             -public
                                                         "
 >
+    <h4 class="phpdocumentor-element__name" id="method_unpinMessage">
+        unpinMessage()
+        <a href="classes/Twitch-Repository-ChatRepository.html#method_unpinMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">240</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Unpins a chat message (`moderator:manage:chat_messages`).</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">unpinMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$messageId</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$messageId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_updatePinnedMessage">
+        updatePinnedMessage()
+        <a href="classes/Twitch-Repository-ChatRepository.html#method_updatePinnedMessage" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">225</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Re-times a pinned message: pinned for `$durationSeconds` (30–1800) from
+now, or until the stream ends when that is null.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">updatePinnedMessage</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$broadcasterId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$moderatorId</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$messageId</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__type">int|null&nbsp;</span><span class="phpdocumentor-signature__argument__name">$durationSeconds</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$broadcasterId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$moderatorId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$messageId</span>
+                : <span class="phpdocumentor-argument-list__argument__type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-argument-list__argument__name">$durationSeconds</span>
+                : <span class="phpdocumentor-argument-list__argument__type">int|null</span>
+                 = <span class="phpdocumentor-argument-list__argument__default-value">null</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+        
+    
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type"><abbr title="\React\Promise\PromiseInterface">PromiseInterface</abbr>&lt;string|int, null&gt;</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
     <h4 class="phpdocumentor-element__name" id="method_updateSettings">
         updateSettings()
         <a href="classes/Twitch-Repository-ChatRepository.html#method_updateSettings" class="headerlink"><i class="fas fa-link"></i></a>
@@ -2041,7 +2397,7 @@ moderator-only fields (`non_moderator_chat_delay*`).</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">62</span>
+    <span class="phpdocumentor-element-found-in__line">63</span>
 
     </aside>
 
@@ -2106,7 +2462,7 @@ moderator-only fields (`non_moderator_chat_delay*`).</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">116</span>
+    <span class="phpdocumentor-element-found-in__line">117</span>
 
     </aside>
 
@@ -2332,7 +2688,7 @@ a bare object. Normalise to a list of rows.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">240</span>
+    <span class="phpdocumentor-element-found-in__line">317</span>
 
     </aside>
 
@@ -2380,7 +2736,7 @@ a bare object. Normalise to a list of rows.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/Twitch/Repository/ChatRepository.php"><a href="files/src-twitch-repository-chatrepository.html"><abbr title="src/Twitch/Repository/ChatRepository.php">ChatRepository.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">223</span>
+    <span class="phpdocumentor-element-found-in__line">300</span>
 
     </aside>
 
@@ -2469,11 +2825,16 @@ a bare object. Normalise to a list of rows.</p>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_getIterator">getIterator()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_globalBadges">globalBadges()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_globalEmotes">globalEmotes()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_pinMessage">pinMessage()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_pinnedMessage">pinnedMessage()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_save">save()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_sendMessage">sendMessage()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_setColor">setColor()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_settings">settings()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_sharedChatSession">sharedChatSession()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_shoutout">shoutout()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_unpinMessage">unpinMessage()</a></li>
+                                            <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_updatePinnedMessage">updatePinnedMessage()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_updateSettings">updateSettings()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-ChatRepository.html#method_userEmotes">userEmotes()</a></li>
                                             <li class=""><a href="classes/Twitch-Repository-AbstractRepository.html#method_collectRows">collectRows()</a></li>
