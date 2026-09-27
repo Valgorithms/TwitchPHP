@@ -4,6 +4,26 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- The chat client could stay disconnected for good. A reconnect that failed,
+  as it does while the network is still down, was never retried. A connection
+  that died without closing, which is what a dropped network looks like, was
+  never noticed. A reconnect after a token refresh logged in with the expired
+  token, and retried it every 3 seconds.
+
+### Added
+
+- Chat reconnects with backoff (`retry_delays`), and keeps trying every
+  `keep_trying_every` seconds once those run out. It pings a quiet connection
+  and replaces one that does not answer, and honours Twitch's `RECONNECT`.
+- `Irc::reconnect()`, `Irc::isConnected()` and `Irc::setToken()`.
+- The `chat.reconnecting`, `chat.reconnect_failed` and `chat.auth_failed`
+  events.
+- The `irc` option, for the reconnect timing.
+- A chat login Twitch refuses now recovers the token, as a 401 does, and every
+  new token reaches the chat client.
+
 ## [3.3.0] - 2026-09-26
 
 ### Added

@@ -219,6 +219,26 @@ $twitch->on('ready', function (Twitch $twitch) {
 });
 ```
 
+### Staying connected
+
+Once it has logged in, the chat client keeps itself connected:
+
+- A connection that closes is replaced, and its channels are joined again.
+- A connection that goes quiet gets a `PING`. No reply within `pong_timeout`
+  means it is dead, which is how a dropped network shows up: no close ever
+  arrives.
+- Twitch's `RECONNECT` gets a new connection at once.
+- Attempts back off along `retry_delays` (1s, 2s, 5s … up to a minute). When
+  those run out, `chat.reconnect_failed` fires once, and it keeps trying every
+  `keep_trying_every` seconds (5 minutes).
+- `$twitch->getIrc()->reconnect()` tries at once, whatever the schedule is
+  doing. It resolves when logged in and rejects with why that attempt failed.
+  `isConnected()` says where things stand.
+- A token refreshed while chat is down is the one the next login uses. A login
+  Twitch refuses sends the token through the same recovery as an API call's 401.
+
+The first connection is the caller's: `bootstrap()` rejects if it fails.
+
 ### Richer commands
 
 `Twitch\Chat\CommandClient` layers aliases, per-user cooldowns, permission
@@ -253,6 +273,11 @@ Moderators and the broadcaster bypass cooldowns; `permission` also accepts a
 | `eventsub.ready` / `eventsub.keepalive` / `eventsub.revoked` / `eventsub.disconnected` | | |
 | `chat` | `ChatMessage` | Any chat line. |
 | `command` | `string $name`, `array $args`, `ChatMessage` | Prefix commands. |
+| `chat.connected` | `Twitch` | Logged in to chat, including after a reconnect. |
+| `chat.disconnected` | `int $code`, `string $reason`, `Twitch` | A chat connection that was up is gone. `$code` is 0 when the client gave up on it. |
+| `chat.reconnecting` | `int $attempt`, `float $delay`, `string $reason`, `Twitch` | Attempt `$attempt` of this outage starts in `$delay` seconds. |
+| `chat.reconnect_failed` | `int $attempts`, `string $reason`, `Twitch` | `retry_delays` ran out. Once per outage; retrying carries on. |
+| `chat.auth_failed` | `string $notice`, `Twitch` | Twitch refused the chat login. Once per outage. |
 
 ## Configuration
 
@@ -271,6 +296,7 @@ Moderators and the broadcaster bypass cooldowns; `permission` also accepts a
 | `eventsub` | `false` | Set to connect the EventSub client. |
 | `token_store` | `null` | A `Twitch\Auth\TokenStoreInterface`. Read at startup, written through on every token change. |
 | `reauthorize` | `null` | A `Twitch\Auth\ReauthorizerInterface`, used when refreshing can no longer recover a grant. |
+| `irc` | `[]` | Chat reconnection timing, in seconds: `retry_delays` (list), `keep_trying_every` (300), `jitter` (0.2, as a fraction), `ping_after` (60), `pong_timeout` (15), `welcome_timeout` (15), `connect_timeout` (15). |
 
 ## Development
 

@@ -56,6 +56,11 @@ use Twitch\Repository\AbstractRepository;
  * missing scope, which surfaces immediately as no new token can widen a grant.
  * Emits `token_refreshed` and `reauthorized` as those happen.
  *
+ * The chat client reconnects by itself; {@see Irc} lists the `chat.*` events it
+ * fires on this client along the way, and the `irc` option adjusts its timing.
+ * Every new token reaches it for its next login, and a login Twitch refuses
+ * sends the token through the same recovery as a 401.
+ *
  * @property-read \Twitch\Repository\UserRepository                 $users
  * @property-read \Twitch\Repository\ChannelRepository              $channels
  * @property-read \Twitch\Repository\StreamRepository               $streams
@@ -200,6 +205,8 @@ class Twitch implements EventEmitterInterface
             $this->options['socket_options'],
         );
         $this->factory = new Factory($this);
+
+        $this->on('chat.auth_failed', fn () => $this->recoverChatLogin());
     }
 
     /**
@@ -312,6 +319,21 @@ class Twitch implements EventEmitterInterface
     }
 
     /**
+     * Twitch refused the chat login, which a token that expired while chat was
+     * down does. A new token reaches the chat client through applyToken(), and
+     * it logs in with it at once.
+     */
+    private function recoverChatLogin(): void
+    {
+        $this->logger->warning('Twitch refused the chat login — recovering the token');
+
+        $this->recoverToken()->then(
+            null,
+            fn (\Throwable $e) => $this->logger->error('could not recover the token for chat: ' . $e->getMessage()),
+        );
+    }
+
+    /**
      * Runs the configured {@see ReauthorizerInterface} to obtain a brand-new
      * grant. Concurrent callers share one attempt, so a burst of 401s cannot
      * prompt the user several times over. Emits `reauthorized`.
@@ -367,6 +389,9 @@ class Twitch implements EventEmitterInterface
         if (isset($this->http)) {
             $this->http->setToken($this->token);
         }
+        // Chat logs in with the token only when it connects, so a reconnect
+        // after a refresh would otherwise present the expired one.
+        $this->irc?->setToken($this->token);
 
         $this->persist($token);
     }
@@ -485,6 +510,7 @@ class Twitch implements EventEmitterInterface
             $this->token,
             $this->options['channels'],
             (string) $this->options['command_prefix'],
+            $this->options['irc'],
         );
 
         return $this->irc->connect();
@@ -591,6 +617,7 @@ class Twitch implements EventEmitterInterface
                 'eventsub'       => false,
                 'reauthorize'    => null,
                 'token_store'    => null,
+                'irc'            => [],
             ])
             ->setAllowedTypes('client_id', 'string')
             ->setAllowedTypes('client_secret', 'string')
@@ -604,6 +631,7 @@ class Twitch implements EventEmitterInterface
             ->setAllowedTypes('eventsub', 'bool')
             ->setAllowedTypes('reauthorize', ['null', ReauthorizerInterface::class])
             ->setAllowedTypes('token_store', ['null', TokenStoreInterface::class])
+            ->setAllowedTypes('irc', 'array')
             ->setNormalizer('loop', static fn ($o, $v) => $v ?? Loop::get())
             ->setNormalizer('logger', static fn ($o, $v) => $v ?? new NullLogger())
             ->setNormalizer('channels', static fn ($o, $v) => array_map(
