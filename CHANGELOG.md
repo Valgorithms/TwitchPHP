@@ -4,6 +4,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [3.4.0] - 2026-09-27
+
 ### Fixed
 
 - The chat client could stay disconnected for good. A reconnect that failed,
