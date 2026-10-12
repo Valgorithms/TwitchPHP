@@ -126,10 +126,10 @@ class ExtensionRepository extends AbstractRepository
      *
      * @return PromiseInterface<list<array<string, mixed>>>
      */
-    public function transactions(string $extensionId, array|string|null $transactionIds = null, int $first = 100): PromiseInterface
+    public function transactions(string $extensionId, array|string|null $transactionIds = null, int $first = 100, ?string $after = null): PromiseInterface
     {
         return $this->twitch->request('GET', (new Endpoint(Endpoint::EXTENSION_TRANSACTIONS))
-            ->withQuery(['extension_id' => $extensionId, 'first' => $first])
+            ->withQuery(['extension_id' => $extensionId, 'first' => $first, 'after' => $after])
             ->addQuery('id', (array) ($transactionIds ?? [])))
             ->then(fn (?array $body) => $this->rows($body));
     }
@@ -276,7 +276,7 @@ class ExtensionRepository extends AbstractRepository
      */
     public function secrets(ExtensionJwt $jwt): PromiseInterface
     {
-        return $this->twitch->getHttp()->request('GET', Endpoint::EXTENSION_SECRETS, null, $jwt->headers())
+        return $this->twitch->getHttp()->request('GET', (new Endpoint(Endpoint::EXTENSION_SECRETS))->addQuery('extension_id', $jwt->extensionId), null, $jwt->headers())
             ->then(fn (?array $body) => $this->rows($body)[0] ?? []);
     }
 

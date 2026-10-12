@@ -17,6 +17,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use React\EventLoop\Loop;
 use React\EventLoop\LoopInterface;
+use React\EventLoop\TimerInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 
@@ -48,8 +49,7 @@ use Twitch\Repository\AbstractRepository;
  *
  * Tokens look after themselves when the two auth options are supplied. A
  * `token_store` ({@see \Twitch\Auth\TokenStoreInterface}) is read at startup
- * and written through on every change, which matters because Twitch
- * invalidates the previous refresh token each time it issues a new one. A
+ * and written through on every change, so rotated credentials survive a restart. A
  * `reauthorize` strategy ({@see \Twitch\Auth\ReauthorizerInterface}) is the
  * last resort when refreshing can no longer recover a grant. Between them a
  * 401 on any call is recovered from and the request retried once — except a
@@ -98,6 +98,8 @@ class Twitch implements EventEmitterInterface
     use EventEmitterTrait;
 
     public const VERSION = '3.4.0';
+
+    private int $lifecycle = 0;
 
     /** Repository accessors: property name → class. */
     private const REPOSITORIES = [
@@ -175,6 +177,14 @@ class Twitch implements EventEmitterInterface
 
     private ?Irc $irc = null;
 
+    private ?TimerInterface $validationTimer = null;
+
+    private bool $appToken = false;
+
+    private bool $closing = false;
+
+    private ?PromiseInterface $validating = null;
+
     /**
      * @param array<string, mixed> $options
      */
@@ -197,6 +207,7 @@ class Twitch implements EventEmitterInterface
             $this->token = $this->token !== '' ? $this->token : ($stored['access_token'] ?? '');
             $this->refreshToken ??= $stored['refresh_token'] ?? null;
         }
+        $this->appToken = $this->token === '' && $this->refreshToken === null && $this->options['reauthorize'] === null;
 
         $this->oauth = new OAuth(
             $this->options['client_id'],
@@ -233,8 +244,14 @@ class Twitch implements EventEmitterInterface
     /** Resolves once the client holds a valid token and the transport is up. */
     public function bootstrap(): PromiseInterface
     {
+        $this->closing = false;
+        $lifecycle = ++$this->lifecycle;
         return $this->acquireToken()
-            ->then(function (): PromiseInterface {
+            ->then(function () use ($lifecycle): PromiseInterface {
+                $this->assertLifecycle($lifecycle);
+                if (($this->options['eventsub'] || $this->options['nick'] !== null) && $this->userId === null) {
+                    throw new \RuntimeException('EventSub WebSockets and IRC require a user access token.');
+                }
                 $this->http = Http::create($this->token, $this->options['client_id'], $this->logger, $this->loop, $this->options['socket_options']);
 
                 $connections = [];
@@ -245,17 +262,35 @@ class Twitch implements EventEmitterInterface
                     $connections[] = $this->connectIrc();
                 }
 
-                return $connections === [] ? resolve(null) : \React\Promise\all($connections);
+                return ($connections === [] ? resolve(null) : \React\Promise\all($connections))->then(function () use ($lifecycle): void {
+                    $this->assertLifecycle($lifecycle);
+                    $this->ready = true;
+                    $this->scheduleValidation();
+                });
             });
     }
 
     /** Tears down the WebSocket connections and stops the loop. */
     public function close(): void
     {
+        ++$this->lifecycle;
+        $this->closing = true;
+        $this->ready = false;
+        if ($this->validationTimer !== null) {
+            $this->loop->cancelTimer($this->validationTimer);
+            $this->validationTimer = null;
+        }
         $this->eventSub?->close();
         $this->irc?->close();
         $this->emit('closed', [$this]);
         $this->loop->stop();
+    }
+
+    private function assertLifecycle(int $lifecycle): void
+    {
+        if ($this->closing || $lifecycle !== $this->lifecycle) {
+            throw new \RuntimeException('Client bootstrap was superseded or closed.');
+        }
     }
 
     // ── Auth ────────────────────────────────────────────────────────────
@@ -280,11 +315,15 @@ class Twitch implements EventEmitterInterface
         }
 
         if ($this->options['client_secret'] !== '') {
+            if ($this->options['reauthorize'] !== null) {
+                return $this->reauthorize()->then(static fn () => null);
+            }
             $this->logger->info('no token supplied — requesting an app access token');
+            return $this->renewAppToken()->then(static fn () => null);
+        }
 
-            return $this->oauth->clientCredentials()->then(function (array $token): void {
-                $this->token = $token['access_token'];
-            });
+        if ($this->options['reauthorize'] !== null) {
+            return $this->reauthorize()->then(static fn () => null);
         }
 
         return reject(new \RuntimeException('Provide a "token" (with optional "refresh_token"), or a "client_secret" for an app token.'));
@@ -293,9 +332,13 @@ class Twitch implements EventEmitterInterface
     /** @param array<string, mixed> $info */
     private function applyValidation(array $info): void
     {
+        if (isset($info['client_id']) && $info['client_id'] !== $this->options['client_id']) {
+            throw new \RuntimeException('The access token belongs to a different client_id.');
+        }
         $this->userId = isset($info['user_id']) ? (string) $info['user_id'] : null;
         $this->login = $info['login'] ?? null;
         $this->scopes = $info['scopes'] ?? [];
+        $this->appToken = $this->userId === null;
     }
 
     /**
@@ -307,11 +350,14 @@ class Twitch implements EventEmitterInterface
      */
     private function recoverToken(): PromiseInterface
     {
+        if ($this->appToken && $this->options['client_secret'] !== '') {
+            return $this->renewAppToken();
+        }
         if ($this->refreshToken === null) {
             return $this->reauthorize();
         }
 
-        return $this->refreshAccessToken()->catch(function (\Throwable $e): PromiseInterface {
+        return $this->refreshAccessToken()->then(null, function (\Throwable $e): PromiseInterface {
             $this->logger->info('refresh failed (' . $e->getMessage() . ') — re-authorizing');
 
             return $this->reauthorize();
@@ -352,22 +398,106 @@ class Twitch implements EventEmitterInterface
         $promise = $deferred->promise();
         $this->reauthorizing = $promise;
 
-        $this->reauthorizer->reauthorize()->then(
-            function (array $token) use ($deferred): void {
-                $this->reauthorizing = null;
-                $this->applyToken($token);
-                $this->logger->info('re-authorized', ['scopes' => count($this->scopes)]);
-                $this->emit('reauthorized', [$this->token, $this]);
-                $deferred->resolve($this->token);
-            },
-            function (\Throwable $e) use ($deferred): void {
-                $this->reauthorizing = null;
-                $this->logger->error('re-authorization failed: ' . $e->getMessage());
-                $deferred->reject($e);
-            },
-        );
+        resolve(null)->then(fn () => $this->reauthorizer->reauthorize())
+            ->then(function (array $token): PromiseInterface {
+                return $this->oauth->validate($token['access_token'])->then(function (array $info) use ($token): void {
+                    $this->applyValidation($info);
+                    $this->refreshToken = $token['refresh_token'] ?? null;
+                    $this->applyToken(array_replace($token, ['scope' => $info['scopes'] ?? []]));
+                });
+            })->then(
+                function () use ($deferred): void {
+                    $this->reauthorizing = null;
+                    $this->logger->info('re-authorized', ['scopes' => count($this->scopes)]);
+                    $this->emit('reauthorized', [$this->token, $this]);
+                    $deferred->resolve($this->token);
+                },
+                function (\Throwable $e) use ($deferred): void {
+                    $this->reauthorizing = null;
+                    $this->logger->error('re-authorization failed: ' . $e->getMessage());
+                    $deferred->reject($e);
+                },
+            );
 
         return $promise;
+    }
+
+    /** Reissues an app token; concurrent recoveries share the grant request. */
+    private function renewAppToken(): PromiseInterface
+    {
+        if ($this->refreshing !== null) {
+            return $this->refreshing;
+        }
+        $deferred = new Deferred();
+        $promise = $this->refreshing = $deferred->promise();
+        $this->oauth->clientCredentials()->then(function (array $token): void {
+            $this->appToken = true;
+            $this->userId = $this->login = null;
+            $this->scopes = [];
+            $this->refreshToken = null;
+            $this->applyToken($token);
+            $this->emit('token_refreshed', [$this->token, $this]);
+        })->then(function () use ($deferred): void {
+            $this->refreshing = null;
+            $deferred->resolve($this->token);
+        }, function (\Throwable $e) use ($deferred): void {
+            $this->refreshing = null;
+            $deferred->reject($e);
+        });
+
+        return $promise;
+    }
+
+    /** Validates the current grant. Only expired/invalid tokens trigger recovery. */
+    public function validateToken(): PromiseInterface
+    {
+        if ($this->validating !== null) {
+            return $this->validating;
+        }
+        $deferred = new Deferred();
+        $promise = $this->validating = $deferred->promise();
+        $this->oauth->validate($this->token)->then(null, function (\Throwable $e): PromiseInterface {
+            if (! $e instanceof InvalidTokenException) {
+                throw $e;
+            }
+
+            return $this->recoverToken()->then(fn () => $this->oauth->validate($this->token), static fn () => throw $e);
+        })->then(function (array $info): array {
+            $this->applyValidation($info);
+
+            return $info;
+        })->then(function (array $info) use ($deferred): void {
+            $this->validating = null;
+            $deferred->resolve($info);
+        }, function (\Throwable $e) use ($deferred): void {
+            $this->validating = null;
+            $deferred->reject($e);
+        });
+
+        return $promise;
+    }
+
+    private function scheduleValidation(): void
+    {
+        if ($this->validationTimer !== null) {
+            $this->loop->cancelTimer($this->validationTimer);
+        }
+        $this->validationTimer = $this->loop->addTimer(3600, function (): void {
+            $this->validationTimer = null;
+            $reschedule = function (): void {
+                if (! $this->closing) {
+                    $this->scheduleValidation();
+                }
+            };
+            $this->validateToken()->then(null, function (\Throwable $e): void {
+                if ($e instanceof InvalidTokenException) {
+                    $this->ready = false;
+                    $this->eventSub?->close();
+                    $this->irc?->close();
+                }
+                $this->emit('error', [$e, $this]);
+            })->then($reschedule, $reschedule);
+        });
     }
 
     /**
@@ -397,9 +527,7 @@ class Twitch implements EventEmitterInterface
     }
 
     /**
-     * Twitch invalidates the previous refresh token on every rotation, so a
-     * client that does not write the new pair somewhere durable locks itself
-     * out the moment the process restarts.
+     * Refresh tokens may rotate; persist the latest pair for the next startup.
      *
      * A store that cannot be written is logged and swallowed: losing
      * persistence should not take down a request that otherwise succeeded.
@@ -443,10 +571,13 @@ class Twitch implements EventEmitterInterface
         $this->refreshing = $promise;
 
         $this->oauth->refreshToken($this->refreshToken)->then(
-            function (array $token) use ($deferred): void {
-                $this->refreshing = null;
+            function (array $token): void {
                 $this->applyToken($token);
                 $this->emit('token_refreshed', [$this->token, $this]);
+            },
+        )->then(
+            function () use ($deferred): void {
+                $this->refreshing = null;
                 $deferred->resolve($this->token);
             },
             function (\Throwable $e) use ($deferred): void {
@@ -475,12 +606,12 @@ class Twitch implements EventEmitterInterface
      */
     public function request(string $method, Endpoint|string $endpoint, ?array $content = null, bool $retry = true): PromiseInterface
     {
-        return $this->http->request($method, $endpoint, $content)->catch(function (\Throwable $e) use ($method, $endpoint, $content, $retry) {
+        return $this->http->request($method, $endpoint, $content)->then(null, function (\Throwable $e) use ($method, $endpoint, $content, $retry) {
             if (! $retry || ! $e instanceof InvalidTokenException) {
                 throw $e;
             }
 
-            $this->logger->info('401 on ' . $endpoint . ' — recovering token and retrying');
+            $this->logger->info('401 on ' . $endpoint . ' - recovering token and retrying');
 
             return $this->recoverToken()->then(
                 fn (): PromiseInterface => $this->request($method, $endpoint, $content, false),
@@ -497,7 +628,7 @@ class Twitch implements EventEmitterInterface
 
     private function connectEventSub(): PromiseInterface
     {
-        $this->eventSub = new EventSub($this);
+        $this->eventSub = new EventSub($this, $this->options['eventsub_options']);
 
         return $this->eventSub->connect();
     }
@@ -536,6 +667,12 @@ class Twitch implements EventEmitterInterface
     public function getLoop(): LoopInterface
     {
         return $this->loop;
+    }
+
+    /** Options shared by the HTTP, IRC and EventSub socket connectors. */
+    public function getSocketOptions(): array
+    {
+        return $this->options['socket_options'];
     }
 
     public function getLogger(): LoggerInterface
@@ -615,6 +752,7 @@ class Twitch implements EventEmitterInterface
                 'channels'       => [],
                 'command_prefix' => '!',
                 'eventsub'       => false,
+                'eventsub_options' => [],
                 'reauthorize'    => null,
                 'token_store'    => null,
                 'irc'            => [],
@@ -629,6 +767,7 @@ class Twitch implements EventEmitterInterface
             ->setAllowedTypes('channels', 'string[]')
             ->setAllowedTypes('command_prefix', 'string')
             ->setAllowedTypes('eventsub', 'bool')
+            ->setAllowedTypes('eventsub_options', 'array')
             ->setAllowedTypes('reauthorize', ['null', ReauthorizerInterface::class])
             ->setAllowedTypes('token_store', ['null', TokenStoreInterface::class])
             ->setAllowedTypes('irc', 'array')

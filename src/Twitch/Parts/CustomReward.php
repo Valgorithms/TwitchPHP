@@ -46,6 +46,8 @@ final class CustomReward extends Part
         'global_cooldown_setting', 'is_paused', 'is_in_stock',
         'should_redemptions_skip_request_queue', 'redemptions_redeemed_current_stream',
         'cooldown_expires_at',
+        'is_max_per_stream_enabled', 'max_per_stream', 'is_max_per_user_per_stream_enabled',
+        'max_per_user_per_stream', 'is_global_cooldown_enabled', 'global_cooldown_seconds',
     ];
 
     protected array $fillableAfterSave = [
@@ -56,4 +58,21 @@ final class CustomReward extends Part
     ];
 
     protected array $dates = ['cooldown_expires_at'];
+
+    public function getUpdatableAttributes(): array
+    {
+        $fields = parent::getUpdatableAttributes();
+        foreach ([
+            'max_per_stream_setting' => ['is_max_per_stream_enabled', 'max_per_stream'],
+            'max_per_user_per_stream_setting' => ['is_max_per_user_per_stream_enabled', 'max_per_user_per_stream'],
+            'global_cooldown_setting' => ['is_global_cooldown_enabled', 'global_cooldown_seconds'],
+        ] as $setting => [$enabled, $amount]) {
+            $value = $this->getAttribute($setting);
+            if (is_array($value)) {
+                $fields += [$enabled => $value['is_enabled'], $amount => $value[$amount]];
+            }
+        }
+
+        return $fields;
+    }
 }

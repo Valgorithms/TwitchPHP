@@ -11,6 +11,13 @@ use Twitch\Twitch;
 
 final class PartTest extends TestCase
 {
+    public function testPermanentBanDoesNotCastEmptyExpiryToNow(): void
+    {
+        $twitch = new \Twitch\Twitch(['client_id' => 'cid']);
+        $ban = $twitch->getFactory()->part(\Twitch\Parts\BannedUser::class, ['user_id' => '1', 'expires_at' => ''], true);
+        self::assertTrue($ban->isPermanent());
+        self::assertNull($ban->expires_at);
+    }
     private Twitch $twitch;
 
     protected function setUp(): void

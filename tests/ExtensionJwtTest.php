@@ -163,7 +163,7 @@ final class ExtensionJwtTest extends TestCase
             'extension_id' => 'ext-id',
             'extension_version' => '1.0.0',
         ]], array_slice($this->http->requests[0], 0, 3));
-        self::assertSame(['GET', 'extensions/jwt/secrets'], $this->http->calls[1]);
+        self::assertSame(['GET', 'extensions/jwt/secrets?extension_id=ext-id'], $this->http->calls[1]);
         self::assertSame(['POST', 'extensions/jwt/secrets?extension_id=ext-id&delay=600'], $this->http->calls[2]);
         self::assertSame(['GET', 'extensions?extension_id=ext-id'], $this->http->calls[3]);
         self::assertSame('abc', $current['secrets'][0]['content']);

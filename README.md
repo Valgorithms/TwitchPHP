@@ -9,9 +9,9 @@ use Twitch\Twitch;
 
 $twitch = new Twitch([
     'client_id'     => getenv('TWITCH_CLIENT_ID'),
-    'client_secret' => getenv('TWITCH_CLIENT_SECRET'), // app token, or:
-    'token'         => getenv('TWITCH_ACCESS_TOKEN'),  // a user token
-    'refresh_token' => getenv('TWITCH_REFRESH_TOKEN'), // refreshed automatically on 401
+    'client_secret' => getenv('TWITCH_CLIENT_SECRET') ?: '', // app token, or:
+    'token'         => getenv('TWITCH_ACCESS_TOKEN') ?: null,  // a user token
+    'refresh_token' => getenv('TWITCH_REFRESH_TOKEN') ?: null, // refreshed automatically on 401
 ]);
 
 $twitch->on('ready', function (Twitch $twitch) {
@@ -50,34 +50,50 @@ Twitch has several OAuth flows; TwitchPHP supports the ones a bot or service nee
 
 | You have… | Pass | Behaviour |
 | --- | --- | --- |
-| A client id + secret only | `client_id`, `client_secret` | Requests an **app access token** (client-credentials). Good for public data and EventSub. |
-| A user access token | `token` (+ optional `refresh_token`) | Validated on startup. With a `refresh_token`, an invalid/expired token is refreshed transparently, and any Helix `401` triggers one recover-and-retry. |
+| A client id + secret only | `client_id`, `client_secret` | Requests an **app access token** for public data, webhook subscriptions and conduits. Reissues it after a token-related 401. |
+| A user access token | `token`, `client_secret` (+ optional `refresh_token`) | Validated on startup and hourly thereafter. With a `refresh_token`, expired tokens are refreshed and the failed request is retried once. Required for IRC and EventSub WebSockets. |
 
-`Twitch\Http\OAuth` also exposes `authorizationUrl()`, `exchangeCode()`, `deviceCode()`, `validate()`
+`Twitch\Http\OAuth` also exposes `authorizeUrl()`, `exchangeCode()`, `deviceCode()`, `pollDeviceToken()`, `validate()`
 and `revoke()` for building the authorization-code / device-code flows in your own app.
+The current OAuth transport requires `client_secret` for refresh and device-code setup.
+Tokens must belong to the configured `client_id`. Granted scopes and channel roles
+are checked by Twitch: a scope alone does not make the bot a moderator or editor.
+
+`bootstrap()` resolves after authentication and configured connections are ready,
+and sets `isReady()`. `run()` also emits `init` / `ready` and runs the loop.
+`close()` clears readiness, cancels validation and connection timers, and stops the loop.
+You can call `validateToken()` explicitly. If hourly validation finds an invalid
+grant and recovery fails, the socket sessions are closed and `error` is emitted.
+Network validation failures are reported without replacing the grant.
 
 ### Keeping a token alive
 
-Twitch invalidates the previous refresh token every time it issues a new one, so
-a long-running client that refreshes without saving the result locks itself out
-of its own account as soon as the process restarts. Pass a `token_store` and the
+Refresh tokens may change when Twitch issues a new token pair. Save the latest
+pair so restarting does not load stale credentials. Pass a `token_store` and the
 rotation is persisted for you; pass a `reauthorize` strategy and a grant that
 can no longer be refreshed is rebuilt from scratch:
 
 ```php
+use Twitch\Auth\EnvFileTokenStore;
+use Twitch\Auth\DeviceCodeReauthorizer;
+
 $twitch = new Twitch([
     'client_id'     => getenv('TWITCH_CLIENT_ID'),
     'client_secret' => getenv('TWITCH_CLIENT_SECRET'),
-    'token_store'   => new Twitch\Auth\EnvFileTokenStore(__DIR__ . '/.env'),
-    'reauthorize'   => new Twitch\Auth\DeviceCodeReauthorizer($oauth, $scopes, $prompt),
+    'token_store'   => new EnvFileTokenStore(__DIR__ . '/.env'),
+    'reauthorize'   => new DeviceCodeReauthorizer($oauth, $scopes, $prompt),
 ]);
 ```
 
 A `401` is then refreshed, or re-authorized, and the request retried once. The
 exception is a missing **scope**: `MissingScopeException` surfaces immediately,
-naming the scopes that would have satisfied the call, because no amount of
-re-issuing widens a grant that was never asked for. See
+naming the scopes that would have satisfied the call. Change the requested scope
+list and explicitly reauthorize to obtain additional permissions. See
 `examples/self-healing-auth.php`.
+When no token is available, a configured reauthorization strategy obtains the
+first user grant. Every reauthorized grant is validated before its identity and
+scopes are adopted. Copy `example.env` to `.env` and edit `TWITCH_SCOPE`, a JSON
+array of requested scopes; the auth examples accept uppercase or lowercase keys.
 
 ## The Helix client
 
@@ -100,6 +116,11 @@ Every call returns a `React\Promise\PromiseInterface`. Collections are
 [`Discord\Helpers\Collection`](https://github.com/discord-php/DiscordPHP-Helpers) instances of
 hydrated `Twitch\Parts\*` models.
 
+React Promise 2.11 and 3 are supported. Use `then($success, $failure)` for
+portable error handling; `catch()` / `finally()` are available only in version 3.
+Prefer current dependency releases on PHP 8.4/8.5, since old upstream releases
+can emit deprecation notices even when their behavior remains compatible.
+
 ```php
 // Look users up by login and cache them
 $twitch->users->byLogins(['twitchdev', 'twitch'])->then(function ($users) {
@@ -109,7 +130,7 @@ $twitch->users->byLogins(['twitchdev', 'twitch'])->then(function ($users) {
 });
 
 // Who is live among a set of channels
-$twitch->streams->live(['userLogins' => ['twitchdev']])->then(function ($streams) {
+$twitch->streams->live(['user_login' => ['twitchdev']])->then(function ($streams) {
     echo $streams->count() . " live\n";
 });
 
@@ -125,9 +146,58 @@ $twitch->moderation->ban($broadcasterId, $modId, $userId, 'spam');
 $twitch->moderation->timeout($broadcasterId, $modId, $userId, 600, 'chill');
 ```
 
-Repositories share a common surface from `Twitch\Repository\AbstractRepository`:
-`freshen()`, `all()` (auto-follows `pagination.cursor`), `fetch($id)`, `save($part)`,
-`delete($part)`, plus `get()`, `first()`, `filter()` and iteration.
+Repositories expose `freshen()`, `all()`, `fetch()`, `save()`, `delete()`, plus
+`get()`, `first()`, `filter()` and iteration. HTTP operations require the resource's
+query context and supported endpoints; unsupported writes reject with `LogicException`.
+Action-only repositories (ads, analytics, extensions, Guest Star, raids and whispers)
+use their named methods instead of generic reads.
+
+| Resource | Generic writes | Required context |
+| --- | --- | --- |
+| users | `save()` an existing user | Authenticated user; updates `description`. |
+| channels | `save()` an existing channel | Part's `broadcaster_id`. |
+| channelPoints | create/update/delete a `CustomReward` | Part's `broadcaster_id`, or a bound repository context. |
+| conduits | create/update/delete a `Conduit` | App token; existing part's `id`. |
+| eventSubscriptions | create/delete a subscription | Valid `type`, `version`, `condition`, `transport`; correct token for the transport. |
+| videos | delete | Video id; use `deleteMany()` for a confirmed list. |
+| Other repositories | None | Use their named operation methods. |
+
+Bind required query context when using generic operations on channel resources:
+
+```php
+$polls = $twitch->getFactory()->repository(
+    \Twitch\Repository\PollRepository::class,
+    ['broadcaster_id' => $broadcasterId],
+);
+$polls->all()->then(function ($parts) { /* all pages of polls */ });
+```
+
+`all($query, $max)` follows cursors, using a default page size of 20. `$max = 0`
+means unlimited. Convenience list methods return one page; read `nextCursor()`
+after completion and pass it as `after` on the next call. The cursor describes
+the last completed page request on that repository, so retain it locally if you
+make concurrent calls. Responses returned as raw envelopes already contain pagination.
+`streams->fetch($userId)` looks up a broadcaster's stream by user id.
+Schedule `all()` merges segments from every page into one `Schedule`; its `$max`
+limits segments. Hype Train generic reads return `HypeTrainStatus` parts;
+`status()` continues to return the raw status row. `schedule->iCalendar()` returns
+the public text feed, without OAuth headers or Helix JSON decoding.
+
+`freshen()` replaces the local cache with a page; most named reads merge their
+own resource's parts into it. `all()` returns a separate collection; it does not
+generally replace the cache. Use `fetch($id, true)` for a fresh lookup. On endpoints
+without an id filter, a fresh fetch searches the channel/context's pages.
+`deleteMany()` removes and returns only the ids Twitch confirms were deleted.
+
+Every rejected promise needs an error handler. For example:
+
+```php
+$twitch->users->fetchByLogin('twitchdev')
+    ->then(
+        function ($user) { /* $user is null when not found */ },
+        function (\Throwable $e) { echo $e->getMessage() . PHP_EOL; },
+    );
+```
 
 ### Extension backends
 
@@ -154,6 +224,7 @@ Enable the WebSocket transport with `'eventsub' => true`, then subscribe once th
 ```php
 $twitch = new Twitch([
     'client_id'     => getenv('TWITCH_CLIENT_ID'),
+    'client_secret' => getenv('TWITCH_CLIENT_SECRET'),
     'token'         => getenv('TWITCH_ACCESS_TOKEN'),
     'refresh_token' => getenv('TWITCH_REFRESH_TOKEN'),
     'eventsub'      => true,
@@ -186,10 +257,57 @@ $twitch->on('eventsub.stream.online', function (array $event) {
 });
 ```
 
-`SubscriptionTypes` has a constant for every EventSub type and knows the version
-Twitch currently wants for it. Session reconnects (`session_reconnect`),
-keepalives and `revocation` are handled for you, and the desired subscription set
-(deduplicated) is replayed automatically onto a fresh session after a drop.
+`SubscriptionTypes` has a constant for every documented EventSub type and knows
+its default version. WebSocket subscriptions require a user token; webhook and
+conduit subscriptions use app tokens. The `channel.follow` helper also requires
+the named user to be the broadcaster or a moderator of that channel.
+
+Fresh sessions replay the desired subscriptions once. A server-requested handoff
+keeps the existing subscriptions and closes the old socket after the new welcome.
+Keepalive and welcome timeouts detect connections that stop responding; failed
+reconnects continue with backoff. Configure these through `eventsub_options`.
+The first `connect()` attempt rejects on failure; later outages retry automatically.
+
+`desiredSubscriptions()` retains its legacy `type => condition` map (the last
+condition for each type wins). `desiredSubscriptionSpecs()` returns a **list of
+`{type, condition, version}` records**, including every channel and version.
+Repeated `subscribe()`
+calls for the same specification share the existing request. `forget()` removes
+reconnect intent; `unsubscribe($id)` deletes the active subscription and its intent.
+Calls made before the welcome queue the desired specification and reject immediately.
+`subscribeMany()` settles every specification and returns `null` for failed entries.
+Listen for `eventsub.subscription_failed` to observe failed automatic replays.
+
+Duplicate notification ids are suppressed within this process for ten minutes,
+with a bounded cache of 10,000 ids. For durable deduplication across restarts,
+persist `metadata.message_id` in your application. Events missed during a lost
+connection cannot be replayed by this library.
+
+### Webhooks and conduits
+
+Create webhook subscriptions with `eventSubscriptions->createWebhook()` and
+verify incoming requests with `Twitch\EventSub\Webhook`. Host the HTTPS callback
+in your application and pass the **exact raw request body** and headers:
+
+```php
+$webhook = new \Twitch\EventSub\Webhook($twitch, $secret);
+// In your HTTP handler, retain this instance across requests:
+try {
+    $challenge = $webhook->handle($request->getHeaders(), (string) $request->getBody());
+    // Respond 200 text/plain with $challenge when non-null; otherwise 204.
+} catch (\UnexpectedValueException | \JsonException $e) {
+    // Reject the request with HTTP 403.
+}
+```
+
+The helper checks HMAC-SHA256 signatures and rejects timestamps more than ten
+minutes away from the current time. It emits the same notification and revocation
+events as WebSockets, and suppresses recent duplicate deliveries. Your server
+owns HTTP responses, HTTPS availability, durable delivery tracking and handler errors.
+Use a securely generated secret of 10–100 bytes, shared with `createWebhook()`.
+Conduit management uses `conduits`; bind events to an existing conduit with
+`eventSubscriptions->createConduit($type, $condition, $conduitId)`. Your application
+assigns shard transports and operates their webhook/WebSocket receivers.
 
 ## Chat (IRC)
 
@@ -199,6 +317,7 @@ Pass a `nick` and `channels` to connect the chat client. It speaks IRCv3 over
 ```php
 $twitch = new Twitch([
     'client_id'      => getenv('TWITCH_CLIENT_ID'),
+    'client_secret'  => getenv('TWITCH_CLIENT_SECRET'),
     'token'          => getenv('TWITCH_ACCESS_TOKEN'),   // needs chat:read + chat:edit
     'refresh_token'  => getenv('TWITCH_REFRESH_TOKEN'),
     'nick'           => 'valgorithms',
@@ -239,6 +358,23 @@ Once it has logged in, the chat client keeps itself connected:
 
 The first connection is the caller's: `bootstrap()` rejects if it fails.
 
+### Sending messages
+
+`Irc::sendMessage($channel, $text, $replyId)` queues a message and returns a
+promise resolving when it is written to the socket. IRC does not acknowledge
+delivery: use Helix `chat->sendMessage()` when you need Twitch's `is_sent` /
+`drop_reason` response. Messages sent while disconnected, rejected input and
+queue overflow reject; queued messages reject when the connection is lost.
+Legacy `say()` / `ChatMessage::reply()` report failures through `chat.message_failed`.
+
+The default queue permits 20 messages per 30 seconds and one per second per
+channel, with at most 100 queued messages. These conservative defaults are safe
+for regular accounts. Configure `message_limit`, `message_window`,
+`channel_message_interval` and `queue_limit` inside `irc` for your account's
+permissions; limits apply across all connections using the same Twitch account.
+Input must contain 1–500 characters and no CR, LF or NUL. `raw()` intentionally
+bypasses the message queue and is for trusted protocol commands.
+
 ### Richer commands
 
 `Twitch\Chat\CommandClient` layers aliases, per-user cooldowns, permission
@@ -267,10 +403,15 @@ Moderators and the broadcaster bypass cooldowns; `permission` also accepts a
 | `init` / `ready` | `Twitch` | Authenticated and connected. |
 | `error` | `\Throwable`, `Twitch` | |
 | `token_refreshed` | `string $token`, `Twitch` | |
+| `reauthorized` | `string $token`, `Twitch` | New grant validated and adopted. |
 | `closed` | `Twitch` | After `close()`. |
 | `eventsub` | `string $type`, `array $event`, `array $meta`, `Twitch` | Every notification. |
 | `eventsub.<type>` | `array $event`, `array $meta`, `Twitch` | e.g. `eventsub.channel.chat.message`. |
-| `eventsub.ready` / `eventsub.keepalive` / `eventsub.revoked` / `eventsub.disconnected` | | |
+| `eventsub.ready` | `string $sessionId`, `Twitch` | Welcome on a new session or handoff. |
+| `eventsub.keepalive` | `Twitch` | |
+| `eventsub.revoked` | `array $subscription`, `Twitch` | |
+| `eventsub.disconnected` | `int $code`, `string $reason`, `Twitch` | |
+| `eventsub.subscription_failed` | `array $specification`, `\Throwable`, `Twitch` | Automatic replay failed. |
 | `chat` | `ChatMessage` | Any chat line. |
 | `command` | `string $name`, `array $args`, `ChatMessage` | Prefix commands. |
 | `chat.connected` | `Twitch` | Logged in to chat, including after a reconnect. |
@@ -278,6 +419,9 @@ Moderators and the broadcaster bypass cooldowns; `permission` also accepts a
 | `chat.reconnecting` | `int $attempt`, `float $delay`, `string $reason`, `Twitch` | Attempt `$attempt` of this outage starts in `$delay` seconds. |
 | `chat.reconnect_failed` | `int $attempts`, `string $reason`, `Twitch` | `retry_delays` ran out. Once per outage; retrying carries on. |
 | `chat.auth_failed` | `string $notice`, `Twitch` | Twitch refused the chat login. Once per outage. |
+| `chat.message_failed` | `string $channel`, `string $message`, `\Throwable`, `Twitch` | Legacy `say()` failed to write. |
+| `chat.join` / `chat.part` | `string $nick`, `string $channel`, `Twitch` | Membership notice. |
+| `chat.notice` / `chat.clearchat` / `chat.clearmsg` / `chat.usernotice` / `chat.roomstate` | `array $tags`, `string $params`, `Twitch` | Raw parsed IRC event. |
 
 ## Configuration
 
@@ -294,17 +438,35 @@ Moderators and the broadcaster bypass cooldowns; `permission` also accepts a
 | `channels` | `[]` | Normalised to `#lowercase`. |
 | `command_prefix` | `'!'` | |
 | `eventsub` | `false` | Set to connect the EventSub client. |
+| `eventsub_options` | `[]` | `retry_delays` (1, 2, 5, 10, 20, 30, 60), `keep_trying_every` (300), `welcome_timeout` (15), `connect_timeout` (15), in seconds. |
 | `token_store` | `null` | A `Twitch\Auth\TokenStoreInterface`. Read at startup, written through on every token change. |
 | `reauthorize` | `null` | A `Twitch\Auth\ReauthorizerInterface`, used when refreshing can no longer recover a grant. |
-| `irc` | `[]` | Chat reconnection timing, in seconds: `retry_delays` (list), `keep_trying_every` (300), `jitter` (0.2, as a fraction), `ping_after` (60), `pong_timeout` (15), `welcome_timeout` (15), `connect_timeout` (15). |
+| `irc` | `[]` | Reconnection: `retry_delays` (list), `keep_trying_every` (300), `jitter` (0.2), `ping_after` (60), `pong_timeout` (15), `welcome_timeout` (15), `connect_timeout` (15). Sending: `message_limit` (20), `message_window` (30), `channel_message_interval` (1), `queue_limit` (100). Times are seconds. |
 
 ## Development
+
+Use `composer update --no-interaction --prefer-dist` for a fresh checkout without a lock.
+Use `composer install` to reproduce an existing local lock. `composer verify` checks
+the manifest/lock, platform requirements, installed dependency provenance and tests
+without installing anything or contacting Twitch.
+
+`composer test:api` runs the offline repository, hydration, token recovery and token
+persistence checks with synthetic transports and credentials. `composer deps:check`
+rejects local path packages by default. For intentional sibling development, use
+`composer deps:check -- --allow-local-paths` and run the other checks separately;
+this does not replace testing against published dependencies before release.
 
 ```bash
 composer install
 composer test          # phpunit
 composer cs            # php-cs-fixer
+composer validate
+composer audit
 ```
+
+The ignored `composer.lock` is local development state. Dependencies resolve from
+published releases; no sibling checkout is required. CI checks supported PHP versions,
+the lowest allowed dependency versions, formatting and dependency advisories.
 
 ## License
 

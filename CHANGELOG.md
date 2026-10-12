@@ -4,6 +4,54 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Recovery and cleanup use promise methods shared by React Promise 2.11 and 3;
+  the previously advertised 2.11 dependency range could not run API requests.
+- EventSub handoffs retain transferred subscriptions and ignore retired sockets.
+  Fresh sessions replay each subscription once; reconnect attempts continue after
+  network failures. Welcome and keepalive deadlines detect stalled sockets, and
+  closing the client cancels pending retries.
+- Closing during startup prevents a late authentication or connection result
+  from marking the client ready or restarting hourly validation.
+- App access tokens are reissued on token-related 401s. User grants are validated
+  on startup and hourly, and reauthorization updates the validated account and
+  scopes. Revoked grants that cannot recover stop their socket sessions.
+- Socket options reach IRC and EventSub as well as HTTP.
+- Generic user, channel, reward and conduit saves use their required HTTP methods
+  and identifier locations. Reward drafts retain writable limits; permanent bans
+  keep an empty expiry as null. Block-list users retain their ids and logins.
+- Generic pagination uses valid defaults; schedules merge segments across pages,
+  Hype Train reads hydrate the current status model, and stream fetches use user ids.
+- iCalendar returns the public text feed without passing through JSON decoding.
+  Video deletion returns and evicts only confirmed ids. Emotes retain URL templates,
+  and extension secret requests include the required extension id.
+- README filters, OAuth names, namespace imports, auth examples and `.env` casing.
+  Refresh-token persistence documentation now accounts for tokens that may rotate.
+
+### Added
+
+- `AbstractRepository::nextCursor()` and missing `after` arguments for block lists,
+  followed streams and extension transactions.
+- `Irc::sendMessage()`, with a bounded queue, message rate limits, rejected invalid
+  input and write-failure feedback. Legacy `say()` reports `chat.message_failed`.
+- `Twitch::validateToken()`, `eventsub_options`, `eventsub.subscription_failed`,
+  `HypeTrainStatus` and `Emote::url()`.
+- `EventSub\Webhook` for signed request verification, challenges, revocations and
+  notification events; `eventSubscriptions->createConduit()` for conduit bindings.
+- Recent duplicate notification suppression for WebSockets and webhooks; applications
+  can persist message ids for deduplication across restarts.
+- `EventSub::desiredSubscriptionSpecs()` exposes every channel and version while
+  `desiredSubscriptions()` retains its existing type-to-condition map.
+- Regression tests and CI coverage for the lowest supported dependency versions.
+
+### Changed
+
+- Requires published Collection `^8.4` and React HTTP `^1.11.1`, which contains
+  fixes for the response-header and chunked-body denial-of-service advisories.
+- Generic `fetch()` searches pages where an endpoint has no identifier filter;
+  provide the resource's required query context through a bound repository.
+
 ## [3.4.0] - 2026-09-27
 
 ### Fixed

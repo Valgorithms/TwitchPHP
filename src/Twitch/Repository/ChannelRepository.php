@@ -15,6 +15,7 @@ use Discord\Helpers\Collection;
 use React\Promise\PromiseInterface;
 use Twitch\Http\Endpoint;
 use Twitch\Parts\Channel;
+use Twitch\Parts\Part;
 
 /**
  * The `channels` resource — broadcast info, the modify call, editors, and the
@@ -116,5 +117,18 @@ class ChannelRepository extends AbstractRepository
             'first' => $first,
             'after' => $after,
         ]))->then(static fn (?array $body) => $body ?? []);
+    }
+
+    protected function writeRequest(string $key, Part $part): array
+    {
+        [$method, $endpoint, $body] = parent::writeRequest($key, $part);
+        if (isset($body['content_classification_labels'])) {
+            $body['content_classification_labels'] = array_map(
+                static fn ($label) => is_string($label) ? ['id' => $label, 'is_enabled' => true] : $label,
+                $body['content_classification_labels'],
+            );
+        }
+
+        return [$method, $endpoint, $body];
     }
 }

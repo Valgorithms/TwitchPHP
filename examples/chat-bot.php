@@ -19,6 +19,7 @@ use Twitch\Twitch;
 
 $twitch = new Twitch([
     'client_id' => getenv('TWITCH_CLIENT_ID') ?: exit("set TWITCH_CLIENT_ID\n"),
+    'client_secret' => getenv('TWITCH_CLIENT_SECRET') ?: '',
     'token' => getenv('TWITCH_ACCESS_TOKEN') ?: exit("set TWITCH_ACCESS_TOKEN\n"),
     'refresh_token' => getenv('TWITCH_REFRESH_TOKEN') ?: null,
     'nick' => getenv('TWITCH_NICK') ?: exit("set TWITCH_NICK\n"),

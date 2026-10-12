@@ -29,6 +29,8 @@ class CharityRepository extends AbstractRepository
 {
     protected string $part = CharityCampaign::class;
 
+    protected string $idParam = '';
+
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::CHARITY_CAMPAIGN];
 

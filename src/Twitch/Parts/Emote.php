@@ -31,6 +31,16 @@ final class Emote extends Part
 {
     protected array $fillable = [
         'id', 'name', 'images', 'format', 'scale', 'theme_mode',
-        'tier', 'emote_type', 'emote_set_id', 'owner_id',
+        'tier', 'emote_type', 'emote_set_id', 'owner_id', 'template',
     ];
+
+    /** Builds an emote URL using the template provided by Helix. */
+    public function url(string $format = 'static', string $theme = 'dark', string $scale = '1.0'): string
+    {
+        return str_replace(
+            ['{{id}}', '{{format}}', '{{theme_mode}}', '{{scale}}'],
+            [(string) $this->id, $format, $theme, $scale],
+            (string) $this->template,
+        );
+    }
 }

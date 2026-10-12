@@ -63,6 +63,8 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
 
     protected Factory $factory;
 
+    private ?string $lastCursor = null;
+
     /**
      * @param array<string, string|int> $vars Bound endpoint parameters (rare on Helix).
      */
@@ -109,7 +111,7 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
         $collection = new Collection([], $this->discrim, $this->part);
 
         $fetchPage = function (?string $cursor) use (&$fetchPage, $collection, $query, $max): PromiseInterface {
-            $pageQuery = $query + ['first' => 100];
+            $pageQuery = $query + ['first' => 20];
             if ($cursor !== null) {
                 $pageQuery['after'] = $cursor;
             }
@@ -123,7 +125,7 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
                         }
                     }
 
-                    $next = $body['pagination']['cursor'] ?? null;
+                    $next = $this->lastCursor;
 
                     return ($next === null || $next === '') ? resolve($collection) : $fetchPage($next);
                 });
@@ -142,6 +144,10 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
     {
         if (! $fresh && ($cached = $this->items->get($this->discrim, $id)) !== null) {
             return resolve($cached);
+        }
+
+        if ($this->idParam === '') {
+            return $this->all()->then(fn (Collection $parts) => $parts->get($this->discrim, $id));
         }
 
         $endpointKey = isset($this->endpoints['get']) ? 'get' : 'all';
@@ -175,7 +181,16 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
             return reject(new \LogicException(static::class . " cannot {$key} a " . $this->part));
         }
 
-        return $this->twitch->request($method, $this->endpoint($key), $part->getUpdatableAttributes())
+        if (! $part instanceof $this->part) {
+            return reject(new \InvalidArgumentException('Expected a ' . $this->part));
+        }
+        try {
+            [$method, $endpoint, $body] = $this->writeRequest($key, $part);
+        } catch (\Throwable $e) {
+            return reject($e);
+        }
+
+        return $this->twitch->request($method, $endpoint, $body)
             ->then(function (?array $body) use ($part): Part {
                 $row = $this->rows($body)[0] ?? null;
                 if ($row !== null) {
@@ -186,6 +201,27 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
 
                 return $part;
             });
+    }
+
+    /** Resource-specific HTTP method, query context and writable body. */
+    protected function writeRequest(string $key, Part $part): array
+    {
+        $endpoint = $this->endpoint($key);
+        if ($key === 'update') {
+            $id = $part->getAttribute($this->discrim);
+            if ($id === null || $id === '') {
+                throw new \InvalidArgumentException('The resource identifier is required to update it.');
+            }
+            $endpoint->addQuery($this->idParam, (string) $id);
+        }
+
+        return [$key === 'create' ? 'POST' : 'PATCH', $endpoint, $part->getUpdatableAttributes()];
+    }
+
+    /** Cursor from the last completed page request on this repository. */
+    public function nextCursor(): ?string
+    {
+        return $this->lastCursor;
     }
 
     /**
@@ -201,7 +237,7 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
 
         $id = $part instanceof Part ? (string) $part->getAttribute($this->discrim) : $part;
 
-        return $this->twitch->request('DELETE', $this->endpoint('delete')->addQuery($this->idParam, $id))
+        return $this->twitch->request('DELETE', $this->endpoint('delete')->addQuery($this->idParam === '' ? 'id' : $this->idParam, $id))
             ->then(function () use ($id) {
                 $this->items->offsetUnset($id);
 
@@ -256,6 +292,7 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
         $endpoint = new Endpoint($this->endpoints[$key]);
         if ($this->vars !== []) {
             $endpoint->bindAssoc($this->vars);
+            $endpoint->withQuery($this->vars);
         }
 
         return $endpoint;
@@ -299,6 +336,8 @@ abstract class AbstractRepository implements \Countable, \IteratorAggregate
      */
     protected function rows(?array $body): array
     {
+        $pagination = $body['pagination'] ?? null;
+        $this->lastCursor = is_array($pagination) ? ($pagination['cursor'] ?? null) : (is_string($pagination) ? $pagination : null);
         if ($body === null) {
             return [];
         }

@@ -34,6 +34,8 @@ class ChatRepository extends AbstractRepository
 
     protected string $discrim = 'user_id';
 
+    protected string $idParam = '';
+
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::CHATTERS];
 

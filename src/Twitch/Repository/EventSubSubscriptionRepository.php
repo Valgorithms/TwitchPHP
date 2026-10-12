@@ -13,6 +13,7 @@ namespace Twitch\Repository;
 
 use Discord\Helpers\Collection;
 use React\Promise\PromiseInterface;
+use Twitch\EventSub\SubscriptionTypes;
 use Twitch\Http\Endpoint;
 use Twitch\Parts\EventSubSubscription;
 
@@ -29,6 +30,8 @@ use Twitch\Parts\EventSubSubscription;
 class EventSubSubscriptionRepository extends AbstractRepository
 {
     protected string $part = EventSubSubscription::class;
+
+    protected string $idParam = '';
 
     /** @var array<string, string> */
     protected array $endpoints = [
@@ -79,14 +82,25 @@ class EventSubSubscriptionRepository extends AbstractRepository
      *
      * @return PromiseInterface<EventSubSubscription>
      */
-    public function createWebhook(string $type, array $condition, string $callback, string $secret, string $version = '1'): PromiseInterface
+    public function createWebhook(string $type, array $condition, string $callback, string $secret, ?string $version = null): PromiseInterface
     {
         return $this->twitch->request('POST', Endpoint::EVENTSUB_SUBSCRIPTIONS, [
             'type' => $type,
-            'version' => $version,
+            'version' => $version ?? SubscriptionTypes::version($type),
             'condition' => $condition,
             'transport' => ['method' => 'webhook', 'callback' => $callback, 'secret' => $secret],
         ])->then(fn (?array $b) => $this->factory->part(EventSubSubscription::class, $this->rows($b)[0] ?? [], true));
+    }
+
+    /** Creates a subscription on an existing conduit using an app access token. */
+    public function createConduit(string $type, array $condition, string $conduitId, ?string $version = null): PromiseInterface
+    {
+        return $this->twitch->request('POST', Endpoint::EVENTSUB_SUBSCRIPTIONS, [
+            'type' => $type,
+            'version' => $version ?? SubscriptionTypes::version($type),
+            'condition' => $condition,
+            'transport' => ['method' => 'conduit', 'conduit_id' => $conduitId],
+        ])->then(fn (?array $body) => $this->factory->part(EventSubSubscription::class, $this->rows($body)[0] ?? [], true));
     }
 
     /**

@@ -11,9 +11,11 @@
 
 namespace Twitch\Repository;
 
+use Discord\Helpers\Collection;
 use React\Promise\PromiseInterface;
 use Twitch\Http\Endpoint;
 use Twitch\Parts\HypeTrainEvent;
+use Twitch\Parts\HypeTrainStatus;
 
 /**
  * The `hypetrain/status` resource (`channel:read:hype_train`) — whether a Hype
@@ -26,11 +28,15 @@ use Twitch\Parts\HypeTrainEvent;
  *
  * @link https://dev.twitch.tv/docs/api/reference/#get-hype-train-status
  *
- * @extends AbstractRepository<HypeTrainEvent>
+ * @extends AbstractRepository<HypeTrainStatus>
  */
 class HypeTrainRepository extends AbstractRepository
 {
-    protected string $part = HypeTrainEvent::class;
+    protected string $part = HypeTrainStatus::class;
+
+    protected string $discrim = 'broadcaster_id';
+
+    protected string $idParam = 'broadcaster_id';
 
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::HYPE_TRAIN_STATUS];
@@ -63,6 +69,42 @@ class HypeTrainRepository extends AbstractRepository
     public function isActive(string $broadcasterId): PromiseInterface
     {
         return $this->status($broadcasterId)->then(static fn (?array $row) => ($row['current'] ?? null) !== null);
+    }
+
+    public function fetch(string $id, bool $fresh = false): PromiseInterface
+    {
+        if (! $fresh && ($cached = $this->get('broadcaster_id', $id)) !== null) {
+            return \React\Promise\resolve($cached);
+        }
+
+        return $this->status($id)->then(function (?array $row) use ($id): ?HypeTrainStatus {
+            if ($row === null) {
+                return null;
+            }
+            $part = $this->factory->part(HypeTrainStatus::class, ['broadcaster_id' => $id] + $row, true);
+            $this->items->pushItem($part);
+
+            return $part;
+        });
+    }
+
+    public function all(array $query = [], int $max = 0): PromiseInterface
+    {
+        $id = $query['broadcaster_id'] ?? $this->vars['broadcaster_id'] ?? null;
+        if ($id === null) {
+            return \React\Promise\reject(new \InvalidArgumentException('Hype Train status requires broadcaster_id.'));
+        }
+
+        return $this->fetch((string) $id, true)->then(static fn (?HypeTrainStatus $part) => new Collection($part === null ? [] : [$part], 'broadcaster_id', HypeTrainStatus::class));
+    }
+
+    public function freshen(array $query = []): PromiseInterface
+    {
+        return $this->all($query)->then(function (Collection $parts): static {
+            $this->items = $parts;
+
+            return $this;
+        });
     }
 
     /**

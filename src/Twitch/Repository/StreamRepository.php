@@ -53,11 +53,21 @@ class StreamRepository extends AbstractRepository
      *
      * @return PromiseInterface<Collection<Stream>>
      */
-    public function followed(string $userId, int $first = 100): PromiseInterface
+    public function followed(string $userId, int $first = 100, ?string $after = null): PromiseInterface
     {
         return $this->twitch->request('GET', (new Endpoint(Endpoint::STREAMS_FOLLOWED))
-            ->withQuery(['user_id' => $userId, 'first' => $first]))
+            ->withQuery(['user_id' => $userId, 'first' => $first, 'after' => $after]))
             ->then(fn (?array $body) => $this->hydrate($body));
+    }
+
+    /** A broadcaster's live stream, identified by user id rather than stream id. */
+    public function fetch(string $id, bool $fresh = false): PromiseInterface
+    {
+        if (! $fresh && ($cached = $this->get('user_id', $id)) !== null) {
+            return \React\Promise\resolve($cached);
+        }
+
+        return $this->live(['user_id' => $id])->then(static fn (Collection $parts) => $parts->first());
     }
 
     /**
@@ -76,12 +86,14 @@ class StreamRepository extends AbstractRepository
      *
      * @return PromiseInterface<array<string, mixed>>
      */
-    public function markers(?string $userId = null, ?string $videoId = null, int $first = 20): PromiseInterface
+    public function markers(?string $userId = null, ?string $videoId = null, int $first = 20, ?string $after = null, ?string $before = null): PromiseInterface
     {
         return $this->twitch->request('GET', (new Endpoint(Endpoint::STREAM_MARKERS))->withQuery([
             'user_id' => $userId,
             'video_id' => $videoId,
             'first' => $first,
+            'after' => $after,
+            'before' => $before,
         ]))->then(static fn (?array $body) => $body ?? []);
     }
 

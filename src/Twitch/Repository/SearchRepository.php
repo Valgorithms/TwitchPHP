@@ -29,6 +29,8 @@ class SearchRepository extends AbstractRepository
 {
     protected string $part = ChannelSearchResult::class;
 
+    protected string $idParam = '';
+
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::SEARCH_CHANNELS];
 

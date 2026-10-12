@@ -119,12 +119,16 @@ final class EventSubTest extends TestCase
         await($this->eventSub->subscribe(SubscriptionTypes::STREAM_OFFLINE, ['broadcaster_user_id' => '1']));
 
         self::assertSame(
-            ['stream.online' => ['broadcaster_user_id' => '1'], 'stream.offline' => ['broadcaster_user_id' => '1']],
-            $this->eventSub->desiredSubscriptions(),
+            [
+                ['type' => 'stream.online', 'condition' => ['broadcaster_user_id' => '1'], 'version' => '1'],
+                ['type' => 'stream.offline', 'condition' => ['broadcaster_user_id' => '1'], 'version' => '1'],
+            ],
+            $this->eventSub->desiredSubscriptionSpecs(),
         );
 
         $this->eventSub->forget(SubscriptionTypes::STREAM_ONLINE, ['broadcaster_user_id' => '1']);
-        self::assertSame(['stream.offline'], array_keys($this->eventSub->desiredSubscriptions()));
+        self::assertSame(['stream.offline'], array_column($this->eventSub->desiredSubscriptionSpecs(), 'type'));
+        self::assertCount(2, $this->http->requests, 'repeat subscribe reuses the existing request');
     }
 
     public function testSubscribeBeforeReadyQueuesAndRejects(): void
@@ -138,8 +142,16 @@ final class EventSubTest extends TestCase
             });
 
         self::assertTrue($rejected);
-        self::assertArrayHasKey('stream.online', $this->eventSub->desiredSubscriptions());
+        self::assertSame('stream.online', $this->eventSub->desiredSubscriptionSpecs()[0]['type']);
         self::assertSame([], $this->http->requests, 'nothing goes over HTTP until the session is ready');
+    }
+
+    public function testLegacyDesiredViewRemainsCompatibleAndSpecsRetainEveryChannel(): void
+    {
+        await($this->eventSub->subscribe('stream.online', ['broadcaster_user_id' => '1']));
+        await($this->eventSub->subscribe('stream.online', ['broadcaster_user_id' => '2']));
+        self::assertSame(['stream.online' => ['broadcaster_user_id' => '2']], $this->eventSub->desiredSubscriptions());
+        self::assertCount(2, $this->eventSub->desiredSubscriptionSpecs());
     }
 
     public function testAutoModMessageTypesDefaultToVersionTwoAndCanStillAskForOne(): void

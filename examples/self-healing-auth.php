@@ -8,9 +8,7 @@
  * Wires up the two halves of the token lifecycle:
  *
  *  - `token_store`  persists every rotation, so the credentials survive a
- *    restart. Twitch invalidates the old refresh token each time it issues
- *    a new one, so without this a long-lived client eventually locks itself
- *    out of its own account.
+ *    restart. Refresh tokens may rotate, so the latest pair must be retained.
  *
  *  - `reauthorize`  is the last resort, used only when refreshing fails
  *    (typically because the refresh token itself went stale). It prompts
@@ -39,7 +37,7 @@ foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line)
         continue;
     }
     [$k, $v] = explode('=', $trimmed, 2);
-    $env[trim($k)] = trim($v, " \t\"'");
+    $env[strtolower(trim($k))] = trim($v, " \t\"'");
 }
 
 $scopes = json_decode($env['twitch_scope'] ?? '[]', true) ?: [];
@@ -66,15 +64,20 @@ $twitch->on('reauthorized', fn () => print("re-authorized and persisted\n"));
 $twitch->on('ready', function (Twitch $t) {
     printf("ready as %s (#%s) with %d scopes\n\n", $t->getLogin(), $t->getUserId(), count($t->getScopes()));
 
-    $t->users->me()
-        ->then(fn ($user) => printf("me: %s\n", $user->display_name))
-        ->catch(function (MissingScopeException $e): void {
-            // Not recoverable by re-authorizing mid-flight: the grant itself
-            // is too narrow. Surfaced immediately, with the scopes named.
-            printf("needs one of: %s\n", implode(', ', $e->scopes));
-        })
-        ->catch(fn (\Throwable $e) => printf("failed: %s\n", $e->getMessage()))
-        ->finally(fn () => $t->close());
+    $t->users->me()->then(
+        function ($user) use ($t): void {
+            printf("me: %s\n", $user->display_name);
+            $t->close();
+        },
+        function (\Throwable $e) use ($t): void {
+            if ($e instanceof MissingScopeException) {
+                printf("needs one of: %s\n", implode(', ', $e->scopes));
+            } else {
+                printf("failed: %s\n", $e->getMessage());
+            }
+            $t->close();
+        },
+    );
 });
 
 $twitch->on('error', function (\Throwable $e) use ($twitch): void {
