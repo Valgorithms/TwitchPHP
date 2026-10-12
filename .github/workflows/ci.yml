@@ -7,17 +7,38 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest]
         php: ['8.4', '8.5']
+        include:
+          - os: windows-latest
+            php: '8.4'
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+      # This library intentionally does not track composer.lock. A fresh checkout
+      # resolves supported constraints; local reproduction uses its existing lock.
+      - run: composer validate --no-check-lock --no-check-publish
       - run: composer update --no-interaction --no-progress --prefer-dist
-      - run: vendor/bin/phpunit
-      - if: matrix.php == '8.4'
-        run: PHP_CS_FIXER_IGNORE_ENV=1 vendor/bin/php-cs-fixer fix --dry-run --diff
+      - run: composer verify
+      - run: composer audit --locked
+      - if: matrix.os == 'ubuntu-latest' && matrix.php == '8.4'
+        env:
+          PHP_CS_FIXER_IGNORE_ENV: '1'
+        run: php vendor/bin/php-cs-fixer fix --dry-run --diff
+
+  lowest-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+      - run: composer update --prefer-lowest --prefer-stable --no-interaction --no-progress --prefer-dist
+      - run: composer verify

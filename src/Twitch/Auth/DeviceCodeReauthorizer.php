@@ -60,9 +60,20 @@ final class DeviceCodeReauthorizer implements ReauthorizerInterface
 
     public function reauthorize(): PromiseInterface
     {
-        return $this->pending ??= $this->start()->finally(function (): void {
+        if ($this->pending !== null) {
+            return $this->pending;
+        }
+        $deferred = new Deferred();
+        $promise = $this->pending = $deferred->promise();
+        $this->start()->then(function (array $token) use ($deferred): void {
             $this->pending = null;
+            $deferred->resolve($token);
+        }, function (\Throwable $e) use ($deferred): void {
+            $this->pending = null;
+            $deferred->reject($e);
         });
+
+        return $promise;
     }
 
     /** @return PromiseInterface<array<string, mixed>> */

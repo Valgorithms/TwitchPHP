@@ -46,6 +46,7 @@ final class IrcTest extends TestCase
     {
         $this->loop = new StreamSelectLoop();
         $this->twitch = new Twitch(['client_id' => 'cid', 'loop' => $this->loop]);
+        ScriptedOAuth::attach($this->twitch);
 
         foreach (['chat.connected', 'chat.disconnected', 'chat.reconnecting', 'chat.reconnect_failed', 'chat.auth_failed'] as $event) {
             $this->twitch->on($event, function (...$args) use ($event): void {
@@ -225,6 +226,7 @@ final class IrcTest extends TestCase
             'loop' => $this->loop,
             'reauthorize' => new FreshTokenReauthorizer(),
         ]);
+        ScriptedOAuth::attach($this->twitch);
         $irc = $this->irc(['retry_delays' => [0.01, 30]]);
         // What connectIrc() does: the client hands new tokens to its own chat connection.
         (new \ReflectionProperty(Twitch::class, 'irc'))->setValue($this->twitch, $irc);
@@ -251,6 +253,50 @@ final class IrcTest extends TestCase
 
         $this->assertCount(1, $this->sockets);
         $this->assertFalse($irc->isConnected());
+    }
+
+    public function testMessagesRejectIrcCommandInjection(): void
+    {
+        $irc = $this->connected();
+        $before = $this->sockets[0]->sent;
+        $failure = null;
+        $irc->sendMessage('somechannel', "hello\r\nJOIN #another")->then(null, function ($e) use (&$failure): void {
+            $failure = $e;
+        });
+        self::assertInstanceOf(\InvalidArgumentException::class, $failure);
+        self::assertSame($before, $this->sockets[0]->sent);
+        $irc->close();
+    }
+
+    public function testMessageQueueEnforcesChannelAndGlobalLimits(): void
+    {
+        $irc = $this->connected(['message_limit' => 2, 'message_window' => 0.08, 'channel_message_interval' => 0.02]);
+        $sent = 0;
+        foreach (['one', 'two', 'three'] as $message) {
+            $irc->sendMessage('somechannel', $message)->then(function () use (&$sent): void {
+                ++$sent;
+            });
+        }
+        self::assertSame(1, $sent);
+        $this->runFor(0.035);
+        self::assertSame(2, $sent);
+        $this->waitFor(function () use (&$sent): bool {
+            return $sent === 3;
+        }, 0.2);
+        $irc->close();
+    }
+
+    public function testDisconnectRejectsQueuedMessages(): void
+    {
+        $irc = $this->connected(['channel_message_interval' => 30]);
+        $irc->sendMessage('somechannel', 'one');
+        $failure = null;
+        $irc->sendMessage('somechannel', 'two')->then(null, function ($e) use (&$failure): void {
+            $failure = $e;
+        });
+        $this->sockets[0]->close();
+        self::assertInstanceOf(\RuntimeException::class, $failure);
+        $irc->close();
     }
 
     public function testTheFirstConnectionIsTheCallersToRetry(): void

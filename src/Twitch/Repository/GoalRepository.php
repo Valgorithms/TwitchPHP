@@ -28,7 +28,7 @@ class GoalRepository extends AbstractRepository
 {
     protected string $part = Goal::class;
 
-    protected string $idParam = 'broadcaster_id';
+    protected string $idParam = '';
 
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::GOALS];

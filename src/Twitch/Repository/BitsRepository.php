@@ -32,6 +32,8 @@ class BitsRepository extends AbstractRepository
 
     protected string $discrim = 'user_id';
 
+    protected string $idParam = 'user_id';
+
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::BITS_LEADERBOARD];
 

@@ -47,6 +47,7 @@ final class TokenRecoveryTest extends TestCase
         ]);
 
         (new \ReflectionProperty(Twitch::class, 'http'))->setValue($twitch, $this->http);
+        ScriptedOAuth::attach($twitch);
 
         return $twitch;
     }

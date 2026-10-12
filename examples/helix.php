@@ -35,7 +35,10 @@ $twitch->on('ready', function (Twitch $twitch): void {
                 printf("  %d. %s\n", $i + 1, $game->name);
             }
         })
-        ->finally(fn () => $twitch->close());
+        ->then(fn () => $twitch->close(), function (\Throwable $e) use ($twitch): void {
+            echo 'failed: ' . $e->getMessage() . PHP_EOL;
+            $twitch->close();
+        });
 });
 
 $twitch->run();

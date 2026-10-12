@@ -18,6 +18,7 @@ $broadcasterId = getenv('TWITCH_BROADCASTER_ID') ?: exit("set TWITCH_BROADCASTER
 
 $twitch = new Twitch([
     'client_id' => getenv('TWITCH_CLIENT_ID') ?: exit("set TWITCH_CLIENT_ID\n"),
+    'client_secret' => getenv('TWITCH_CLIENT_SECRET') ?: '',
     'token' => getenv('TWITCH_ACCESS_TOKEN') ?: exit("set TWITCH_ACCESS_TOKEN\n"),
     'refresh_token' => getenv('TWITCH_REFRESH_TOKEN') ?: null,
     'eventsub' => true,
@@ -28,9 +29,16 @@ $twitch->on('ready', function (Twitch $twitch) use ($broadcasterId): void {
     $self = $twitch->getUserId();
 
     // Typed helpers pick the right condition shape and subscription version.
-    $es->onChatMessage($broadcasterId, $self);
-    $es->onFollow($broadcasterId, $self);   // channel.follow v2
-    $es->onStreamChange($broadcasterId);    // stream.online + stream.offline
+    $es->subscribeMany([
+        ['channel.chat.message', ['broadcaster_user_id' => $broadcasterId, 'user_id' => $self]],
+        ['channel.follow', ['broadcaster_user_id' => $broadcasterId, 'moderator_user_id' => $self]],
+        ['stream.online', ['broadcaster_user_id' => $broadcasterId]],
+        ['stream.offline', ['broadcaster_user_id' => $broadcasterId]],
+    ])->then(function (array $rows): void {
+        if (in_array(null, $rows, true)) {
+            echo "some subscriptions failed; check token scopes and channel permissions\n";
+        }
+    });
 
     // Or the generic form for anything without a helper:
     // $es->subscribe(\Twitch\EventSub\SubscriptionTypes::CHANNEL_CHEER, ['broadcaster_user_id' => $broadcasterId]);

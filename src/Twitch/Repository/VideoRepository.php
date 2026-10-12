@@ -97,11 +97,12 @@ class VideoRepository extends AbstractRepository
     {
         return $this->twitch->request('DELETE', (new Endpoint(Endpoint::VIDEOS))->addQuery('id', $ids))
             ->then(function (?array $body) use ($ids): array {
-                foreach ($ids as $id) {
+                $deleted = $body['data'] ?? [];
+                foreach ($deleted as $id) {
                     $this->items->offsetUnset($id);
                 }
 
-                return $this->rows($body)[0]['data'] ?? $ids;
+                return $deleted;
             });
     }
 }

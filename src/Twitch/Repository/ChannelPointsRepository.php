@@ -15,6 +15,7 @@ use Discord\Helpers\Collection;
 use React\Promise\PromiseInterface;
 use Twitch\Http\Endpoint;
 use Twitch\Parts\CustomReward;
+use Twitch\Parts\Part;
 use Twitch\Parts\RewardRedemption;
 
 /**
@@ -130,5 +131,27 @@ class ChannelPointsRepository extends AbstractRepository
             ->withQuery(['broadcaster_id' => $broadcasterId, 'reward_id' => $rewardId])
             ->addQuery('id', $redemptionIds), ['status' => $status])
             ->then(fn (?array $body) => $this->collectRows($body, RewardRedemption::class, 'id'));
+    }
+
+    protected function writeRequest(string $key, Part $part): array
+    {
+        $broadcaster = $part->broadcaster_id ?? $this->vars['broadcaster_id'] ?? null;
+        if ($broadcaster === null || $broadcaster === '') {
+            throw new \InvalidArgumentException('Custom rewards require broadcaster_id.');
+        }
+        [$method, $endpoint, $body] = parent::writeRequest($key, $part);
+
+        return [$method, $endpoint->addQuery('broadcaster_id', $broadcaster), $body];
+    }
+
+    public function delete(Part|string $part): PromiseInterface
+    {
+        $broadcaster = $part instanceof Part ? $part->broadcaster_id : null;
+        $broadcaster ??= $this->vars['broadcaster_id'] ?? null;
+        if ($broadcaster === null || $broadcaster === '') {
+            return \React\Promise\reject(new \InvalidArgumentException('Custom rewards require broadcaster_id.'));
+        }
+
+        return $this->remove($broadcaster, $part instanceof Part ? (string) $part->id : $part);
     }
 }

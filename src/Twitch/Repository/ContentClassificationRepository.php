@@ -29,6 +29,8 @@ class ContentClassificationRepository extends AbstractRepository
 {
     protected string $part = ContentClassificationLabel::class;
 
+    protected string $idParam = '';
+
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::CCLS];
 

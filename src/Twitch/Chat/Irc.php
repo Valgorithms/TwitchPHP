@@ -18,6 +18,7 @@ use React\EventLoop\TimerInterface;
 use React\Promise\Deferred;
 use React\Promise\PromiseInterface;
 
+use function React\Promise\reject;
 use function React\Promise\resolve;
 
 use React\Socket\Connector as SocketConnector;
@@ -89,6 +90,10 @@ final class Irc implements EventEmitterInterface
         // callable(string $url): PromiseInterface resolving to the socket. For
         // tests; the real one is Pawl's.
         'connector' => null,
+        'message_limit' => 20,
+        'message_window' => 30.0,
+        'channel_message_interval' => 1.0,
+        'queue_limit' => 100,
     ];
 
     /** @var object|null The WebSocket: Pawl's, or a test's stand-in with on(), send() and close(). */
@@ -134,6 +139,15 @@ final class Irc implements EventEmitterInterface
 
     private ?TimerInterface $watchdog = null;
 
+    private ?TimerInterface $sendTimer = null;
+
+    /** @var list<array{channel: string, line: string, deferred: Deferred}> */
+    private array $sendQueue = [];
+
+    private array $sentAt = [];
+
+    private array $channelSentAt = [];
+
     /**
      * @param list<string>         $channels Channel logins, each with a leading `#`.
      * @param array<string, mixed> $options  Overrides for the timing above, by key.
@@ -147,6 +161,10 @@ final class Irc implements EventEmitterInterface
         array $options = [],
     ) {
         $this->options = $options + self::DEFAULTS;
+        $this->channels = array_values(array_unique(array_map(self::channel(...), $channels)));
+        if ($this->options['message_limit'] < 1 || $this->options['message_window'] <= 0 || $this->options['channel_message_interval'] < 0 || $this->options['queue_limit'] < 1) {
+            throw new \InvalidArgumentException('IRC send limits must be positive; the channel interval may be zero.');
+        }
     }
 
     /**
@@ -215,6 +233,7 @@ final class Irc implements EventEmitterInterface
         $this->cancel($this->retryTimer);
         $this->cancel($this->welcomeTimer);
         $this->cancel($this->watchdog);
+        $this->rejectQueue('IRC closed');
 
         $hadConnection = $this->conn !== null;
         $this->connected = false;
@@ -233,21 +252,97 @@ final class Irc implements EventEmitterInterface
     /** Sends a message; pass `$replyTo` to thread it under another message id. */
     public function say(string $channel, string $message, ?string $replyTo = null): void
     {
-        $channel = '#' . ltrim(strtolower($channel), '#');
+        $this->sendMessage($channel, $message, $replyTo)->then(null, function (\Throwable $e) use ($channel, $message): void {
+            $this->twitch->emit('chat.message_failed', [$channel, $message, $e, $this->twitch]);
+        });
+    }
+
+    /** Queues a message and resolves when written to the socket, not when Twitch accepts it. */
+    public function sendMessage(string $channel, string $message, ?string $replyTo = null): PromiseInterface
+    {
+        try {
+            $channel = self::channel($channel);
+            if ($message === '' || preg_match('/[\r\n\x00]/', $message) || mb_strlen($message) > 500 || ($replyTo !== null && ! preg_match('/^[a-zA-Z0-9_-]+$/D', $replyTo))) {
+                throw new \InvalidArgumentException('IRC messages must contain 1-500 characters without CR, LF or NUL, and a valid reply id.');
+            }
+        } catch (\Throwable $e) {
+            return reject($e);
+        }
+        if (! $this->connected || $this->conn === null) {
+            return reject(new \RuntimeException('IRC is disconnected'));
+        }
+        if (count($this->sendQueue) >= $this->options['queue_limit']) {
+            return reject(new \RuntimeException('IRC message queue is full'));
+        }
+        $deferred = new Deferred();
         $tags = $replyTo !== null ? "@reply-parent-msg-id={$replyTo} " : '';
-        $this->raw("{$tags}PRIVMSG {$channel} :{$message}");
+        $this->sendQueue[] = ['channel' => $channel, 'line' => "{$tags}PRIVMSG {$channel} :{$message}", 'deferred' => $deferred];
+        $this->pumpMessages();
+
+        return $deferred->promise();
+    }
+
+    private function pumpMessages(): void
+    {
+        $this->cancel($this->sendTimer);
+        if (! $this->connected || $this->sendQueue === []) {
+            return;
+        }
+        $now = microtime(true);
+        $this->sentAt = array_values(array_filter($this->sentAt, fn (float $at) => $now - $at < $this->options['message_window']));
+        $globalWait = count($this->sentAt) >= $this->options['message_limit'] ? max(0.001, $this->sentAt[0] + $this->options['message_window'] - $now) : 0.0;
+        $delay = INF;
+        foreach ($this->sendQueue as $i => $item) {
+            $wait = max($globalWait, ($this->channelSentAt[$item['channel']] ?? 0) + $this->options['channel_message_interval'] - $now);
+            if ($wait > 0) {
+                $delay = min($delay, $wait);
+                continue;
+            }
+            array_splice($this->sendQueue, $i, 1);
+            try {
+                $this->raw($item['line']);
+                $this->sentAt[] = $this->channelSentAt[$item['channel']] = $now;
+                $item['deferred']->resolve(null);
+            } catch (\Throwable $e) {
+                $item['deferred']->reject($e);
+            }
+            $this->pumpMessages();
+
+            return;
+        }
+        $this->sendTimer = $this->twitch->getLoop()->addTimer(max(0.001, $delay), fn () => $this->pumpMessages());
+    }
+
+    private function rejectQueue(string $reason): void
+    {
+        $this->cancel($this->sendTimer);
+        $queue = $this->sendQueue;
+        $this->sendQueue = [];
+        foreach ($queue as $item) {
+            $item['deferred']->reject(new \RuntimeException($reason));
+        }
+    }
+
+    private static function channel(string $channel): string
+    {
+        $login = ltrim(strtolower($channel), '#');
+        if (! preg_match('/^[a-z0-9_]{1,25}$/D', $login)) {
+            throw new \InvalidArgumentException('Invalid IRC channel login.');
+        }
+
+        return '#' . $login;
     }
 
     public function join(string $channel): void
     {
-        $channel = '#' . ltrim(strtolower($channel), '#');
-        $this->channels[] = $channel;
+        $channel = self::channel($channel);
+        $this->channels = array_values(array_unique([...$this->channels, $channel]));
         $this->raw('JOIN ' . $channel);
     }
 
     public function part(string $channel): void
     {
-        $channel = '#' . ltrim(strtolower($channel), '#');
+        $channel = self::channel($channel);
         $this->channels = array_values(array_diff($this->channels, [$channel]));
         $this->raw('PART ' . $channel);
     }
@@ -341,7 +436,7 @@ final class Irc implements EventEmitterInterface
 
         $loop = $this->twitch->getLoop();
 
-        return (new Connector($loop, new SocketConnector(['timeout' => (float) $this->options['connect_timeout']], $loop)))($url);
+        return (new Connector($loop, new SocketConnector($this->twitch->getSocketOptions() + ['timeout' => (float) $this->options['connect_timeout']], $loop)))($url);
     }
 
     private function welcomed(): void
@@ -406,6 +501,7 @@ final class Irc implements EventEmitterInterface
 
         $this->connected = false;
         $this->cancel($this->watchdog);
+        $this->rejectQueue('IRC connection lost');
         $this->abandon();
 
         $this->twitch->getLogger()->warning("irc connection lost ({$reason}) — reconnecting");

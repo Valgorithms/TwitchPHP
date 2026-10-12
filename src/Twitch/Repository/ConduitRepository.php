@@ -15,6 +15,7 @@ use Discord\Helpers\Collection;
 use React\Promise\PromiseInterface;
 use Twitch\Http\Endpoint;
 use Twitch\Parts\Conduit;
+use Twitch\Parts\Part;
 
 /**
  * The `eventsub/conduits` resource — conduits and their shards. App-access-token
@@ -28,6 +29,8 @@ use Twitch\Parts\Conduit;
 class ConduitRepository extends AbstractRepository
 {
     protected string $part = Conduit::class;
+
+    protected string $idParam = '';
 
     /** @var array<string, string> */
     protected array $endpoints = [
@@ -113,5 +116,15 @@ class ConduitRepository extends AbstractRepository
             'conduit_id' => $conduitId,
             'shards' => $shards,
         ])->then(static fn (?array $body) => $body ?? []);
+    }
+
+    protected function writeRequest(string $key, Part $part): array
+    {
+        $body = $part->getUpdatableAttributes();
+        if ($key === 'update') {
+            $body['id'] = (string) $part->id;
+        }
+
+        return [$key === 'create' ? 'POST' : 'PATCH', $this->endpoint($key), $body];
     }
 }

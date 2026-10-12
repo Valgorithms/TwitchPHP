@@ -11,8 +11,14 @@
 
 namespace Twitch\Repository;
 
+use Discord\Helpers\Collection;
+use Psr\Http\Message\ResponseInterface;
+use React\Http\Browser;
 use React\Promise\PromiseInterface;
+use React\Socket\Connector;
 use Twitch\Http\Endpoint;
+use Twitch\Http\Exceptions\HttpException;
+use Twitch\Http\Http;
 use Twitch\Parts\Schedule;
 use Twitch\Parts\ScheduleSegment;
 
@@ -32,6 +38,8 @@ class ScheduleRepository extends AbstractRepository
 
     protected string $discrim = 'broadcaster_id';
 
+    protected string $idParam = 'broadcaster_id';
+
     /** @var array<string, string> */
     protected array $endpoints = ['all' => Endpoint::SCHEDULE];
 
@@ -48,6 +56,7 @@ class ScheduleRepository extends AbstractRepository
         return $this->twitch->request('GET', (new Endpoint(Endpoint::SCHEDULE))
             ->withQuery($filters + ['broadcaster_id' => $broadcasterId]))
             ->then(function (?array $body) use ($broadcasterId): Schedule {
+                $this->rows($body);
                 $data = $body['data'] ?? [];
                 $data['broadcaster_id'] ??= $broadcasterId;
                 $part = $this->factory->part(Schedule::class, $data, true);
@@ -64,9 +73,59 @@ class ScheduleRepository extends AbstractRepository
      */
     public function iCalendar(string $broadcasterId): PromiseInterface
     {
-        return $this->twitch->request('GET', (new Endpoint(Endpoint::SCHEDULE_ICALENDAR))
-            ->addQuery('broadcaster_id', $broadcasterId))
-            ->then(static fn ($body) => is_string($body) ? $body : (string) ($body['data'] ?? ''));
+        $browser = new Browser(new Connector($this->twitch->getSocketOptions(), $this->twitch->getLoop()), $this->twitch->getLoop());
+
+        return $this->calendarWith($browser, $broadcasterId);
+    }
+
+    /** Downloads the public text feed without the Helix JSON decoder. */
+    protected function calendarWith(Browser $browser, string $broadcasterId): PromiseInterface
+    {
+        $endpoint = (new Endpoint(Endpoint::SCHEDULE_ICALENDAR))->addQuery('broadcaster_id', $broadcasterId);
+
+        return $browser->withRejectErrorResponse(false)->withTimeout(20)->get(Http::BASE_URL . '/' . $endpoint, ['Accept' => 'text/calendar'])
+            ->then(static function (ResponseInterface $response): string {
+                if ($response->getStatusCode() >= 300) {
+                    throw HttpException::fromResponse($response);
+                }
+
+                return (string) $response->getBody();
+            });
+    }
+
+    /** Follows schedule pages, merging segments into one channel schedule. */
+    public function all(array $query = [], int $max = 0): PromiseInterface
+    {
+        $query += $this->vars;
+        $broadcaster = $query['broadcaster_id'] ?? null;
+        if ($broadcaster === null) {
+            return \React\Promise\reject(new \InvalidArgumentException('Schedules require broadcaster_id.'));
+        }
+        $segments = [];
+        $fetch = function (?string $cursor) use (&$fetch, &$segments, $query, $broadcaster, $max): PromiseInterface {
+            $filters = $query;
+            if ($cursor !== null) {
+                $filters['after'] = $cursor;
+            }
+
+            return $this->forBroadcaster($broadcaster, $filters)->then(function (Schedule $schedule) use (&$fetch, &$segments, $max): PromiseInterface {
+                foreach ($schedule->segments ?? [] as $segment) {
+                    $segments[$segment['id']] = $segment;
+                    if ($max > 0 && count($segments) >= $max) {
+                        break;
+                    }
+                }
+                $cursor = $this->nextCursor();
+                if ($cursor !== null && ! ($max > 0 && count($segments) >= $max)) {
+                    return $fetch($cursor);
+                }
+                $schedule->segments = array_values($segments);
+
+                return \React\Promise\resolve(new Collection([$schedule], 'broadcaster_id', Schedule::class));
+            });
+        };
+
+        return $fetch($query['after'] ?? null);
     }
 
     /**

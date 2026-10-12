@@ -14,6 +14,7 @@ namespace Twitch\Repository;
 use Discord\Helpers\Collection;
 use React\Promise\PromiseInterface;
 use Twitch\Http\Endpoint;
+use Twitch\Parts\Part;
 use Twitch\Parts\User;
 
 /**
@@ -91,18 +92,25 @@ class UserRepository extends AbstractRepository
      *
      * @return PromiseInterface<Collection<User>>
      */
-    public function blocks(string $broadcasterId, int $first = 20): PromiseInterface
+    public function blocks(string $broadcasterId, int $first = 20, ?string $after = null): PromiseInterface
     {
         return $this->twitch->request('GET', (new Endpoint(Endpoint::USER_BLOCKS))
-            ->withQuery(['broadcaster_id' => $broadcasterId, 'first' => $first]))
+            ->withQuery(['broadcaster_id' => $broadcasterId, 'first' => $first, 'after' => $after]))
             ->then(function (?array $body): Collection {
-                $c = new Collection([], 'user_id', User::class);
+                $c = new Collection([], 'id', User::class);
                 foreach ($this->rows($body) as $row) {
+                    $row['id'] = $row['user_id'];
+                    $row['login'] = $row['user_login'];
                     $c->pushItem($this->factory->part(User::class, $row, true));
                 }
 
                 return $c;
             });
+    }
+
+    protected function writeRequest(string $key, Part $part): array
+    {
+        return ['PUT', $this->endpoint($key)->addQuery('description', (string) $part->description), null];
     }
 
     /** Blocks a user (`user:manage:blocked_users`). @return PromiseInterface<null> */

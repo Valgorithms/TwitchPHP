@@ -28,7 +28,7 @@ foreach (file(ENV_PATH, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line)
         continue;
     }
     [$k, $v] = explode('=', $trimmed, 2);
-    $env[trim($k)] = trim($v, " \t\"'");
+    $env[strtolower(trim($k))] = trim($v, " \t\"'");
 }
 
 foreach (['twitch_client_id', 'twitch_client_secret'] as $required) {

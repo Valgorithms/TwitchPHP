@@ -90,7 +90,7 @@ abstract class Part implements \ArrayAccess, \JsonSerializable
         }
 
         if ($value !== null && in_array($key, $this->dates, true)) {
-            $value = CarbonImmutable::parse($value);
+            $value = $value === '' ? null : CarbonImmutable::parse($value);
         }
 
         $this->attributes[$key] = $value;
